@@ -1,0 +1,137 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  BROKER
+}
+
+enum IncomeType {
+  SALARY
+  BUSINESS
+  PASSIVE
+  MIXED
+}
+
+enum UsageType {
+  PRIVATE
+  CHARTER
+}
+
+enum OwnershipIntent {
+  PERSONAL
+  SPV
+  UNSURE
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  role      Role     @default(BROKER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clients     Client[]
+  assessments Assessment[]
+  auditLogs   AuditLog[]
+}
+
+model Client {
+  id                String         @id @default(cuid())
+  name              String
+  residency         String
+  liquidityAvailable Int
+  netWorthBand      String
+  incomeType        IncomeType
+  ownershipIntent   OwnershipIntent
+
+  createdById       String
+  createdBy         User           @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  vessels           Vessel[]
+  assessments       Assessment[]
+
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+
+model Vessel {
+  id            String   @id @default(cuid())
+  clientId      String
+  client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  purchasePrice Int
+  yearBuilt     Int
+  usageType     UsageType
+  intendedFlag  String?
+
+  assessments   Assessment[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Assessment {
+  id              String   @id @default(cuid())
+  clientId        String
+  vesselId        String
+  createdById     String
+
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  vessel          Vessel   @relation(fields: [vesselId], references: [id], onDelete: Cascade)
+  createdBy       User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  ruleSetVersion  String
+  readinessScore  Int?
+  tier            String?
+  ltvEstimateMin  Int?
+  ltvEstimateMax  Int?
+  riskFlags       Json     @default("[]")
+  recommendedPath String?
+
+  createdAt       DateTime @default(now())
+
+  @@index([createdById])
+  @@index([clientId])
+  @@index([vesselId])
+}
+
+model RuleSet {
+  id        String   @id @default(cuid())
+  version   String   @unique
+  createdAt DateTime @default(now())
+
+  rules     Rule[]
+}
+
+model Rule {
+  id        String   @id @default(cuid())
+  ruleSetId String
+  ruleSet   RuleSet  @relation(fields: [ruleSetId], references: [id], onDelete: Cascade)
+
+  condition Json
+  weight    Int
+  effect    Json
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  entityType     String
+  entityId       String
+  action         String
+  ruleSetVersion String
+  timestamp      DateTime @default(now())
+
+  actorId        String
+  actor          User     @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+}

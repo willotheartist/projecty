@@ -21,18 +21,25 @@ export default function Page() {
           }}
         >
           <div style={{ fontSize: 12, letterSpacing: 1.6, opacity: 0.7 }}>
-            PROJECTY • Day 1
+            PROJECTY • Day 2
           </div>
 
           <h1 style={{ marginTop: 10, fontSize: 36, lineHeight: 1.1 }}>
-            Yacht Financing Readiness Engine
+            Data Spine Live
           </h1>
 
           <p style={{ marginTop: 12, opacity: 0.85, fontSize: 16 }}>
-            Baseline deploy is live. Next: Neon + Prisma + Auth scaffold.
+            Neon + Prisma migrated. Next: seed RuleSet v1 and verify writes via a dev endpoint.
           </p>
 
-          <div style={{ marginTop: 18, display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div
+            style={{
+              marginTop: 18,
+              display: "flex",
+              gap: 10,
+              flexWrap: "wrap",
+            }}
+          >
             <span
               style={{
                 fontSize: 12,
@@ -42,7 +49,7 @@ export default function Page() {
                 background: "rgba(255,255,255,0.03)",
               }}
             >
-              Next.js (App Router)
+              Next.js
             </span>
             <span
               style={{
@@ -53,7 +60,7 @@ export default function Page() {
                 background: "rgba(255,255,255,0.03)",
               }}
             >
-              PNPM
+              Neon Postgres
             </span>
             <span
               style={{
@@ -64,7 +71,7 @@ export default function Page() {
                 background: "rgba(255,255,255,0.03)",
               }}
             >
-              Deployed on Vercel
+              Prisma v6
             </span>
           </div>
         </div>
