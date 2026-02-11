@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 /* --------------------------------- Colors --------------------------------- */
 
@@ -81,10 +82,15 @@ const I: Record<string, IconNode> = {
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <rect width="16" height="20" x="4" y="2" rx="2" ry="2" />
       <path d="M9 22v-4h6v4" />
-      <path d="M8 6h.01" /><path d="M16 6h.01" /><path d="M12 6h.01" />
-      <path d="M12 10h.01" /><path d="M12 14h.01" />
-      <path d="M16 10h.01" /><path d="M16 14h.01" />
-      <path d="M8 10h.01" /><path d="M8 14h.01" />
+      <path d="M8 6h.01" />
+      <path d="M16 6h.01" />
+      <path d="M12 6h.01" />
+      <path d="M12 10h.01" />
+      <path d="M12 14h.01" />
+      <path d="M16 10h.01" />
+      <path d="M16 14h.01" />
+      <path d="M8 10h.01" />
+      <path d="M8 14h.01" />
     </svg>
   ),
   chart: (
@@ -103,7 +109,8 @@ const I: Record<string, IconNode> = {
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
       <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
-      <path d="M7 21h10" /><path d="M12 3v18" />
+      <path d="M7 21h10" />
+      <path d="M12 3v18" />
       <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" />
     </svg>
   ),
@@ -123,7 +130,9 @@ const I: Record<string, IconNode> = {
   ),
   plug: (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22v-5" /><path d="M9 8V2" /><path d="M15 8V2" />
+      <path d="M12 22v-5" />
+      <path d="M9 8V2" />
+      <path d="M15 8V2" />
       <path d="M18 8v5a6 6 0 0 1-12 0V8Z" />
     </svg>
   ),
@@ -149,7 +158,9 @@ const I: Record<string, IconNode> = {
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="m11 17 2 2a1 1 0 1 0 3-3" />
       <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" />
-      <path d="m21 3 1 11h-2" /><path d="M3 3 2 14l2 0" /><path d="M3 3h18" />
+      <path d="m21 3 1 11h-2" />
+      <path d="M3 3 2 14l2 0" />
+      <path d="M3 3h18" />
     </svg>
   ),
 };
@@ -251,6 +262,8 @@ function flattenMenu(m: MenuDef) {
 }
 
 export default function Header() {
+  const router = useRouter();
+
   const menuKeys = useMemo(() => Object.keys(menus) as MenuKey[], []);
   const [activeMenu, setActiveMenu] = useState<MenuKey | null>(null);
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -260,7 +273,10 @@ export default function Header() {
   const [mobileSection, setMobileSection] = useState<string | null>(null);
 
   const clear = useCallback(() => {
-    if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null; }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
   }, []);
 
   const openMenu = useCallback(
@@ -295,8 +311,16 @@ export default function Header() {
     if (!mobileOpen) return;
     const prev = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
-    return () => { document.documentElement.style.overflow = prev; };
+    return () => {
+      document.documentElement.style.overflow = prev;
+    };
   }, [mobileOpen]);
+
+  function goWizard() {
+    setMobileOpen(false);
+    setMobileSection(null);
+    router.push("/wizard");
+  }
 
   const data: MenuDef | null = activeMenu ? menus[activeMenu] : null;
 
@@ -414,7 +438,6 @@ export default function Header() {
 
         .desktopOnly { display: flex; }
         .mobileOnly { display: none; }
-
         @media (max-width: 980px) {
           .desktopOnly { display: none !important; }
           .mobileOnly { display: flex !important; }
@@ -425,24 +448,44 @@ export default function Header() {
           background: rgba(0,0,0,0.35);
           backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
+
+        /* ✅ Full-width on mobile + responsive on tablets */
         .drawer {
           position: fixed; top: 0; right: 0; height: 100%;
-          width: min(520px, 92vw); z-index: 210;
+          width: min(520px, 92vw);
+          z-index: 210;
           background: ${C.bg};
           box-shadow: -30px 0 80px rgba(0,0,0,0.18);
           display: flex; flex-direction: column;
         }
+        @media (max-width: 640px) {
+          .drawer { width: 100vw; right: 0; left: 0; box-shadow: none; }
+        }
+
         .drawer-head {
           padding: 18px 18px 14px;
           border-bottom: 1px solid ${C.gray6};
           display: flex; align-items: center; justify-content: space-between; gap: 12px;
         }
-        .drawer-actions { display: flex; align-items: center; gap: 10px; }
-        .close-dot {
-          width: 46px; height: 46px; border-radius: 999px; border: none;
-          background: rgba(0,0,0,0.06); cursor: pointer;
-          display: inline-flex; align-items: center; justify-content: center; font-size: 18px;
+        .drawer-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+
+        /* ✅ Close button: just an X, but still a proper touch target */
+        .close-x {
+          width: 44px; height: 44px;
+          display: inline-flex; align-items: center; justify-content: center;
+          border: none; background: transparent;
+          font-size: 26px; line-height: 1;
+          cursor: pointer;
+          color: ${C.black};
         }
+        .close-x:hover { opacity: 0.7; }
+
+        @media (max-width: 420px) {
+          .drawer-actions .ghost-cta { display: none; } /* keep it clean on tiny screens */
+          .drawer-actions { gap: 8px; }
+          .pill-cta-yellow { padding: 12px 16px; }
+        }
+
         .drawer-body { padding: 8px 0 18px; overflow: auto; }
 
         .m-section { border-bottom: 1px solid rgba(0,0,0,0.08); }
@@ -451,10 +494,16 @@ export default function Header() {
           padding: 18px 18px; display: flex; align-items: center;
           justify-content: space-between; cursor: pointer;
           font-family: var(--font-sans), system-ui, sans-serif;
-          font-size: 30px; font-weight: 600; color: ${C.black}; letter-spacing: -0.6px;
+          font-size: 28px; font-weight: 600; color: ${C.black}; letter-spacing: -0.6px;
+          text-align: left;
         }
+        @media (max-width: 420px) {
+          .m-section-btn { font-size: 24px; }
+        }
+
         .m-section-btn .caret { font-size: 18px; opacity: 0.7; transition: transform 0.2s ease; }
         .m-items { padding: 6px 0 10px; }
+
         .m-item {
           display: flex; align-items: center; justify-content: space-between;
           gap: 12px; padding: 16px 18px; cursor: pointer;
@@ -476,9 +525,12 @@ export default function Header() {
       <div
         onClick={closeMenu}
         style={{
-          position: "fixed", inset: 0, zIndex: 90,
+          position: "fixed",
+          inset: 0,
+          zIndex: 90,
           background: "rgba(0, 0, 0, 0.25)",
-          backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
           opacity: activeMenu && isVisible ? 1 : 0,
           transition: "opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1)",
           pointerEvents: activeMenu && isVisible ? "auto" : "none",
@@ -488,28 +540,70 @@ export default function Header() {
       {/* MOBILE drawer */}
       {mobileOpen && (
         <>
-          <div className="drawer-backdrop" onClick={() => { setMobileOpen(false); setMobileSection(null); }} />
+          <div
+            className="drawer-backdrop"
+            onClick={() => {
+              setMobileOpen(false);
+              setMobileSection(null);
+            }}
+          />
           <div className="drawer" role="dialog" aria-modal="true" aria-label="Mobile navigation">
             <div className="drawer-head">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/waaza.png" alt="Waaza" style={{ height: 32 }} />
+              <img
+                src="/waaza.png"
+                alt="Waaza"
+                style={{ height: 32, cursor: "pointer" }}
+                onClick={() => {
+                  setMobileOpen(false);
+                  setMobileSection(null);
+                  router.push("/");
+                }}
+              />
+
               <div className="drawer-actions">
-                <button className="ghost-cta" type="button">Log in</button>
-                <button className="pill-cta-yellow" type="button">Simulate my financing →</button>
-                <button className="close-dot" type="button" aria-label="Close menu" onClick={() => { setMobileOpen(false); setMobileSection(null); }}>✕</button>
+                <button className="ghost-cta" type="button">
+                  Log in
+                </button>
+
+                <button className="pill-cta-yellow" type="button" onClick={goWizard}>
+                  Simulate →
+                </button>
+
+                <button
+                  className="close-x"
+                  type="button"
+                  aria-label="Close menu"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setMobileSection(null);
+                  }}
+                >
+                  ×
+                </button>
               </div>
             </div>
+
             <div className="drawer-body">
               {menuKeys.map((k) => {
                 const open = mobileSection === k;
                 const groups = flattenMenu(menus[k]);
                 const flatItems = groups.flatMap((g) => g.items);
+
                 return (
                   <div key={k} className="m-section">
-                    <button type="button" className="m-section-btn" onClick={() => setMobileSection((prev) => (prev === k ? null : k))} aria-expanded={open}>
+                    <button
+                      type="button"
+                      className="m-section-btn"
+                      onClick={() => setMobileSection((prev) => (prev === k ? null : k))}
+                      aria-expanded={open}
+                    >
                       <span>{k}</span>
-                      <span className="caret" style={{ transform: open ? "rotate(180deg)" : "none" }}>▾</span>
+                      <span className="caret" style={{ transform: open ? "rotate(180deg)" : "none" }}>
+                        ▾
+                      </span>
                     </button>
+
                     {open && (
                       <div className="m-items">
                         {flatItems.map((it, idx) => (
@@ -529,10 +623,13 @@ export default function Header() {
                   </div>
                 );
               })}
+
               <div className="m-section">
                 <button type="button" className="m-section-btn" aria-expanded={false}>
                   <span>Case Studies</span>
-                  <span className="caret" style={{ transform: "rotate(-90deg)" }}>▾</span>
+                  <span className="caret" style={{ transform: "rotate(-90deg)" }}>
+                    ▾
+                  </span>
                 </button>
               </div>
             </div>
@@ -544,42 +641,68 @@ export default function Header() {
       <nav
         onMouseLeave={scheduleClose}
         style={{
-          position: "sticky", top: 0, left: 0, right: 0, zIndex: 100,
+          position: "sticky",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
           background: C.bg,
           transition: "box-shadow 0.35s ease",
           boxShadow: activeMenu ? "0 30px 80px rgba(0,0,0,0.08)" : "none",
         }}
       >
-        <div style={{
-          height: 72, padding: "0 clamp(18px, 4vw, 80px)",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          maxWidth: 1400, margin: "0 auto",
-          borderBottom: `1px solid ${C.gray6}`,
-          fontFamily: "var(--font-sans), system-ui, sans-serif", gap: 16,
-        }}>
+        <div
+          style={{
+            height: 72,
+            padding: "0 clamp(18px, 4vw, 80px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            maxWidth: 1400,
+            margin: "0 auto",
+            borderBottom: `1px solid ${C.gray6}`,
+            fontFamily: "var(--font-sans), system-ui, sans-serif",
+            gap: 16,
+          }}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/waaza.png" alt="Waaza" style={{ height: 34, cursor: "pointer" }} />
+          <img
+            src="/waaza.png"
+            alt="Waaza"
+            style={{ height: 34, cursor: "pointer" }}
+            onClick={() => router.push("/")}
+          />
 
           {/* Desktop center nav */}
           <div className="desktopOnly" style={{ alignItems: "center", gap: 6 }}>
             {menuKeys.map((key: MenuKey) => (
-              <div key={key} className={`nav-trigger ${activeMenu === key ? "active" : ""}`} onMouseEnter={() => openMenu(key)}>
+              <div
+                key={key}
+                className={`nav-trigger ${activeMenu === key ? "active" : ""}`}
+                onMouseEnter={() => openMenu(key)}
+              >
                 {key}
                 <span className="chev">▾</span>
               </div>
             ))}
-            <span className="nav-plain" style={{ marginLeft: 8 }}>Case Studies</span>
+            <span className="nav-plain" style={{ marginLeft: 8 }}>
+              Case Studies
+            </span>
           </div>
 
           {/* Desktop right */}
           <div className="desktopOnly" style={{ alignItems: "center", gap: 14 }}>
             <span className="nav-plain">Sign In</span>
-            <button className="pill-cta-yellow" type="button">Simulate my financing →</button>
+            <button className="pill-cta-yellow" type="button" onClick={() => router.push("/wizard")}>
+              Simulate my financing →
+            </button>
           </div>
 
           {/* Mobile right */}
           <div className="mobileOnly" style={{ alignItems: "center", gap: 10 }}>
-            <button className="pill-cta-yellow" type="button" onClick={() => setMobileOpen(true)}>Menu</button>
+            <button className="pill-cta-yellow" type="button" onClick={() => setMobileOpen(true)}>
+              Menu
+            </button>
           </div>
         </div>
 
@@ -598,25 +721,46 @@ export default function Header() {
           }}
         >
           {data && (
-            <div style={{
-              maxWidth: 1400, margin: "0 auto",
-              padding: "48px clamp(24px, 5vw, 80px) 60px",
-              display: "grid", gridTemplateColumns: "1fr 1fr 380px", gap: 56,
-              height: "100%",
-              opacity: isVisible ? 1 : 0,
-              transform: isVisible ? "translateY(0)" : "translateY(-6px)",
-              transition: "opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1), transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)",
-              fontFamily: "var(--font-sans), system-ui, sans-serif",
-            }}>
+            <div
+              style={{
+                maxWidth: 1400,
+                margin: "0 auto",
+                padding: "48px clamp(24px, 5vw, 80px) 60px",
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 380px",
+                gap: 56,
+                height: "100%",
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "translateY(0)" : "translateY(-6px)",
+                transition:
+                  "opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1), transform 0.22s cubic-bezier(0.22, 1, 0.36, 1)",
+                fontFamily: "var(--font-sans), system-ui, sans-serif",
+              }}
+            >
               {data.columns.map((col: MenuColumn, ci: number) => (
                 <div key={`${String(activeMenu)}-${ci}`}>
-                  <div className="dd-title" style={{
-                    fontSize: 12, fontWeight: 700, letterSpacing: 2,
-                    textTransform: "uppercase", color: C.gray4,
-                    marginBottom: 22, paddingLeft: 6, animationDelay: `${ci * 70}ms`,
-                  }}>{col.title}</div>
+                  <div
+                    className="dd-title"
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      letterSpacing: 2,
+                      textTransform: "uppercase",
+                      color: C.gray4,
+                      marginBottom: 22,
+                      paddingLeft: 6,
+                      animationDelay: `${ci * 70}ms`,
+                    }}
+                  >
+                    {col.title}
+                  </div>
+
                   {col.items.map((item: MenuItem, ii: number) => (
-                    <div key={`${String(activeMenu)}-${ci}-${ii}`} className="mi-row dd-item" style={{ animationDelay: `${80 + ci * 60 + ii * 70}ms` }}>
+                    <div
+                      key={`${String(activeMenu)}-${ci}-${ii}`}
+                      className="mi-row dd-item"
+                      style={{ animationDelay: `${80 + ci * 60 + ii * 70}ms` }}
+                    >
                       <div className="mi-icon">{item.icon}</div>
                       <div style={{ minWidth: 0 }}>
                         <div className="mi-label">{item.label}</div>
@@ -627,26 +771,61 @@ export default function Header() {
                 </div>
               ))}
 
-              <div key={`${String(activeMenu)}-f`} className="dd-feat" style={{
-                background: C.tint, borderRadius: 24, padding: 34,
-                display: "flex", flexDirection: "column", justifyContent: "space-between",
-                animationDelay: "160ms", minHeight: 0,
-              }}>
+              <div
+                key={`${String(activeMenu)}-f`}
+                className="dd-feat"
+                style={{
+                  background: C.tint,
+                  borderRadius: 24,
+                  padding: 34,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  animationDelay: "160ms",
+                  minHeight: 0,
+                }}
+              >
                 <div>
-                  <span style={{
-                    display: "inline-block", padding: "6px 12px",
-                    background: C.accentSoft, color: C.black,
-                    fontSize: 11, fontWeight: 800, borderRadius: 10,
-                    letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 18,
-                    fontFamily: "var(--font-sans), system-ui, sans-serif",
-                  }}>{data.featured.label}</span>
-                  <h3 style={{
-                    fontFamily: "var(--font-serif), serif", fontSize: 28, fontWeight: 400,
-                    lineHeight: 1.15, marginBottom: 12, letterSpacing: -0.3, color: C.black,
-                  }}>{data.featured.title}</h3>
-                  <p style={{ fontSize: 15, color: C.gray3, lineHeight: 1.65, marginBottom: 26 }}>{data.featured.desc}</p>
+                  <span
+                    style={{
+                      display: "inline-block",
+                      padding: "6px 12px",
+                      background: C.accentSoft,
+                      color: C.black,
+                      fontSize: 11,
+                      fontWeight: 800,
+                      borderRadius: 10,
+                      letterSpacing: 0.8,
+                      textTransform: "uppercase",
+                      marginBottom: 18,
+                      fontFamily: "var(--font-sans), system-ui, sans-serif",
+                    }}
+                  >
+                    {data.featured.label}
+                  </span>
+
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-serif), serif",
+                      fontSize: 28,
+                      fontWeight: 400,
+                      lineHeight: 1.15,
+                      marginBottom: 12,
+                      letterSpacing: -0.3,
+                      color: C.black,
+                    }}
+                  >
+                    {data.featured.title}
+                  </h3>
+
+                  <p style={{ fontSize: 15, color: C.gray3, lineHeight: 1.65, marginBottom: 26 }}>
+                    {data.featured.desc}
+                  </p>
                 </div>
-                <div><span className="feat-cta">{data.featured.cta}</span></div>
+
+                <div>
+                  <span className="feat-cta">{data.featured.cta}</span>
+                </div>
               </div>
             </div>
           )}
