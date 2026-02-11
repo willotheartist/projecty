@@ -1,13 +1,13 @@
 # 📁 projecty - Project Structure
 
-*Generated on: 10/02/2026, 22:41:54*
+*Generated on: 11/02/2026, 22:34:12*
 
 ## 📋 Quick Overview
 
 | Metric | Value |
 |--------|-------|
-| 📄 Total Files | 53 |
-| 📁 Total Folders | 27 |
+| 📄 Total Files | 56 |
+| 📁 Total Folders | 29 |
 | 🌳 Max Depth | 4 levels |
 | 🛠️ Tech Stack | React, Next.js, TypeScript, CSS, Node.js |
 
@@ -24,40 +24,41 @@
 
 ### By File Type
 
-- 🔷 **.ts** (TypeScript files): 21 files (39.6%)
-- ⚛️ **.tsx** (React TypeScript files): 7 files (13.2%)
-- 🎨 **.svg** (SVG images): 5 files (9.4%)
-- ⚙️ **.json** (JSON files): 3 files (5.7%)
-- 📄 **.txt** (Text files): 2 files (3.8%)
-- 📖 **.md** (Markdown files): 2 files (3.8%)
-- 🎨 **.css** (Stylesheets): 2 files (3.8%)
-- 📄 **.mjs** (Other files): 2 files (3.8%)
-- ⚙️ **.yaml** (YAML files): 2 files (3.8%)
-- 📄 **.sql** (Other files): 2 files (3.8%)
-- 🚫 **.gitignore** (Git ignore): 1 files (1.9%)
-- 🖼️ **.ico** (Icon files): 1 files (1.9%)
-- ⚙️ **.toml** (TOML files): 1 files (1.9%)
-- 📄 **.prisma** (Other files): 1 files (1.9%)
-- 📕 **.pdf** (PDF files): 1 files (1.9%)
+- 🔷 **.ts** (TypeScript files): 22 files (39.3%)
+- ⚛️ **.tsx** (React TypeScript files): 7 files (12.5%)
+- 🎨 **.svg** (SVG images): 5 files (8.9%)
+- ⚙️ **.json** (JSON files): 3 files (5.4%)
+- 📄 **.txt** (Text files): 2 files (3.6%)
+- 📖 **.md** (Markdown files): 2 files (3.6%)
+- 🎨 **.css** (Stylesheets): 2 files (3.6%)
+- 📄 **.mjs** (Other files): 2 files (3.6%)
+- ⚙️ **.yaml** (YAML files): 2 files (3.6%)
+- 📄 **.sql** (Other files): 2 files (3.6%)
+- 🖼️ **.png** (PNG images): 2 files (3.6%)
+- 🚫 **.gitignore** (Git ignore): 1 files (1.8%)
+- 🖼️ **.ico** (Icon files): 1 files (1.8%)
+- ⚙️ **.toml** (TOML files): 1 files (1.8%)
+- 📄 **.prisma** (Other files): 1 files (1.8%)
+- 📕 **.pdf** (PDF files): 1 files (1.8%)
 
 ### By Category
 
-- **TypeScript**: 21 files (39.6%)
-- **React**: 7 files (13.2%)
-- **Config**: 6 files (11.3%)
-- **Assets**: 6 files (11.3%)
-- **Docs**: 5 files (9.4%)
-- **Other**: 5 files (9.4%)
-- **Styles**: 2 files (3.8%)
-- **DevOps**: 1 files (1.9%)
+- **TypeScript**: 22 files (39.3%)
+- **Assets**: 8 files (14.3%)
+- **React**: 7 files (12.5%)
+- **Config**: 6 files (10.7%)
+- **Docs**: 5 files (8.9%)
+- **Other**: 5 files (8.9%)
+- **Styles**: 2 files (3.6%)
+- **DevOps**: 1 files (1.8%)
 
 ### 📁 Largest Directories
 
-- **root**: 53 files
-- **app**: 19 files
-- **app/api**: 9 files
+- **root**: 56 files
+- **app**: 20 files
+- **app/api**: 10 files
 - **lib**: 9 files
-- **app/api/assessments**: 5 files
+- **public**: 7 files
 
 ## 🌳 Directory Structure
 
@@ -82,12 +83,15 @@ projecty/
 │   │   │   │   └── 🔷 route.ts
 │   │   │   └── 📂 whatif/
 │   │   │   │   └── 🔷 route.ts
-│   │   └── 📂 dev/
+│   │   ├── 📂 dev/
 │   │   │   ├── 📂 demo/
 │   │   │   │   └── 🔷 route.ts
 │   │   │   ├── 📂 patch-rules-v1/
 │   │   │   │   └── 🔷 route.ts
 │   │   │   └── 📂 ping-db/
+│   │   │   │   └── 🔷 route.ts
+│   │   └── 📂 wizard/
+│   │   │   └── 📂 assess/
 │   │   │   │   └── 🔷 route.ts
 │   ├── 🧩 components/
 │   │   └── ⚛️ Header.tsx
@@ -137,8 +141,10 @@ projecty/
 ├── 🌐 public/
 │   ├── 🎨 file.svg
 │   ├── 🎨 globe.svg
+│   ├── 🖼️ hero.png
 │   ├── 🎨 next.svg
 │   ├── 🎨 vercel.svg
+│   ├── 🖼️ waaza.png
 │   └── 🎨 window.svg
 ├── 🔴 📖 **README.md**
 ├── 📕 report.pdf
@@ -160,6 +166,7 @@ projecty/
 - ⚙️ Config: YAML files
 - ⚙️ Config: TOML files
 - 🎨 Assets: SVG images
+- 🖼️ Assets: PNG images
 - 📕 Docs: PDF files
 
 ### Importance Levels

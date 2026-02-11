@@ -1,16 +1,27 @@
 // lib/engine/rules.ts
-export type Operator = "==" | "!=" | ">=" | "<=" | ">" | "<" | "in" | "contains";
+
+export type Operator =
+  | "=="
+  | "!="
+  | ">="
+  | "<="
+  | ">"
+  | "<"
+  | "in"
+  | "contains";
+
+export type RiskSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
 export type RuleCondition = {
-  field: string; // e.g. "client.liquidityAvailable" or "vessel.yearBuilt"
+  field: string;
   op: Operator;
   value: any;
 };
 
 export type RuleEffect = {
-  type: "score_add";
-  value: number;
-  flag?: string | null;
+  scoreDelta?: number;
+  flagCode?: string | null;
+  severity?: RiskSeverity;
 };
 
 export type RuleRow = {
@@ -23,8 +34,9 @@ export type RuleRow = {
 export type EvalHit = {
   ruleId: string;
   matched: boolean;
-  delta: number;
-  flag?: string;
+  weightedDelta: number;
+  flagCode?: string;
+  severity?: RiskSeverity;
 };
 
 function getByPath(obj: any, path: string) {
@@ -64,16 +76,23 @@ export function evaluateRule(rule: RuleRow, context: any): EvalHit {
   const left = getByPath(context, rule.condition.field);
   const matched = opCompare(left, rule.condition.op, rule.condition.value);
 
-  if (!matched) return { ruleId: rule.id, matched: false, delta: 0 };
+  if (!matched) {
+    return {
+      ruleId: rule.id,
+      matched: false,
+      weightedDelta: 0,
+    };
+  }
 
-  const effect = rule.effect;
-  const delta = effect.type === "score_add" ? Number(effect.value) : 0;
+  const baseDelta = Number(rule.effect.scoreDelta ?? 0);
+  const weightedDelta = baseDelta * rule.weight;
 
   return {
     ruleId: rule.id,
     matched: true,
-    delta,
-    flag: effect.flag ?? undefined,
+    weightedDelta,
+    flagCode: rule.effect.flagCode ?? undefined,
+    severity: rule.effect.severity,
   };
 }
 

@@ -55,7 +55,6 @@ export default function DemoPanel() {
     setErr(null);
 
     try {
-      // ✅ your /api/dev/demo is GET-only
       const res = await fetch("/api/dev/demo?mode=create", {
         method: "GET",
         cache: "no-store",
@@ -99,7 +98,7 @@ export default function DemoPanel() {
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = `ProjectY_Assessment_${demo.ids.assessmentId}.pdf`;
+    a.download = `Waaza_Assessment_${demo.ids.assessmentId}.pdf`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -108,54 +107,95 @@ export default function DemoPanel() {
   }
 
   return (
-    <div className="rounded-3xl border border-(--border) bg-white/70 p-6 shadow-md">
-      <div className="flex items-center justify-between gap-4">
+    <div style={{
+      borderRadius: 20,
+      border: "1px solid rgba(0,0,0,0.10)",
+      background: "#ffffff",
+      padding: 24,
+      boxShadow: "0 8px 40px rgba(0,0,0,0.06)",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" as const }}>
         <div>
-          <div className="text-[11px] tracking-[0.22em] text-(--muted)">LIVE DEMO</div>
-          <div className="mt-2 text-[15px] font-medium">Generate a real assessment from your engine + DB.</div>
-          <div className="mt-1 text-[13px] text-(--muted)">This calls your /api/dev/demo endpoint and renders the output.</div>
+          <div style={{ fontSize: 11, letterSpacing: "0.22em", color: "rgba(0,0,0,0.46)", textTransform: "uppercase" as const }}>LIVE DEMO</div>
+          <div style={{ marginTop: 8, fontSize: 15, fontWeight: 500 }}>Generate a real assessment from your engine + DB.</div>
+          <div style={{ marginTop: 4, fontSize: 13, color: "rgba(0,0,0,0.62)" }}>This calls your /api/dev/demo endpoint and renders the output.</div>
         </div>
 
         <button
           onClick={runDemo}
           disabled={loading}
-          className="h-11 shrink-0 rounded-full bg-(--accent) px-5 text-[13px] font-medium text-white shadow-md hover:brightness-105 active:brightness-95 disabled:opacity-60"
+          style={{
+            height: 44,
+            flexShrink: 0,
+            borderRadius: 10,
+            background: "#FFF86C",
+            padding: "0 20px",
+            fontSize: 14,
+            fontWeight: 600,
+            color: "#0a0a0a",
+            border: "none",
+            cursor: "pointer",
+            transition: "all 0.2s",
+            opacity: loading ? 0.6 : 1,
+          }}
         >
           {loading ? "Running…" : "Run demo assessment"}
         </button>
       </div>
 
       {err ? (
-        <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700">
+        <div style={{
+          marginTop: 20, borderRadius: 14,
+          border: "1px solid rgba(210,60,60,0.2)",
+          background: "rgba(210,60,60,0.05)",
+          padding: "12px 16px", fontSize: 13, color: "rgba(210,60,60,0.9)",
+        }}>
           {err}
         </div>
       ) : null}
 
       {demo ? (
-        <div className="mt-6">
-          <div className="rounded-2xl border border-(--border) bg-white p-5">
-            <div className="text-[11px] tracking-[0.22em] text-(--muted)">ASSESSMENT RESULT</div>
+        <div style={{ marginTop: 24 }}>
+          <div style={{
+            borderRadius: 16,
+            border: "1px solid rgba(0,0,0,0.10)",
+            background: "#f9f8f5",
+            padding: 20,
+          }}>
+            <div style={{ fontSize: 11, letterSpacing: "0.22em", color: "rgba(0,0,0,0.46)", textTransform: "uppercase" as const }}>ASSESSMENT RESULT</div>
 
-            <div className="mt-3 flex flex-wrap items-end justify-between gap-6">
+            <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap" as const, alignItems: "flex-end", justifyContent: "space-between", gap: 24 }}>
               <div>
-                <div className="text-[44px] leading-none tracking-[-0.03em]" style={{ fontFamily: "var(--font-serif)" }}>
+                <div style={{ fontFamily: "var(--font-serif), 'Instrument Serif', serif", fontSize: 44, lineHeight: 1, letterSpacing: "-0.03em" }}>
                   {demo.result.readinessScore}
-                  <span className="ml-2 text-[16px] text-(--muted)">/100</span>
+                  <span style={{ marginLeft: 8, fontSize: 16, color: "rgba(0,0,0,0.46)" }}>/100</span>
                 </div>
-                <div className="mt-2 text-[14px] font-medium">{headline?.title}</div>
-                <div className="mt-1 text-[13px] text-(--muted)">{headline?.sub}</div>
+                <div style={{
+                  marginTop: 8, display: "inline-block",
+                  padding: "4px 12px", background: "#FFF86C",
+                  borderRadius: 8, fontSize: 13, fontWeight: 700, color: "#0a0a0a",
+                }}>
+                  {headline?.title}
+                </div>
+                <div style={{ marginTop: 6, fontSize: 13, color: "rgba(0,0,0,0.62)" }}>{headline?.sub}</div>
               </div>
 
-              <div className="text-right">
-                <div className="text-[12px] text-(--muted)">Indicative LTV</div>
-                <div className="mt-1 text-[26px] tracking-[-0.02em]" style={{ fontFamily: "var(--font-serif)" }}>
+              <div style={{ textAlign: "right" as const }}>
+                <div style={{ fontSize: 12, color: "rgba(0,0,0,0.46)" }}>Indicative LTV</div>
+                <div style={{ marginTop: 4, fontFamily: "var(--font-serif), 'Instrument Serif', serif", fontSize: 26, letterSpacing: "-0.02em" }}>
                   {demo.result.ltv.min}–{demo.result.ltv.max}%
                 </div>
 
-                <div className="mt-3 flex justify-end">
+                <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
                   <button
                     onClick={() => downloadPdf().catch((e) => setErr(e?.message ?? "PDF error"))}
-                    className="h-10 rounded-full border border-(--border) bg-white px-4 text-[13px] font-medium hover:bg-zinc-50"
+                    style={{
+                      height: 40, borderRadius: 10,
+                      border: "1px solid rgba(0,0,0,0.12)",
+                      background: "#ffffff",
+                      padding: "0 16px", fontSize: 13, fontWeight: 500,
+                      cursor: "pointer", transition: "all 0.15s",
+                    }}
                   >
                     Download PDF
                   </button>
@@ -163,26 +203,26 @@ export default function DemoPanel() {
               </div>
             </div>
 
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
-              <div className="rounded-2xl border border-(--border) bg-white/70 p-4">
-                <div className="text-[12px] font-medium">Risk flags</div>
+            <div style={{ marginTop: 20, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ borderRadius: 14, border: "1px solid rgba(0,0,0,0.10)", background: "#ffffff", padding: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 500 }}>Risk flags</div>
                 {demo.result.riskFlags?.length ? (
-                  <ul className="mt-2 space-y-1 text-[13px] text-(--muted)">
+                  <div style={{ marginTop: 8 }}>
                     {demo.result.riskFlags.map((f, i) => (
-                      <li key={i}>• {f}</li>
+                      <div key={i} style={{ fontSize: 13, color: "rgba(0,0,0,0.62)", marginBottom: 4 }}>• {f}</div>
                     ))}
-                  </ul>
+                  </div>
                 ) : (
-                  <div className="mt-2 text-[13px] text-(--muted)">None</div>
+                  <div style={{ marginTop: 8, fontSize: 13, color: "rgba(0,0,0,0.46)" }}>None</div>
                 )}
               </div>
 
-              <div className="rounded-2xl border border-(--border) bg-white/70 p-4">
-                <div className="text-[12px] font-medium">Recommended path</div>
-                <div className="mt-2 text-[13px] text-(--muted)">{demo.result.recommendedPath}</div>
+              <div style={{ borderRadius: 14, border: "1px solid rgba(0,0,0,0.10)", background: "#ffffff", padding: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 500 }}>Recommended path</div>
+                <div style={{ marginTop: 8, fontSize: 13, color: "rgba(0,0,0,0.62)" }}>{demo.result.recommendedPath}</div>
 
-                <div className="mt-4 text-[12px] text-(--muted)">
-                  Assessment ID: <span className="text-(--text)">{demo.ids.assessmentId}</span>
+                <div style={{ marginTop: 16, fontSize: 12, color: "rgba(0,0,0,0.46)" }}>
+                  Assessment ID: <span style={{ color: "rgba(0,0,0,0.92)" }}>{demo.ids.assessmentId}</span>
                 </div>
               </div>
             </div>

@@ -24,69 +24,70 @@ async function ensureRuleSet(version: string, rules: any[]) {
 }
 
 async function main() {
-  await ensureRuleSet("v1.0", [
-    {
-      condition: { field: "client.liquidityAvailable", op: ">=", value: 500000 },
-      weight: 20,
-      effect: { type: "score_add", value: 20, flag: null },
-    },
-    {
-      condition: { field: "vessel.yearBuilt", op: "<=", value: 2005 },
-      weight: -15,
-      effect: { type: "score_add", value: -15, flag: "Older vessel increases lender constraints" },
-    },
-    {
-      condition: { field: "vessel.usageType", op: "==", value: "CHARTER" },
-      weight: -10,
-      effect: { type: "score_add", value: -10, flag: "Charter usage adds compliance complexity" },
-    },
-  ]);
-
-  await ensureRuleSet("v1.1", [
+  await ensureRuleSet("v2.0", [
+    // Strong liquidity
     {
       condition: { field: "client.liquidityAvailable", op: ">=", value: 1000000 },
-      weight: 25,
-      effect: { type: "score_add", value: 25, flag: null },
+      weight: 1,
+      effect: {
+        scoreDelta: 25,
+        flagCode: null,
+      },
     },
+
+    // Low liquidity
     {
       condition: { field: "client.liquidityAvailable", op: "<", value: 250000 },
-      weight: -25,
-      effect: { type: "score_add", value: -25, flag: "Low liquidity buffer" },
+      weight: 1,
+      effect: {
+        scoreDelta: -25,
+        flagCode: "LOW_LIQUIDITY_BUFFER",
+        severity: "HIGH",
+      },
     },
-    {
-      condition: { field: "client.netWorthBand", op: "contains", value: "10" },
-      weight: 10,
-      effect: { type: "score_add", value: 10, flag: null },
-    },
-    {
-      condition: { field: "client.incomeType", op: "==", value: "SALARY" },
-      weight: 5,
-      effect: { type: "score_add", value: 5, flag: null },
-    },
+
+    // Business income complexity
     {
       condition: { field: "client.incomeType", op: "==", value: "BUSINESS" },
-      weight: -5,
-      effect: { type: "score_add", value: -5, flag: "Business income may require deeper underwriting" },
+      weight: 1,
+      effect: {
+        scoreDelta: -5,
+        flagCode: "BUSINESS_INCOME_UNDERWRITING_COMPLEXITY",
+        severity: "MEDIUM",
+      },
     },
+
+    // Older vessel
     {
       condition: { field: "vessel.yearBuilt", op: "<=", value: 2000 },
-      weight: -20,
-      effect: { type: "score_add", value: -20, flag: "Older vessel (<=2000) narrows lender set" },
+      weight: 1,
+      effect: {
+        scoreDelta: -20,
+        flagCode: "OLDER_VESSEL_LIMITED_LENDER_APPETITE",
+        severity: "HIGH",
+      },
     },
-    {
-      condition: { field: "vessel.yearBuilt", op: ">=", value: 2015 },
-      weight: 5,
-      effect: { type: "score_add", value: 5, flag: null },
-    },
+
+    // Charter usage
     {
       condition: { field: "vessel.usageType", op: "==", value: "CHARTER" },
-      weight: -15,
-      effect: { type: "score_add", value: -15, flag: "Charter usage adds compliance complexity" },
+      weight: 1,
+      effect: {
+        scoreDelta: -15,
+        flagCode: "CHARTER_COMPLIANCE_COMPLEXITY",
+        severity: "MEDIUM",
+      },
     },
+
+    // SPV ownership
     {
       condition: { field: "client.ownershipIntent", op: "==", value: "SPV" },
-      weight: -5,
-      effect: { type: "score_add", value: -5, flag: "SPV ownership may require structuring review" },
+      weight: 1,
+      effect: {
+        scoreDelta: -5,
+        flagCode: "SPV_STRUCTURING_REVIEW_REQUIRED",
+        severity: "LOW",
+      },
     },
   ]);
 }

@@ -1,3 +1,4 @@
+//·app/wizard/page.tsx
 import WizardClient from "./wizard-client";
 import "./wizard.css";
 

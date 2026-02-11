@@ -1,16 +1,16 @@
+// /lib/wizard/defaults.ts
 import { WizardAnswers } from "./types";
 
 export const defaultAnswers: WizardAnswers = {
-  purchasePrice: null,
   currency: "EUR",
 
+  purchasePrice: null,
   usageIntent: null,
-
   yearBuilt: null,
   vesselCondition: null,
 
   intendedFlag: null,
-  intendedFlagCountry: "",
+  intendedFlagCountry: null,
 
   liquidityAvailable: null,
   liquidityHeld: null,

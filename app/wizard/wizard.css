@@ -1,7 +1,9 @@
+/* app/wizard/wizard.css */
+
 :root{
-  --bg: #ffffff;
+  --bg: #f4f3ef;
   --panel: #ffffff;
-  --panel2: #fafafa;
+  --panel2: #f9f8f5;
   --border: rgba(0,0,0,0.10);
   --border2: rgba(0,0,0,0.14);
 
@@ -9,26 +11,24 @@
   --muted: rgba(0,0,0,0.62);
   --muted2: rgba(0,0,0,0.46);
 
-  --accent: #0B57D0; /* calm premium blue */
-  --accent2: rgba(11,87,208,0.10);
+  --accent: #FFF86C;
+  --accent2: rgba(255,248,108,0.22);
+  --accentHover: #f0ec5a;
 
   --danger: rgba(210, 60, 60, 0.95);
-  --shadow: 0 24px 90px rgba(0,0,0,0.10);
+  --shadow: 0 24px 90px rgba(0,0,0,0.08);
   --radius: 18px;
   --radius2: 26px;
 
   --ease: cubic-bezier(.16,1,.3,1);
-  --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  --font: var(--font-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
 
 *{ box-sizing: border-box; }
 html, body{ height: 100%; }
 body{
   margin:0;
-  background:
-    radial-gradient(900px 650px at 15% 10%, rgba(11,87,208,0.06), transparent 60%),
-    radial-gradient(800px 580px at 85% 18%, rgba(0,0,0,0.04), transparent 60%),
-    var(--bg);
+  background: var(--bg);
   color: var(--text);
   font-family: var(--font);
 }
@@ -90,7 +90,7 @@ body{
 .wz-progress > div{
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, rgba(11,87,208,0.95), rgba(11,87,208,0.55));
+  background: linear-gradient(90deg, var(--accent), rgba(255,248,108,0.6));
   border-radius: 999px;
   transition: width 520ms var(--ease);
 }
@@ -98,7 +98,7 @@ body{
 .wz-card{
   border-radius: var(--radius2);
   border: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255,255,255,1), rgba(250,250,250,1));
+  background: var(--panel);
   box-shadow: var(--shadow);
   overflow:hidden;
 }
@@ -109,6 +109,7 @@ body{
 
 .wz-q{
   font-size: 30px;
+  font-family: var(--font-serif), 'Instrument Serif', serif;
   letter-spacing: -0.035em;
   line-height: 1.15;
   margin: 0 0 10px;
@@ -138,15 +139,15 @@ body{
   height: 48px;
   border-radius: 14px;
   border: 1px solid var(--border2);
-  background: #fff;
+  background: var(--panel2);
   color: var(--text);
   padding: 0 14px;
   outline: none;
   transition: border-color 200ms var(--ease), box-shadow 200ms var(--ease);
 }
 .input:focus{
-  border-color: rgba(11,87,208,0.45);
-  box-shadow: 0 0 0 6px rgba(11,87,208,0.10);
+  border-color: rgba(255,248,108,0.7);
+  box-shadow: 0 0 0 6px rgba(255,248,108,0.18);
 }
 
 .select{
@@ -154,18 +155,18 @@ body{
   height: 48px;
   border-radius: 14px;
   border: 1px solid var(--border2);
-  background: #fff;
+  background: var(--panel2);
   color: var(--text);
   padding: 0 12px;
   outline: none;
   transition: border-color 200ms var(--ease), box-shadow 200ms var(--ease);
 }
 .select:focus{
-  border-color: rgba(11,87,208,0.45);
-  box-shadow: 0 0 0 6px rgba(11,87,208,0.10);
+  border-color: rgba(255,248,108,0.7);
+  box-shadow: 0 0 0 6px rgba(255,248,108,0.18);
 }
 
-/* Typeform-like option list (no pills) */
+/* Option list */
 .optionList{
   display:flex;
   flex-direction:column;
@@ -180,7 +181,7 @@ body{
   padding: 14px 14px;
   border-radius: 16px;
   border: 1px solid rgba(0,0,0,0.10);
-  background: #fff;
+  background: var(--panel);
   cursor: pointer;
   transition: transform 150ms var(--ease), border-color 200ms var(--ease), background 200ms var(--ease);
   user-select:none;
@@ -191,7 +192,7 @@ body{
   background: rgba(0,0,0,0.015);
 }
 .option[data-active="true"]{
-  border-color: rgba(11,87,208,0.40);
+  border-color: rgba(255,248,108,0.7);
   background: var(--accent2);
 }
 
@@ -208,7 +209,7 @@ body{
   background: rgba(255,255,255,0.8);
 }
 
-/* Checkbox list (still clean) */
+/* Checkbox list */
 .checkRow{
   display:flex;
   flex-direction:column;
@@ -221,10 +222,18 @@ body{
   padding: 12px 14px;
   border-radius: 16px;
   border: 1px solid rgba(0,0,0,0.10);
-  background: #fff;
+  background: var(--panel);
   cursor:pointer;
+  transition: border-color 200ms var(--ease), background 200ms var(--ease);
 }
-.check input{ transform: translateY(1px); }
+.check:hover{
+  border-color: rgba(0,0,0,0.16);
+}
+.check:has(input:checked){
+  border-color: rgba(255,248,108,0.7);
+  background: var(--accent2);
+}
+.check input{ transform: translateY(1px); accent-color: #0a0a0a; }
 
 .wz-error{
   margin-top: 6px;
@@ -239,29 +248,34 @@ body{
   gap: 12px;
   padding: 16px 18px;
   border-top: 1px solid rgba(0,0,0,0.08);
-  background: rgba(250,250,250,0.90);
+  background: var(--panel2);
 }
 
 .btn{
   height: 44px;
   padding: 0 14px;
-  border-radius: 14px;
+  border-radius: 10px;
   border: 1px solid rgba(0,0,0,0.12);
-  background: #fff;
+  background: var(--panel);
   color: var(--text);
   cursor:pointer;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
   transition: transform 150ms var(--ease), background 200ms var(--ease), border-color 200ms var(--ease);
 }
 .btn:hover{ transform: translateY(-1px); border-color: rgba(0,0,0,0.18); }
 .btn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
 
 .btnPrimary{
-  border-color: rgba(11,87,208,0.35);
-  background: rgba(11,87,208,0.10);
+  border-color: rgba(255,248,108,0.6);
+  background: var(--accent);
+  color: #0a0a0a;
+  font-weight: 600;
 }
 .btnPrimary:hover{
-  border-color: rgba(11,87,208,0.55);
-  background: rgba(11,87,208,0.14);
+  border-color: rgba(255,248,108,0.85);
+  background: var(--accentHover);
 }
 
 .mini{
@@ -285,20 +299,26 @@ body{
 .panel{
   border-radius: var(--radius);
   border: 1px solid rgba(0,0,0,0.10);
-  background: #fff;
+  background: var(--panel2);
   padding: 14px 14px;
 }
 
 .bigScore{
   font-size: 56px;
+  font-family: var(--font-serif), 'Instrument Serif', serif;
   letter-spacing: -0.06em;
   line-height: 1;
   color: var(--text);
 }
 .tier{
   margin-top: 8px;
-  color: var(--muted);
-  font-size: 14px;
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--accent);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0a0a0a;
 }
 
 .flagList{
@@ -315,7 +335,7 @@ body{
   padding: 10px 12px;
   border-radius: 14px;
   border: 1px solid rgba(0,0,0,0.10);
-  background: rgba(0,0,0,0.015);
+  background: var(--panel);
 }
 .sev{
   font-size: 12px;

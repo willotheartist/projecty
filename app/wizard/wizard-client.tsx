@@ -1,10 +1,10 @@
+// app/wizard/wizard-client.tsx
 "use client";
 
 import React, { useMemo, useState, useEffect } from "react";
 import { defaultAnswers } from "@/lib/wizard/defaults";
-import { scoreAssessment } from "@/lib/wizard/scoring";
-import { AssessmentResult, RiskFlag, WizardAnswers } from "@/lib/wizard/types";
-import { riskFlagLabel } from "@/lib/wizard/labels";
+import { WizardAnswers, RiskFlag } from "@/lib/wizard/types";
+import { riskFlagLabel, prettyEngineFlag } from "@/lib/wizard/labels";
 
 type StepId =
   | "purchase_price"
@@ -73,7 +73,7 @@ const STEPS: Step[] = [
   {
     id: "net_worth_band",
     title: "Net worth band:",
-    hint: "No exact numbers required. This stays high-level.",
+    hint: "This stays high-level — no exact numbers required.",
   },
   {
     id: "tax_residency_country",
@@ -83,12 +83,12 @@ const STEPS: Step[] = [
   {
     id: "tax_resident_eu",
     title: "Are you currently tax resident in the EU?",
-    hint: "If multiple jurisdictions, select ‘Multiple’.",
+    hint: "If multiple jurisdictions, select 'Multiple'.",
   },
   {
     id: "ownership_intent",
     title: "Intended ownership structure:",
-    hint: "‘Not sure’ is common — we’ll still produce a valid output.",
+    hint: "'Not sure' is common — we'll still produce a valid output.",
   },
   {
     id: "risk_flags",
@@ -103,10 +103,41 @@ const STEPS: Step[] = [
   { id: "results", title: "Financing Readiness Summary" },
 ];
 
+type EngineAssessResponse = {
+  ok: boolean;
+  error?: string;
+  ids?: {
+    clientId: string;
+    vesselId: string;
+    assessmentId: string;
+    assessmentRunId: string;
+  };
+  result?: {
+    assessmentId: string;
+    assessmentRunId: string;
+    ruleSetVersion: string;
+    readinessScore: number;
+    tier: string;
+    ltv: { min: number; max: number };
+    riskFlags: any[];
+    recommendedPath: string;
+    hits: Array<{
+      ruleId: string;
+      matched: boolean;
+      delta: number;
+      flag?: string;
+    }>;
+  };
+};
+
 export default function WizardClient() {
   const [answers, setAnswers] = useState<WizardAnswers>(defaultAnswers);
   const [idx, setIdx] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  const [engineRes, setEngineRes] = useState<EngineAssessResponse | null>(null);
+  const [isAssessing, setIsAssessing] = useState(false);
+  const [isPdfLoading, setIsPdfLoading] = useState(false);
 
   const step = STEPS[idx];
   const isResults = step.id === "results";
@@ -117,11 +148,6 @@ export default function WizardClient() {
     if (isResults) return 100;
     return Math.round((idx / totalQuestions) * 100);
   }, [idx, isResults, totalQuestions]);
-
-  const result: AssessmentResult | null = useMemo(() => {
-    if (!isResults) return null;
-    return scoreAssessment(answers);
-  }, [answers, isResults]);
 
   function next(draft?: WizardAnswers) {
     setError(null);
@@ -151,6 +177,9 @@ export default function WizardClient() {
     setAnswers(defaultAnswers);
     setIdx(0);
     setError(null);
+    setEngineRes(null);
+    setIsAssessing(false);
+    setIsPdfLoading(false);
   }
 
   useEffect(() => {
@@ -163,12 +192,91 @@ export default function WizardClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isResults, idx, answers]);
 
+  useEffect(() => {
+    if (!isResults) return;
+
+    let cancelled = false;
+
+    async function run() {
+      setError(null);
+      setIsAssessing(true);
+      setEngineRes(null);
+
+      try {
+        const res = await fetch("/api/wizard/assess", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(answers),
+        });
+
+        const json = (await res.json()) as EngineAssessResponse;
+        if (cancelled) return;
+
+        if (!json.ok) {
+          setError(json.error ?? "Assessment failed.");
+          setEngineRes(null);
+          setIsAssessing(false);
+          return;
+        }
+
+        setEngineRes(json);
+        setIsAssessing(false);
+      } catch (e: any) {
+        if (cancelled) return;
+        setError(e?.message ?? "Assessment failed.");
+        setEngineRes(null);
+        setIsAssessing(false);
+      }
+    }
+
+    run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isResults, answers]);
+
+  async function generatePdf() {
+    const assessmentId = engineRes?.ids?.assessmentId ?? engineRes?.result?.assessmentId;
+    if (!assessmentId) {
+      setError("Missing assessmentId. Please re-run the assessment.");
+      return;
+    }
+
+    setError(null);
+    setIsPdfLoading(true);
+
+    try {
+      const res = await fetch("/api/assessments/report.pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assessmentId }),
+      });
+
+      if (!res.ok) {
+        const j = await res.json().catch(() => null);
+        throw new Error(j?.error ?? `PDF request failed (${res.status})`);
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      window.open(url, "_blank", "noopener,noreferrer");
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+
+      setIsPdfLoading(false);
+    } catch (e: any) {
+      setIsPdfLoading(false);
+      setError(e?.message ?? "PDF generation failed.");
+    }
+  }
+
   return (
     <div className="wz-wrap">
       <div className="wz-shell">
         <div className="wz-top">
           <div className="wz-brand">
-            <div className="title">ProjectY</div>
+            <div className="title">Waaza</div>
             <div className="subtitle">Financing Readiness Intake</div>
           </div>
 
@@ -196,7 +304,21 @@ export default function WizardClient() {
                 {error && <div className="wz-error">{error}</div>}
               </div>
             ) : (
-              <ResultsView result={result!} />
+              <div className="wz-field">
+                {isAssessing ? (
+                  <div style={{ padding: 8, color: "rgba(0,0,0,0.62)" }}>
+                    Calculating financing readiness…
+                  </div>
+                ) : engineRes?.ok && engineRes.result ? (
+                  <ResultsView engine={engineRes.result} />
+                ) : (
+                  <div style={{ padding: 8, color: "rgba(0,0,0,0.62)" }}>
+                    {error ? "Assessment failed." : "No result yet."}
+                  </div>
+                )}
+
+                {error && <div className="wz-error">{error}</div>}
+              </div>
             )}
           </div>
 
@@ -211,14 +333,15 @@ export default function WizardClient() {
 
             {isResults ? (
               <div style={{ display: "flex", gap: 10 }}>
-                <button className="btn" onClick={reset}>
+                <button className="btn" onClick={reset} disabled={isAssessing || isPdfLoading}>
                   Start over
                 </button>
                 <button
                   className="btn btnPrimary"
-                  onClick={() => alert("Next: Generate Report (wire to /report)")}
+                  onClick={generatePdf}
+                  disabled={isAssessing || isPdfLoading || !engineRes?.ok}
                 >
-                  Generate Report
+                  {isPdfLoading ? "Generating…" : "Generate Report"}
                 </button>
               </div>
             ) : (
@@ -257,7 +380,7 @@ function renderStep(
             className="input"
             inputMode="numeric"
             placeholder="e.g. 3,500,000"
-            value={a.purchasePrice ?? ""}
+            value={formatIntWithCommas(a.purchasePrice)}
             onChange={(e) => setA((p) => ({ ...p, purchasePrice: parseMoney(e.target.value) }))}
           />
         </div>
@@ -334,7 +457,7 @@ function renderStep(
           className="input"
           inputMode="numeric"
           placeholder="e.g. 1,250,000"
-          value={a.liquidityAvailable ?? ""}
+          value={formatIntWithCommas(a.liquidityAvailable)}
           onChange={(e) => setA((p) => ({ ...p, liquidityAvailable: parseMoney(e.target.value) }))}
         />
       );
@@ -370,9 +493,11 @@ function renderStep(
       return (
         <OptionList
           options={[
-            { key: "1_3m", label: "€1–3m" },
-            { key: "3_10m", label: "€3–10m" },
-            { key: "10_30m", label: "€10–30m" },
+            { key: "under_250k", label: "Under €250k" },
+            { key: "250k_1m", label: "€250k–€1m" },
+            { key: "1_3m", label: "€1–€3m" },
+            { key: "3_10m", label: "€3–€10m" },
+            { key: "10_30m", label: "€10–€30m" },
             { key: "30m_plus", label: "€30m+" },
           ]}
           activeKey={a.netWorthBand ?? ""}
@@ -431,9 +556,7 @@ function renderStep(
               <input
                 type="checkbox"
                 checked={a.riskFlags.includes(rf)}
-                onChange={() =>
-                  setA((p) => ({ ...p, riskFlags: toggleInArray(p.riskFlags, rf) }))
-                }
+                onChange={() => setA((p) => ({ ...p, riskFlags: toggleInArray(p.riskFlags, rf) }))}
               />
               <span>{riskFlagLabel[rf]}</span>
             </label>
@@ -464,7 +587,6 @@ function OptionList(props: {
   activeKey: string;
   onSelect: (key: string) => void;
 }) {
-  // 1/2/3/4 keyboard quick pick
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const n = Number(e.key);
@@ -495,42 +617,58 @@ function OptionList(props: {
   );
 }
 
-function ResultsView(props: { result: AssessmentResult }) {
-  const { result } = props;
+function ResultsView(props: {
+  engine: {
+    readinessScore: number;
+    tier: string;
+    ltv: { min: number; max: number };
+    riskFlags: any[];
+    recommendedPath: string;
+    hits: Array<{ matched: boolean; delta: number; flag?: string }>;
+  };
+}) {
+  const { engine } = props;
+
+  const tierLabel = humanTier(engine.tier);
+  const meaning = scoreMeaning(engine.readinessScore);
+
+  const prettyFlags = buildPrettyFlags(engine.riskFlags, engine.hits);
 
   return (
     <div className="resultsGrid">
       <div className="panel">
-        <div className="bigScore">{result.readinessScore}</div>
-        <div className="tier">{result.tier}</div>
+        <div className="bigScore">{engine.readinessScore}</div>
+        <div className="tier">{tierLabel}</div>
+
         <div style={{ marginTop: 14, color: "rgba(0,0,0,0.62)", fontSize: 14 }}>
-          Indicative LTV: <strong>{result.ltvEstimateMin}%–{result.ltvEstimateMax}%</strong>
+          Indicative LTV:{" "}
+          <strong>
+            {engine.ltv.min}%–{engine.ltv.max}%
+          </strong>
+        </div>
+
+        <div style={{ marginTop: 14, color: "rgba(0,0,0,0.72)", fontSize: 14, lineHeight: 1.5 }}>
+          <strong>What this means:</strong> {meaning}
         </div>
       </div>
 
       <div className="panel">
-        <div style={{ fontSize: 14, color: "rgba(0,0,0,0.62)" }}>
-          Recommended direction
-        </div>
+        <div style={{ fontSize: 14, color: "rgba(0,0,0,0.62)" }}>Recommended direction</div>
         <div style={{ marginTop: 8, fontSize: 16, lineHeight: 1.45 }}>
-          {result.recommendedPath}
+          {engine.recommendedPath}
         </div>
       </div>
 
       <div className="panel" style={{ gridColumn: "1 / -1" }}>
-        <div style={{ fontSize: 14, color: "rgba(0,0,0,0.62)" }}>
-          Key risk flags
-        </div>
+        <div style={{ fontSize: 14, color: "rgba(0,0,0,0.62)" }}>Key risk flags</div>
 
-        {result.riskFlags.length === 0 ? (
-          <div style={{ marginTop: 10, color: "rgba(0,0,0,0.55)" }}>
-            No explicit risk flags selected.
-          </div>
+        {prettyFlags.length === 0 ? (
+          <div style={{ marginTop: 10, color: "rgba(0,0,0,0.55)" }}>No major flags triggered.</div>
         ) : (
           <div className="flagList">
-            {result.riskFlags.map((f) => (
-              <div className="flagItem" key={f.code}>
-                <div>{f.label}</div>
+            {prettyFlags.map((f, i) => (
+              <div className="flagItem" key={`${f.id}:${i}`}>
+                <div>{f.text}</div>
                 <div className="sev">{f.severity}</div>
               </div>
             ))}
@@ -541,77 +679,54 @@ function ResultsView(props: { result: AssessmentResult }) {
   );
 }
 
-function validateStep(
-  id: StepId,
-  a: WizardAnswers
-): { ok: true } | { ok: false; message: string } {
+function validateStep(id: StepId, a: WizardAnswers): { ok: true } | { ok: false; message: string } {
   switch (id) {
     case "purchase_price":
-      if (!a.purchasePrice || a.purchasePrice <= 0) {
-        return { ok: false, message: "Please enter an approximate purchase price." };
-      }
+      if (!a.purchasePrice || a.purchasePrice <= 0) return { ok: false, message: "Please enter an approximate purchase price." };
       return { ok: true };
-
     case "usage_intent":
       if (!a.usageIntent) return { ok: false, message: "Please select a primary usage intent." };
       return { ok: true };
-
     case "year_built":
       if (!a.yearBuilt || a.yearBuilt < 1950 || a.yearBuilt > new Date().getFullYear() + 1) {
         return { ok: false, message: "Please enter a valid build year." };
       }
       return { ok: true };
-
     case "vessel_condition":
       if (!a.vesselCondition) return { ok: false, message: "Please select the vessel condition." };
       return { ok: true };
-
     case "intended_flag":
       if (!a.intendedFlag) return { ok: false, message: "Please select an intended flag option." };
       if (a.intendedFlag === "specific_country" && !(a.intendedFlagCountry ?? "").trim()) {
         return { ok: false, message: "Please enter the intended flag country." };
       }
       return { ok: true };
-
     case "liquidity_available":
-      if (!a.liquidityAvailable || a.liquidityAvailable <= 0) {
-        return { ok: false, message: "Please enter available liquidity." };
-      }
+      if (!a.liquidityAvailable || a.liquidityAvailable <= 0) return { ok: false, message: "Please enter available liquidity." };
       return { ok: true };
-
     case "liquidity_held":
       if (!a.liquidityHeld) return { ok: false, message: "Please select how liquidity is held." };
       return { ok: true };
-
     case "income_type":
       if (!a.incomeType) return { ok: false, message: "Please select an income source." };
       return { ok: true };
-
     case "net_worth_band":
       if (!a.netWorthBand) return { ok: false, message: "Please select a net worth band." };
       return { ok: true };
-
     case "tax_residency_country":
-      if (!(a.taxResidencyCountry ?? "").trim()) {
-        return { ok: false, message: "Please enter a tax residency country." };
-      }
+      if (!(a.taxResidencyCountry ?? "").trim()) return { ok: false, message: "Please enter a tax residency country." };
       return { ok: true };
-
     case "tax_resident_eu":
       if (!a.isTaxResidentEU) return { ok: false, message: "Please select EU tax residency status." };
       return { ok: true };
-
     case "ownership_intent":
       if (!a.ownershipIntent) return { ok: false, message: "Please select an ownership intent." };
       return { ok: true };
-
     case "risk_flags":
-      return { ok: true }; // optional
-
+      return { ok: true };
     case "proceed_timeline":
       if (!a.proceedTimeline) return { ok: false, message: "Please select a timeline." };
       return { ok: true };
-
     default:
       return { ok: true };
   }
@@ -633,4 +748,91 @@ function parseIntSafe(v: string) {
   if (!cleaned) return null;
   const n = parseInt(cleaned, 10);
   return Number.isFinite(n) ? n : null;
+}
+
+function formatIntWithCommas(n: number | null | undefined) {
+  if (n == null) return "";
+  if (!Number.isFinite(Number(n))) return "";
+  try {
+    return new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 }).format(Number(n));
+  } catch {
+    return String(n);
+  }
+}
+
+function humanTier(tier: string) {
+  const t = String(tier || "").toUpperCase();
+  if (t === "FINANCE_READY") return "Finance Ready";
+  if (t === "CONDITIONAL") return "Conditional";
+  if (t === "HIGH_RISK") return "High Complexity";
+  return tier || "Unknown";
+}
+
+function scoreMeaning(score: number) {
+  const s = Number(score ?? 0);
+  if (s >= 80) return "Strong finance readiness. With a clean document pack, you can move toward lender outreach with normal expectations on structure and terms.";
+  if (s >= 50) return "Feasible, but expect conditions. You’ll likely need tighter documentation, structuring clarity, or adjustments to deposit/LTV expectations.";
+  return "High complexity profile. In its current form it may be declined — treat this as a diagnostic to improve liquidity, structure, or vessel profile before outreach.";
+}
+
+function severityFromDelta(delta: number): "low" | "medium" | "high" {
+  const d = Number(delta ?? 0);
+  if (d <= -15) return "high";
+  if (d <= -7) return "medium";
+  return "low";
+}
+
+function normalizeSeverity(v: any): "low" | "medium" | "high" {
+  const s = String(v ?? "").toLowerCase();
+  if (s === "high") return "high";
+  if (s === "medium") return "medium";
+  if (s === "low") return "low";
+  return "medium";
+}
+
+function buildPrettyFlags(
+  riskFlagsRaw: any[],
+  hits: Array<{ matched: boolean; delta: number; flag?: string }>
+): Array<{ id: string; text: string; severity: "low" | "medium" | "high" }> {
+  const riskFlags = Array.isArray(riskFlagsRaw) ? riskFlagsRaw : [];
+
+  const byFlag = new Map<string, number>();
+  for (const h of hits ?? []) {
+    if (!h?.matched) continue;
+    if (!h?.flag) continue;
+    const key = String(h.flag);
+    const prev = byFlag.get(key);
+    const d = Number(h.delta ?? 0);
+    if (prev == null) byFlag.set(key, d);
+    else byFlag.set(key, Math.min(prev, d));
+  }
+
+  return riskFlags
+    .map((f: any) => {
+      if (typeof f === "string") {
+        const id = f;
+        const d = byFlag.get(f) ?? -8;
+        return { id, text: prettyEngineFlag(f), severity: severityFromDelta(d) };
+      }
+
+      if (f && typeof f === "object") {
+        const code = f.code != null ? String(f.code) : "";
+        const label = f.label != null ? String(f.label) : "";
+        const sev = f.severity != null ? normalizeSeverity(f.severity) : undefined;
+
+        const id = code || label || (f.id != null ? String(f.id) : "") || JSON.stringify(f);
+
+        const lookupKey = code || label;
+        const d = lookupKey ? byFlag.get(lookupKey) ?? -8 : -8;
+
+        return {
+          id,
+          text: label || (code ? prettyEngineFlag(code) : "Risk flag"),
+          severity: sev ?? severityFromDelta(d),
+        };
+      }
+
+      return null;
+    })
+    .filter(Boolean) as any;
 }
