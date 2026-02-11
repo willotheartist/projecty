@@ -16,7 +16,7 @@ export type RuleEffect = {
 export type RuleRow = {
   id: string;
   condition: RuleCondition;
-  weight: number; // can be redundant, but we keep it
+  weight: number;
   effect: RuleEffect;
 };
 
@@ -41,7 +41,6 @@ function opCompare(left: any, op: Operator, right: any): boolean {
   if (op === "==") return left === right;
   if (op === "!=") return left !== right;
 
-  // numeric comparisons if possible
   if (op === ">=") return Number(left) >= Number(right);
   if (op === "<=") return Number(left) <= Number(right);
   if (op === ">") return Number(left) > Number(right);
@@ -53,7 +52,6 @@ function opCompare(left: any, op: Operator, right: any): boolean {
   }
 
   if (op === "contains") {
-    // string contains OR array contains
     if (typeof left === "string") return left.includes(String(right));
     if (Array.isArray(left)) return left.includes(right);
     return false;
@@ -66,9 +64,7 @@ export function evaluateRule(rule: RuleRow, context: any): EvalHit {
   const left = getByPath(context, rule.condition.field);
   const matched = opCompare(left, rule.condition.op, rule.condition.value);
 
-  if (!matched) {
-    return { ruleId: rule.id, matched: false, delta: 0 };
-  }
+  if (!matched) return { ruleId: rule.id, matched: false, delta: 0 };
 
   const effect = rule.effect;
   const delta = effect.type === "score_add" ? Number(effect.value) : 0;

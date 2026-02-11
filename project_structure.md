@@ -1,0 +1,168 @@
+# 📁 projecty - Project Structure
+
+*Generated on: 10/02/2026, 22:41:54*
+
+## 📋 Quick Overview
+
+| Metric | Value |
+|--------|-------|
+| 📄 Total Files | 53 |
+| 📁 Total Folders | 27 |
+| 🌳 Max Depth | 4 levels |
+| 🛠️ Tech Stack | React, Next.js, TypeScript, CSS, Node.js |
+
+## ⭐ Important Files
+
+- 🟡 🚫 **.gitignore** - Git ignore rules
+- 🔴 📖 **README.md** - Project documentation
+- 🔵 🔍 **eslint.config.mjs** - ESLint config
+- 🟡 ▲ **next.config.ts** - Next.js config
+- 🔴 📦 **package.json** - Package configuration
+- 🟡 🔷 **tsconfig.json** - TypeScript config
+
+## 📊 File Statistics
+
+### By File Type
+
+- 🔷 **.ts** (TypeScript files): 21 files (39.6%)
+- ⚛️ **.tsx** (React TypeScript files): 7 files (13.2%)
+- 🎨 **.svg** (SVG images): 5 files (9.4%)
+- ⚙️ **.json** (JSON files): 3 files (5.7%)
+- 📄 **.txt** (Text files): 2 files (3.8%)
+- 📖 **.md** (Markdown files): 2 files (3.8%)
+- 🎨 **.css** (Stylesheets): 2 files (3.8%)
+- 📄 **.mjs** (Other files): 2 files (3.8%)
+- ⚙️ **.yaml** (YAML files): 2 files (3.8%)
+- 📄 **.sql** (Other files): 2 files (3.8%)
+- 🚫 **.gitignore** (Git ignore): 1 files (1.9%)
+- 🖼️ **.ico** (Icon files): 1 files (1.9%)
+- ⚙️ **.toml** (TOML files): 1 files (1.9%)
+- 📄 **.prisma** (Other files): 1 files (1.9%)
+- 📕 **.pdf** (PDF files): 1 files (1.9%)
+
+### By Category
+
+- **TypeScript**: 21 files (39.6%)
+- **React**: 7 files (13.2%)
+- **Config**: 6 files (11.3%)
+- **Assets**: 6 files (11.3%)
+- **Docs**: 5 files (9.4%)
+- **Other**: 5 files (9.4%)
+- **Styles**: 2 files (3.8%)
+- **DevOps**: 1 files (1.9%)
+
+### 📁 Largest Directories
+
+- **root**: 53 files
+- **app**: 19 files
+- **app/api**: 9 files
+- **lib**: 9 files
+- **app/api/assessments**: 5 files
+
+## 🌳 Directory Structure
+
+```
+projecty/
+├── 🟡 🚫 **.gitignore**
+├── 📂 .vercel/
+│   ├── ⚙️ project.json
+│   └── 📄 README.txt
+├── 🚀 app/
+│   ├── 🔌 api/
+│   │   ├── 📂 assess/
+│   │   │   └── 🔷 route.ts
+│   │   ├── 📂 assessments/
+│   │   │   ├── 📂 broker-summary/
+│   │   │   │   └── 🔷 route.ts
+│   │   │   ├── 📂 report/
+│   │   │   │   └── 🔷 route.ts
+│   │   │   ├── 📂 report.pdf/
+│   │   │   │   └── 🔷 route.ts
+│   │   │   ├── 📂 run/
+│   │   │   │   └── 🔷 route.ts
+│   │   │   └── 📂 whatif/
+│   │   │   │   └── 🔷 route.ts
+│   │   └── 📂 dev/
+│   │   │   ├── 📂 demo/
+│   │   │   │   └── 🔷 route.ts
+│   │   │   ├── 📂 patch-rules-v1/
+│   │   │   │   └── 🔷 route.ts
+│   │   │   └── 📂 ping-db/
+│   │   │   │   └── 🔷 route.ts
+│   ├── 🧩 components/
+│   │   └── ⚛️ Header.tsx
+│   ├── ⚛️ DemoPanel.tsx
+│   ├── 🖼️ favicon.ico
+│   ├── 🎨 globals.css
+│   ├── ⚛️ layout.tsx
+│   ├── ⚛️ page.tsx
+│   ├── 📂 v2/
+│   │   └── ⚛️ page.tsx
+│   └── 📂 wizard/
+│   │   ├── ⚛️ page.tsx
+│   │   ├── ⚛️ wizard-client.tsx
+│   │   └── 🎨 wizard.css
+├── 🔵 🔍 **eslint.config.mjs**
+├── 📄 headers.txt
+├── 📚 lib/
+│   ├── 📂 engine/
+│   │   ├── 🔷 rules.ts
+│   │   └── 🔷 runAssessment.ts
+│   ├── 📂 pdf/
+│   │   └── 🔷 renderAssessmentPdf.ts
+│   ├── 🔷 prisma.ts
+│   ├── 📂 report/
+│   │   └── 🔷 buildReport.ts
+│   └── 📂 wizard/
+│   │   ├── 🔷 defaults.ts
+│   │   ├── 🔷 labels.ts
+│   │   ├── 🔷 scoring.ts
+│   │   └── 🔷 types.ts
+├── 🔷 next-env.d.ts
+├── 🟡 ▲ **next.config.ts**
+├── 🔴 📦 **package.json**
+├── ⚙️ pnpm-lock.yaml
+├── ⚙️ pnpm-workspace.yaml
+├── 📄 postcss.config.mjs
+├── 📂 prisma/
+│   ├── 📂 migrations/
+│   │   ├── 📂 20260210140801_init/
+│   │   │   └── 📄 migration.sql
+│   │   ├── 📂 20260210144754_assessment_runs/
+│   │   │   └── 📄 migration.sql
+│   │   └── ⚙️ migration_lock.toml
+│   ├── 📄 schema.prisma
+│   └── 🔷 seed.ts
+├── 📖 project_structure.md
+├── 🌐 public/
+│   ├── 🎨 file.svg
+│   ├── 🎨 globe.svg
+│   ├── 🎨 next.svg
+│   ├── 🎨 vercel.svg
+│   └── 🎨 window.svg
+├── 🔴 📖 **README.md**
+├── 📕 report.pdf
+└── 🟡 🔷 **tsconfig.json**
+```
+
+## 📖 Legend
+
+### File Types
+- 🚫 DevOps: Git ignore
+- 📄 Docs: Text files
+- ⚙️ Config: JSON files
+- 📖 Docs: Markdown files
+- ⚛️ React: React TypeScript files
+- 🔷 TypeScript: TypeScript files
+- 🖼️ Assets: Icon files
+- 🎨 Styles: Stylesheets
+- 📄 Other: Other files
+- ⚙️ Config: YAML files
+- ⚙️ Config: TOML files
+- 🎨 Assets: SVG images
+- 📕 Docs: PDF files
+
+### Importance Levels
+- 🔴 Critical: Essential project files
+- 🟡 High: Important configuration files
+- 🔵 Medium: Helpful but not essential files

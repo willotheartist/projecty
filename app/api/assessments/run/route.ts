@@ -8,7 +8,8 @@ export async function POST(req: Request) {
 
     const clientId = String(body?.clientId ?? "");
     const vesselId = String(body?.vesselId ?? "");
-    const ruleSetVersion = body?.ruleSetVersion ? String(body.ruleSetVersion) : "v1.0";
+    const ruleSetVersion = body?.ruleSetVersion ? String(body.ruleSetVersion) : undefined;
+    const assessmentId = body?.assessmentId ? String(body.assessmentId) : undefined;
 
     if (!clientId || !vesselId) {
       return NextResponse.json(
@@ -21,6 +22,7 @@ export async function POST(req: Request) {
       clientId,
       vesselId,
       ruleSetVersion,
+      assessmentId,
       actorEmail: "founder@projecty.local",
     });
 

@@ -38,28 +38,29 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  clients     Client[]
-  assessments Assessment[]
-  auditLogs   AuditLog[]
+  clients       Client[]
+  assessments   Assessment[]
+  auditLogs     AuditLog[]
+  assessmentRuns AssessmentRun[]
 }
 
 model Client {
-  id                String         @id @default(cuid())
-  name              String
-  residency         String
+  id                 String         @id @default(cuid())
+  name               String
+  residency          String
   liquidityAvailable Int
-  netWorthBand      String
-  incomeType        IncomeType
-  ownershipIntent   OwnershipIntent
+  netWorthBand       String
+  incomeType         IncomeType
+  ownershipIntent    OwnershipIntent
 
-  createdById       String
-  createdBy         User           @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdById        String
+  createdBy          User           @relation(fields: [createdById], references: [id], onDelete: Restrict)
 
-  vessels           Vessel[]
-  assessments       Assessment[]
+  vessels            Vessel[]
+  assessments        Assessment[]
 
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
 }
 
 model Vessel {
@@ -96,11 +97,33 @@ model Assessment {
   riskFlags       Json     @default("[]")
   recommendedPath String?
 
+  runs            AssessmentRun[]
+
   createdAt       DateTime @default(now())
 
   @@index([createdById])
   @@index([clientId])
   @@index([vesselId])
+}
+
+model AssessmentRun {
+  id             String   @id @default(cuid())
+  assessmentId   String
+  assessment     Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  actorId        String
+  actor          User     @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  ruleSetVersion String
+  engineVersion  String
+  inputSnapshot  Json
+  hits           Json
+  outputSnapshot Json
+
+  createdAt      DateTime @default(now())
+
+  @@index([assessmentId, createdAt])
+  @@index([actorId])
 }
 
 model RuleSet {
