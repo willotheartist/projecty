@@ -55,12 +55,12 @@ type Report = {
 const A4 = { w: 595.28, h: 841.89 };
 
 const COLORS = {
-  bg: rgb(0.965, 0.957, 0.94), // warm off-white
+  bg: rgb(0.965, 0.957, 0.94),
   card: rgb(1, 1, 1),
   ink: rgb(0.08, 0.08, 0.08),
   sub: rgb(0.35, 0.35, 0.35),
   line: rgb(0.86, 0.86, 0.86),
-  yellow: rgb(0.98, 0.93, 0.34), // Waaza-ish highlight
+  yellow: rgb(0.98, 0.93, 0.34),
   soft: rgb(0.96, 0.96, 0.96),
 };
 
@@ -85,8 +85,7 @@ function wrapText(text: string, maxChars: number): string[] {
   return lines;
 }
 
-function safe(s: any) {
-  // WinAnsi-safe sanitization
+function safe(s: unknown) {
   return String(s ?? "")
     .replaceAll("€", "EUR ")
     .replaceAll("–", "-")
@@ -123,15 +122,8 @@ export async function renderAssessmentPdf(report: Report) {
   let page = pdfDoc.addPage([A4.w, A4.h]);
   const margin = 44;
 
-  // background
   const paintBg = () => {
-    page.drawRectangle({
-      x: 0,
-      y: 0,
-      width: A4.w,
-      height: A4.h,
-      color: COLORS.bg,
-    });
+    page.drawRectangle({ x: 0, y: 0, width: A4.w, height: A4.h, color: COLORS.bg });
   };
 
   paintBg();
@@ -182,20 +174,12 @@ export async function renderAssessmentPdf(report: Report) {
     return { x, yTop: top, w, h: height };
   };
 
-  // HEADER (brand)
-  // Yellow top accent
-  page.drawRectangle({
-    x: 0,
-    y: A4.h - 18,
-    width: A4.w,
-    height: 18,
-    color: COLORS.yellow,
-  });
+  // header stripe
+  page.drawRectangle({ x: 0, y: A4.h - 18, width: A4.w, height: 18, color: COLORS.yellow });
 
   drawText("Waaza", margin, A4.h - 54, 20, true, COLORS.ink);
   drawText("Financing Readiness Report", margin, A4.h - 74, 12, false, COLORS.sub);
 
-  // Meta (top right)
   const metaRightX = A4.w - margin - 220;
   drawText(`RuleSet: ${safe(report.meta.ruleSetVersion)}`, metaRightX, A4.h - 56, 9, false, COLORS.sub);
   drawText(`Engine: ${safe(report.meta.engineVersion ?? "-")}`, metaRightX, A4.h - 70, 9, false, COLORS.sub);
@@ -203,18 +187,16 @@ export async function renderAssessmentPdf(report: Report) {
 
   y = A4.h - 110;
 
-  // SUMMARY CARD
+  // summary card
   const c1 = card(170);
   const cx = c1.x + 18;
   const top = c1.yTop - 18;
 
   drawText("Financing Readiness Summary", cx, top, 16, true, COLORS.ink);
 
-  // Score block
   const score = Number(report.headline.readinessScore ?? 0);
   drawText(String(score), cx, top - 54, 44, true, COLORS.ink);
 
-  // Tier pill (yellow)
   const pillW = 150;
   const pillH = 22;
   page.drawRectangle({
@@ -237,15 +219,15 @@ export async function renderAssessmentPdf(report: Report) {
     COLORS.sub
   );
 
-  // Explainer
   const explainerX = cx + 260;
   drawText("What this score means", explainerX, top - 28, 11, true, COLORS.ink);
+
   const savedY = y;
   y = top - 42;
   drawParagraph(report.headline.explainer, explainerX, 46, 10, COLORS.sub, 14);
   y = savedY;
 
-  // RECOMMENDED DIRECTION CARD
+  // recommended direction
   const c2 = card(92);
   const dx = c2.x + 18;
   const dTop = c2.yTop - 18;
@@ -254,14 +236,13 @@ export async function renderAssessmentPdf(report: Report) {
   y = dTop - 16;
   drawParagraph(report.recommendations.recommendedPath, dx, 90, 11, COLORS.ink, 15);
 
-  // BUYER + VESSEL CARDS (two columns)
+  // buyer + vessel cards
   const colGap = 14;
   const colW = (A4.w - margin * 2 - colGap) / 2;
 
   ensureSpace(180);
   const rowTop = y;
 
-  // buyer card
   page.drawRectangle({
     x: margin,
     y: rowTop - 160,
@@ -271,7 +252,6 @@ export async function renderAssessmentPdf(report: Report) {
     borderColor: COLORS.line,
     borderWidth: 1,
   });
-  // vessel card
   page.drawRectangle({
     x: margin + colW + colGap,
     y: rowTop - 160,
@@ -317,7 +297,7 @@ export async function renderAssessmentPdf(report: Report) {
 
   y = rowTop - 160 - 16;
 
-  // RISK FLAGS CARD
+  // risk flags card
   const flagsCard = card(170);
   const fx = flagsCard.x + 18;
   const fTop = flagsCard.yTop - 18;
@@ -326,10 +306,10 @@ export async function renderAssessmentPdf(report: Report) {
   drawText(report.risk.summary, fx, fTop - 18, 10, false, COLORS.sub);
 
   const pretty = Array.isArray(report.risk.prettyFlags) ? report.risk.prettyFlags : [];
-
-  const list = pretty.length
-    ? pretty
-    : (report.risk.flags ?? []).map((t) => ({ text: String(t), severity: "medium" as const }));
+  const list =
+    pretty.length > 0
+      ? pretty
+      : (report.risk.flags ?? []).map((t) => ({ text: String(t), severity: "medium" as const }));
 
   let ly = fTop - 46;
   if (!list.length) {
@@ -339,7 +319,6 @@ export async function renderAssessmentPdf(report: Report) {
       const item = list[i];
       const pill = severityPill(item.severity);
 
-      // row bg
       page.drawRectangle({
         x: fx,
         y: ly - 14,
@@ -352,7 +331,6 @@ export async function renderAssessmentPdf(report: Report) {
 
       drawText(item.text, fx + 10, ly - 4, 10, false, COLORS.ink);
 
-      // severity pill
       const pw = 70;
       page.drawRectangle({
         x: fx + (flagsCard.w - 36) - pw - 10,
@@ -370,7 +348,7 @@ export async function renderAssessmentPdf(report: Report) {
     }
   }
 
-  // NEXT STEPS + DOCS (page 2-ish)
+  // steps & docs
   ensureSpace(240);
 
   const stepsCard = card(170);
@@ -395,7 +373,7 @@ export async function renderAssessmentPdf(report: Report) {
     dy2 -= 16;
   }
 
-  // Transparency (small)
+  // transparency
   const tCard = card(110);
   const tx = tCard.x + 18;
   const tTop = tCard.yTop - 18;
@@ -410,7 +388,6 @@ export async function renderAssessmentPdf(report: Report) {
     COLORS.sub
   );
 
-  // list a few matched rules (human-ish)
   let ty = tTop - 44;
   const mr = report.transparency.matchedRules ?? [];
   for (let i = 0; i < Math.min(mr.length, 3); i++) {
@@ -424,6 +401,5 @@ export async function renderAssessmentPdf(report: Report) {
     ty -= 16;
   }
 
-  const bytes = await pdfDoc.save();
-  return bytes;
+  return await pdfDoc.save();
 }

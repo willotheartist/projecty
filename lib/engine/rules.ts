@@ -12,10 +12,14 @@ export type Operator =
 
 export type RiskSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
+/**
+ * Rules are stored in DB as JSON. We keep value as unknown and handle comparisons safely.
+ * (This removes `any` while preserving flexibility.)
+ */
 export type RuleCondition = {
   field: string;
   op: Operator;
-  value: any;
+  value: unknown;
 };
 
 export type RuleEffect = {
@@ -39,24 +43,35 @@ export type EvalHit = {
   severity?: RiskSeverity;
 };
 
-function getByPath(obj: any, path: string) {
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function getByPath(obj: unknown, path: string): unknown {
   const parts = path.split(".");
-  let cur = obj;
+  let cur: unknown = obj;
+
   for (const p of parts) {
-    if (cur == null) return undefined;
+    if (!isRecord(cur)) return undefined;
     cur = cur[p];
   }
+
   return cur;
 }
 
-function opCompare(left: any, op: Operator, right: any): boolean {
+function toNumber(v: unknown): number {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+function opCompare(left: unknown, op: Operator, right: unknown): boolean {
   if (op === "==") return left === right;
   if (op === "!=") return left !== right;
 
-  if (op === ">=") return Number(left) >= Number(right);
-  if (op === "<=") return Number(left) <= Number(right);
-  if (op === ">") return Number(left) > Number(right);
-  if (op === "<") return Number(left) < Number(right);
+  if (op === ">=") return toNumber(left) >= toNumber(right);
+  if (op === "<=") return toNumber(left) <= toNumber(right);
+  if (op === ">") return toNumber(left) > toNumber(right);
+  if (op === "<") return toNumber(left) < toNumber(right);
 
   if (op === "in") {
     if (!Array.isArray(right)) return false;
@@ -72,16 +87,15 @@ function opCompare(left: any, op: Operator, right: any): boolean {
   return false;
 }
 
-export function evaluateRule(rule: RuleRow, context: any): EvalHit {
+export function evaluateRule(
+  rule: RuleRow,
+  context: Record<string, unknown>
+): EvalHit {
   const left = getByPath(context, rule.condition.field);
   const matched = opCompare(left, rule.condition.op, rule.condition.value);
 
   if (!matched) {
-    return {
-      ruleId: rule.id,
-      matched: false,
-      weightedDelta: 0,
-    };
+    return { ruleId: rule.id, matched: false, weightedDelta: 0 };
   }
 
   const baseDelta = Number(rule.effect.scoreDelta ?? 0);

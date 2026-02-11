@@ -6,23 +6,27 @@ import { WizardAnswers } from "@/lib/wizard/types";
 
 export const dynamic = "force-dynamic";
 
-function mapIncomeType(v: any) {
-  const x = String(v || "").toLowerCase();
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function mapIncomeType(v: unknown) {
+  const x = String(v ?? "").toLowerCase();
   if (x === "salary") return "SALARY" as const;
   if (x === "business_owner") return "BUSINESS" as const;
   if (x === "investments_dividends") return "PASSIVE" as const;
   return "MIXED" as const;
 }
 
-function mapUsageType(v: any) {
-  const x = String(v || "").toLowerCase();
+function mapUsageType(v: unknown) {
+  const x = String(v ?? "").toLowerCase();
   // Prisma enum: PRIVATE / CHARTER
   if (x === "private") return "PRIVATE" as const;
   return "CHARTER" as const; // private_plus_charter, commercial_charter -> CHARTER
 }
 
-function mapOwnershipIntent(v: any) {
-  const x = String(v || "").toLowerCase();
+function mapOwnershipIntent(v: unknown) {
+  const x = String(v ?? "").toLowerCase();
   if (x === "personal") return "PERSONAL" as const;
   if (x === "spv") return "SPV" as const;
   return "UNSURE" as const;
@@ -30,7 +34,8 @@ function mapOwnershipIntent(v: any) {
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as Partial<WizardAnswers>;
+    const raw = (await req.json()) as unknown;
+    const body: Partial<WizardAnswers> = isRecord(raw) ? (raw as Partial<WizardAnswers>) : {};
 
     const purchasePrice = Number(body?.purchasePrice ?? 0);
     const yearBuilt = Number(body?.yearBuilt ?? 0);
@@ -74,18 +79,20 @@ export async function POST(req: Request) {
       },
     });
 
+    const intendedFlag =
+      body?.intendedFlag === "specific_country"
+        ? String(body?.intendedFlagCountry ?? "").trim() || null
+        : body?.intendedFlag
+        ? String(body.intendedFlag)
+        : null;
+
     const vessel = await prisma.vessel.create({
       data: {
         clientId: client.id,
         purchasePrice,
         yearBuilt,
         usageType,
-        intendedFlag:
-          body?.intendedFlag === "specific_country"
-            ? String(body?.intendedFlagCountry ?? "").trim() || null
-            : body?.intendedFlag
-            ? String(body.intendedFlag)
-            : null,
+        intendedFlag,
       },
     });
 
@@ -106,10 +113,8 @@ export async function POST(req: Request) {
       },
       result,
     });
-  } catch (err: any) {
-    return NextResponse.json(
-      { ok: false, error: err?.message ?? "Unknown error" },
-      { status: 500 }
-    );
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }
 }

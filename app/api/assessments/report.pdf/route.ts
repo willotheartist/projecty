@@ -7,10 +7,23 @@ import { renderAssessmentPdf } from "@/lib/pdf/renderAssessmentPdf";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function asRecordOrNull(v: unknown): Record<string, unknown> | null {
+  return isRecord(v) ? v : null;
+}
+
+function asHits(v: unknown): Hit[] {
+  return Array.isArray(v) ? (v as Hit[]) : [];
+}
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const assessmentId = String(body?.assessmentId ?? "");
+    const raw = (await req.json()) as unknown;
+    const body = isRecord(raw) ? raw : {};
+    const assessmentId = String(body.assessmentId ?? "");
 
     if (!assessmentId) {
       return NextResponse.json({ ok: false, error: "Missing assessmentId" }, { status: 400 });
@@ -36,8 +49,15 @@ export async function POST(req: Request) {
       );
     }
 
-    const snap = run.inputSnapshot as any;
-    const hits: Hit[] = (run.hits as any[]) ?? [];
+    const snap = asRecordOrNull(run.inputSnapshot) ?? {};
+    const snapClient = asRecordOrNull(snap.client) ?? {};
+    const snapVessel = asRecordOrNull(snap.vessel) ?? {};
+
+    const hits: Hit[] = asHits(run.hits);
+
+    const riskFlags = Array.isArray(assessment.riskFlags)
+      ? (assessment.riskFlags as unknown[])
+      : [];
 
     const report = buildReport({
       assessmentId,
@@ -51,22 +71,22 @@ export async function POST(req: Request) {
         min: Number(assessment.ltvEstimateMin ?? 0),
         max: Number(assessment.ltvEstimateMax ?? 0),
       },
-      riskFlags: Array.isArray(assessment.riskFlags) ? (assessment.riskFlags as any) : [],
+      riskFlags,
       recommendedPath: String(assessment.recommendedPath ?? "UNKNOWN"),
 
       buyer: {
-        name: String(snap?.client?.name ?? "Unknown"),
-        residency: String(snap?.client?.residency ?? "Unknown"),
-        incomeType: String(snap?.client?.incomeType ?? "Unknown"),
-        netWorthBand: String(snap?.client?.netWorthBand ?? "Unknown"),
-        liquidityAvailable: Number(snap?.client?.liquidityAvailable ?? 0),
-        ownershipIntent: String(snap?.client?.ownershipIntent ?? "Unknown"),
+        name: String(snapClient.name ?? "Unknown"),
+        residency: String(snapClient.residency ?? "Unknown"),
+        incomeType: String(snapClient.incomeType ?? "Unknown"),
+        netWorthBand: String(snapClient.netWorthBand ?? "Unknown"),
+        liquidityAvailable: Number(snapClient.liquidityAvailable ?? 0),
+        ownershipIntent: String(snapClient.ownershipIntent ?? "Unknown"),
       },
       vessel: {
-        purchasePrice: Number(snap?.vessel?.purchasePrice ?? 0),
-        yearBuilt: Number(snap?.vessel?.yearBuilt ?? 0),
-        usageType: String(snap?.vessel?.usageType ?? "Unknown"),
-        intendedFlag: snap?.vessel?.intendedFlag ?? null,
+        purchasePrice: Number(snapVessel.purchasePrice ?? 0),
+        yearBuilt: Number(snapVessel.yearBuilt ?? 0),
+        usageType: String(snapVessel.usageType ?? "Unknown"),
+        intendedFlag: (snapVessel.intendedFlag as string | null | undefined) ?? null,
       },
 
       hits,
@@ -96,9 +116,9 @@ export async function POST(req: Request) {
         "Cache-Control": "no-store",
       },
     });
-  } catch (err: any) {
-    // 🔥 show the real reason in dev logs
+  } catch (err: unknown) {
     console.error("report.pdf error:", err);
-    return NextResponse.json({ ok: false, error: err?.message ?? String(err) }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }
 }

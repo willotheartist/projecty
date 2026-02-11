@@ -45,8 +45,8 @@ type Report = {
     };
   };
   risk: {
-    flags: string[]; // raw text flags (deduped)
-    prettyFlags: PrettyRiskFlag[]; // for UI/PDF rendering
+    flags: string[];
+    prettyFlags: PrettyRiskFlag[];
     summary: string;
   };
   recommendations: {
@@ -105,7 +105,6 @@ function scoreExplainer(score: number) {
 
 function toSeverityFromText(text: string): "low" | "medium" | "high" {
   const t = text.toLowerCase();
-  // crude but safe defaulting
   if (t.includes("low liquidity") || t.includes("older vessel") || t.includes("significant leverage"))
     return "high";
   if (t.includes("complex") || t.includes("cross-border") || t.includes("structuring") || t.includes("business income"))
@@ -119,10 +118,10 @@ function titleCaseLoose(s: string) {
   return x.charAt(0).toUpperCase() + x.slice(1);
 }
 
-function normalizeRiskFlags(input: any): { raw: string[]; pretty: PrettyRiskFlag[] } {
+function normalizeRiskFlags(input: unknown): { raw: string[]; pretty: PrettyRiskFlag[] } {
   const rawStrings: string[] = [];
 
-  const pushText = (t: any) => {
+  const pushText = (t: unknown) => {
     const text = String(t ?? "").trim();
     if (!text) return;
     rawStrings.push(text);
@@ -134,26 +133,21 @@ function normalizeRiskFlags(input: any): { raw: string[]; pretty: PrettyRiskFlag
         pushText(item);
         continue;
       }
-      // object shapes: {code,label,severity} or {flag,...} or {text,...}
       if (item && typeof item === "object") {
-        if (typeof item.label === "string") pushText(item.label);
-        else if (typeof item.flag === "string") pushText(item.flag);
-        else if (typeof item.text === "string") pushText(item.text);
-        else if (typeof item.code === "string") pushText(titleCaseLoose(item.code));
-        else pushText(JSON.stringify(item));
+        const obj = item as Record<string, unknown>;
+        if (typeof obj.label === "string") pushText(obj.label);
+        else if (typeof obj.flag === "string") pushText(obj.flag);
+        else if (typeof obj.text === "string") pushText(obj.text);
+        else if (typeof obj.code === "string") pushText(titleCaseLoose(obj.code));
+        else pushText(JSON.stringify(obj));
       }
     }
   } else if (typeof input === "string") {
     pushText(input);
   }
 
-  // Dedup + cleanup "LOW_LIQUIDITY_BUFFER" style
   const cleaned = rawStrings
-    .map((s) => {
-      // if user accidentally passed constant-like strings, make it readable
-      if (/^[A-Z0-9_]+$/.test(s)) return titleCaseLoose(s);
-      return s;
-    })
+    .map((s) => (/^[A-Z0-9_]+$/.test(s) ? titleCaseLoose(s) : s))
     .map((s) => s.replace(/\s+/g, " ").trim())
     .filter(Boolean);
 
@@ -164,7 +158,6 @@ function normalizeRiskFlags(input: any): { raw: string[]; pretty: PrettyRiskFlag
     severity: toSeverityFromText(text),
   }));
 
-  // sort high -> low
   const rank = { high: 3, medium: 2, low: 1 } as const;
   pretty.sort((a, b) => rank[b.severity] - rank[a.severity]);
 
@@ -180,7 +173,7 @@ export function buildReport(input: {
   readinessScore: number;
   tier: string;
   ltvBand: { min: number; max: number };
-  riskFlags: any; // <-- intentionally flexible
+  riskFlags: unknown; // ✅ no any
   recommendedPath: string;
 
   buyer: {

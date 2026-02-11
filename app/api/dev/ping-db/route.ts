@@ -1,8 +1,11 @@
-// app/api/dev/ping-db/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 type Mode = "reuse" | "create";
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
 
 function parseModeFromUrl(req: Request): Mode {
   const { searchParams } = new URL(req.url);
@@ -10,8 +13,9 @@ function parseModeFromUrl(req: Request): Mode {
   return m === "create" ? "create" : "reuse";
 }
 
-function parseModeFromBody(body: any): Mode {
-  const m = String(body?.mode ?? "").toLowerCase();
+function parseModeFromBody(body: unknown): Mode {
+  if (!isRecord(body)) return "reuse";
+  const m = String(body.mode ?? "").toLowerCase();
   return m === "create" ? "create" : "reuse";
 }
 
@@ -90,7 +94,7 @@ async function createFresh(userId: string) {
     },
   });
 
-  return { userId, client, vessel, assessment, reused: false };
+  return { userId, client, vessel, assessment, reused: false as const };
 }
 
 async function reuseOrCreate(userId: string) {
@@ -155,7 +159,7 @@ async function reuseOrCreate(userId: string) {
     client: existingClient,
     vessel,
     assessment,
-    reused: true,
+    reused: true as const,
   };
 }
 
@@ -165,8 +169,7 @@ async function handler(mode: Mode) {
 
   const user = await ensureFounder();
 
-  const result =
-    mode === "create" ? await createFresh(user.id) : await reuseOrCreate(user.id);
+  const result = mode === "create" ? await createFresh(user.id) : await reuseOrCreate(user.id);
 
   return NextResponse.json({
     ok: true,
@@ -189,7 +192,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   let mode: Mode = "reuse";
   try {
-    const body = await req.json().catch(() => ({}));
+    const body = (await req.json().catch(() => ({}))) as unknown;
     mode = parseModeFromBody(body);
   } catch {
     // ignore

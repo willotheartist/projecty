@@ -103,6 +103,35 @@ const STEPS: Step[] = [
   { id: "results", title: "Financing Readiness Summary" },
 ];
 
+/** ---------- Engine response types aligned to runAssessment() ---------- */
+
+type RiskSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+
+type EngineRiskFlag = {
+  code: string;
+  severity: RiskSeverity;
+};
+
+type EngineHit = {
+  ruleId: string;
+  matched: boolean;
+  weightedDelta: number;
+  flagCode?: string;
+  severity?: RiskSeverity;
+};
+
+type EngineResult = {
+  assessmentId: string;
+  assessmentRunId: string;
+  ruleSetVersion: string;
+  readinessScore: number;
+  tier: string;
+  ltv: { min: number; max: number };
+  riskFlags: EngineRiskFlag[];
+  recommendedPath: string;
+  hits: EngineHit[];
+};
+
 type EngineAssessResponse = {
   ok: boolean;
   error?: string;
@@ -112,23 +141,24 @@ type EngineAssessResponse = {
     assessmentId: string;
     assessmentRunId: string;
   };
-  result?: {
-    assessmentId: string;
-    assessmentRunId: string;
-    ruleSetVersion: string;
-    readinessScore: number;
-    tier: string;
-    ltv: { min: number; max: number };
-    riskFlags: any[];
-    recommendedPath: string;
-    hits: Array<{
-      ruleId: string;
-      matched: boolean;
-      delta: number;
-      flag?: string;
-    }>;
-  };
+  result?: EngineResult;
 };
+
+/** ---------- tiny helpers ---------- */
+
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function getErrorMessage(e: unknown): string {
+  if (e instanceof Error) return e.message;
+  if (typeof e === "string") return e;
+  try {
+    return JSON.stringify(e);
+  } catch {
+    return "Unknown error";
+  }
+}
 
 export default function WizardClient() {
   const [answers, setAnswers] = useState<WizardAnswers>(defaultAnswers);
@@ -209,8 +239,10 @@ export default function WizardClient() {
           body: JSON.stringify(answers),
         });
 
-        const json = (await res.json()) as EngineAssessResponse;
+        const jsonUnknown = (await res.json()) as unknown;
         if (cancelled) return;
+
+        const json = jsonUnknown as EngineAssessResponse;
 
         if (!json.ok) {
           setError(json.error ?? "Assessment failed.");
@@ -221,9 +253,9 @@ export default function WizardClient() {
 
         setEngineRes(json);
         setIsAssessing(false);
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (cancelled) return;
-        setError(e?.message ?? "Assessment failed.");
+        setError(getErrorMessage(e) || "Assessment failed.");
         setEngineRes(null);
         setIsAssessing(false);
       }
@@ -254,8 +286,12 @@ export default function WizardClient() {
       });
 
       if (!res.ok) {
-        const j = await res.json().catch(() => null);
-        throw new Error(j?.error ?? `PDF request failed (${res.status})`);
+        const jUnknown = (await res.json().catch(() => null)) as unknown;
+        const msg =
+          isRecord(jUnknown) && typeof jUnknown.error === "string"
+            ? jUnknown.error
+            : `PDF request failed (${res.status})`;
+        throw new Error(msg);
       }
 
       const blob = await res.blob();
@@ -265,9 +301,9 @@ export default function WizardClient() {
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
 
       setIsPdfLoading(false);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setIsPdfLoading(false);
-      setError(e?.message ?? "PDF generation failed.");
+      setError(getErrorMessage(e) || "PDF generation failed.");
     }
   }
 
@@ -356,6 +392,17 @@ export default function WizardClient() {
   );
 }
 
+type Currency = WizardAnswers["currency"];
+type UsageIntent = WizardAnswers["usageIntent"];
+type VesselCondition = WizardAnswers["vesselCondition"];
+type IntendedFlag = WizardAnswers["intendedFlag"];
+type LiquidityHeld = WizardAnswers["liquidityHeld"];
+type IncomeType = WizardAnswers["incomeType"];
+type NetWorthBand = WizardAnswers["netWorthBand"];
+type IsTaxResidentEU = WizardAnswers["isTaxResidentEU"];
+type OwnershipIntent = WizardAnswers["ownershipIntent"];
+type ProceedTimeline = WizardAnswers["proceedTimeline"];
+
 function renderStep(
   id: StepId,
   a: WizardAnswers,
@@ -370,7 +417,12 @@ function renderStep(
             className="select"
             style={{ maxWidth: 160 }}
             value={a.currency}
-            onChange={(e) => setA((p) => ({ ...p, currency: e.target.value as any }))}
+            onChange={(e) =>
+              setA((p) => ({
+                ...p,
+                currency: e.target.value as Currency,
+              }))
+            }
           >
             <option value="EUR">€ EUR</option>
             <option value="USD">$ USD</option>
@@ -381,7 +433,12 @@ function renderStep(
             inputMode="numeric"
             placeholder="e.g. 3,500,000"
             value={formatIntWithCommas(a.purchasePrice)}
-            onChange={(e) => setA((p) => ({ ...p, purchasePrice: parseMoney(e.target.value) }))}
+            onChange={(e) =>
+              setA((p) => ({
+                ...p,
+                purchasePrice: parseMoney(e.target.value),
+              }))
+            }
           />
         </div>
       );
@@ -395,7 +452,7 @@ function renderStep(
             { key: "commercial_charter", label: "Commercial charter" },
           ]}
           activeKey={a.usageIntent ?? ""}
-          onSelect={(key) => nextWithPatch({ usageIntent: key as any })}
+          onSelect={(key) => nextWithPatch({ usageIntent: key as UsageIntent })}
         />
       );
 
@@ -406,7 +463,12 @@ function renderStep(
           inputMode="numeric"
           placeholder="e.g. 2021"
           value={a.yearBuilt ?? ""}
-          onChange={(e) => setA((p) => ({ ...p, yearBuilt: parseIntSafe(e.target.value) }))}
+          onChange={(e) =>
+            setA((p) => ({
+              ...p,
+              yearBuilt: parseIntSafe(e.target.value),
+            }))
+          }
         />
       );
 
@@ -419,7 +481,7 @@ function renderStep(
             { key: "preowned_chartered", label: "Pre-owned (previously chartered)" },
           ]}
           activeKey={a.vesselCondition ?? ""}
-          onSelect={(key) => nextWithPatch({ vesselCondition: key as any })}
+          onSelect={(key) => nextWithPatch({ vesselCondition: key as VesselCondition })}
         />
       );
 
@@ -429,7 +491,12 @@ function renderStep(
           <select
             className="select"
             value={a.intendedFlag ?? ""}
-            onChange={(e) => setA((p) => ({ ...p, intendedFlag: e.target.value as any }))}
+            onChange={(e) =>
+              setA((p) => ({
+                ...p,
+                intendedFlag: e.target.value as IntendedFlag,
+              }))
+            }
           >
             <option value="" disabled>
               Select…
@@ -445,7 +512,12 @@ function renderStep(
               className="input"
               placeholder="Country name"
               value={a.intendedFlagCountry ?? ""}
-              onChange={(e) => setA((p) => ({ ...p, intendedFlagCountry: e.target.value }))}
+              onChange={(e) =>
+                setA((p) => ({
+                  ...p,
+                  intendedFlagCountry: e.target.value,
+                }))
+              }
             />
           )}
         </>
@@ -458,7 +530,12 @@ function renderStep(
           inputMode="numeric"
           placeholder="e.g. 1,250,000"
           value={formatIntWithCommas(a.liquidityAvailable)}
-          onChange={(e) => setA((p) => ({ ...p, liquidityAvailable: parseMoney(e.target.value) }))}
+          onChange={(e) =>
+            setA((p) => ({
+              ...p,
+              liquidityAvailable: parseMoney(e.target.value),
+            }))
+          }
         />
       );
 
@@ -471,7 +548,7 @@ function renderStep(
             { key: "mixed", label: "Mixed" },
           ]}
           activeKey={a.liquidityHeld ?? ""}
-          onSelect={(key) => nextWithPatch({ liquidityHeld: key as any })}
+          onSelect={(key) => nextWithPatch({ liquidityHeld: key as LiquidityHeld })}
         />
       );
 
@@ -485,7 +562,7 @@ function renderStep(
             { key: "mixed", label: "Mixed" },
           ]}
           activeKey={a.incomeType ?? ""}
-          onSelect={(key) => nextWithPatch({ incomeType: key as any })}
+          onSelect={(key) => nextWithPatch({ incomeType: key as IncomeType })}
         />
       );
 
@@ -501,7 +578,7 @@ function renderStep(
             { key: "30m_plus", label: "€30m+" },
           ]}
           activeKey={a.netWorthBand ?? ""}
-          onSelect={(key) => nextWithPatch({ netWorthBand: key as any })}
+          onSelect={(key) => nextWithPatch({ netWorthBand: key as NetWorthBand })}
         />
       );
 
@@ -511,7 +588,12 @@ function renderStep(
           className="input"
           placeholder="e.g. United Kingdom"
           value={a.taxResidencyCountry ?? ""}
-          onChange={(e) => setA((p) => ({ ...p, taxResidencyCountry: e.target.value }))}
+          onChange={(e) =>
+            setA((p) => ({
+              ...p,
+              taxResidencyCountry: e.target.value,
+            }))
+          }
         />
       );
 
@@ -524,7 +606,7 @@ function renderStep(
             { key: "multi", label: "Multiple jurisdictions" },
           ]}
           activeKey={a.isTaxResidentEU ?? ""}
-          onSelect={(key) => nextWithPatch({ isTaxResidentEU: key as any })}
+          onSelect={(key) => nextWithPatch({ isTaxResidentEU: key as IsTaxResidentEU })}
         />
       );
 
@@ -537,7 +619,7 @@ function renderStep(
             { key: "unsure", label: "Not sure yet" },
           ]}
           activeKey={a.ownershipIntent ?? ""}
-          onSelect={(key) => nextWithPatch({ ownershipIntent: key as any })}
+          onSelect={(key) => nextWithPatch({ ownershipIntent: key as OwnershipIntent })}
         />
       );
 
@@ -556,7 +638,12 @@ function renderStep(
               <input
                 type="checkbox"
                 checked={a.riskFlags.includes(rf)}
-                onChange={() => setA((p) => ({ ...p, riskFlags: toggleInArray(p.riskFlags, rf) }))}
+                onChange={() =>
+                  setA((p) => ({
+                    ...p,
+                    riskFlags: toggleInArray(p.riskFlags, rf),
+                  }))
+                }
               />
               <span>{riskFlagLabel[rf]}</span>
             </label>
@@ -573,7 +660,7 @@ function renderStep(
             { key: "6_12m", label: "6–12 months" },
           ]}
           activeKey={a.proceedTimeline ?? ""}
-          onSelect={(key) => nextWithPatch({ proceedTimeline: key as any })}
+          onSelect={(key) => nextWithPatch({ proceedTimeline: key as ProceedTimeline })}
         />
       );
 
@@ -587,16 +674,18 @@ function OptionList(props: {
   activeKey: string;
   onSelect: (key: string) => void;
 }) {
+  const { options, onSelect } = props;
+
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const n = Number(e.key);
-      if (!Number.isFinite(n) || n < 1 || n > props.options.length) return;
-      const opt = props.options[n - 1];
-      if (opt) props.onSelect(opt.key);
+      if (!Number.isFinite(n) || n < 1 || n > options.length) return;
+      const opt = options[n - 1];
+      if (opt) onSelect(opt.key);
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [props]);
+  }, [options, onSelect]);
 
   return (
     <div className="optionList">
@@ -617,16 +706,7 @@ function OptionList(props: {
   );
 }
 
-function ResultsView(props: {
-  engine: {
-    readinessScore: number;
-    tier: string;
-    ltv: { min: number; max: number };
-    riskFlags: any[];
-    recommendedPath: string;
-    hits: Array<{ matched: boolean; delta: number; flag?: string }>;
-  };
-}) {
+function ResultsView(props: { engine: EngineResult }) {
   const { engine } = props;
 
   const tierLabel = humanTier(engine.tier);
@@ -654,9 +734,7 @@ function ResultsView(props: {
 
       <div className="panel">
         <div style={{ fontSize: 14, color: "rgba(0,0,0,0.62)" }}>Recommended direction</div>
-        <div style={{ marginTop: 8, fontSize: 16, lineHeight: 1.45 }}>
-          {engine.recommendedPath}
-        </div>
+        <div style={{ marginTop: 8, fontSize: 16, lineHeight: 1.45 }}>{engine.recommendedPath}</div>
       </div>
 
       <div className="panel" style={{ gridColumn: "1 / -1" }}>
@@ -682,7 +760,8 @@ function ResultsView(props: {
 function validateStep(id: StepId, a: WizardAnswers): { ok: true } | { ok: false; message: string } {
   switch (id) {
     case "purchase_price":
-      if (!a.purchasePrice || a.purchasePrice <= 0) return { ok: false, message: "Please enter an approximate purchase price." };
+      if (!a.purchasePrice || a.purchasePrice <= 0)
+        return { ok: false, message: "Please enter an approximate purchase price." };
       return { ok: true };
     case "usage_intent":
       if (!a.usageIntent) return { ok: false, message: "Please select a primary usage intent." };
@@ -702,7 +781,8 @@ function validateStep(id: StepId, a: WizardAnswers): { ok: true } | { ok: false;
       }
       return { ok: true };
     case "liquidity_available":
-      if (!a.liquidityAvailable || a.liquidityAvailable <= 0) return { ok: false, message: "Please enter available liquidity." };
+      if (!a.liquidityAvailable || a.liquidityAvailable <= 0)
+        return { ok: false, message: "Please enter available liquidity." };
       return { ok: true };
     case "liquidity_held":
       if (!a.liquidityHeld) return { ok: false, message: "Please select how liquidity is held." };
@@ -714,7 +794,8 @@ function validateStep(id: StepId, a: WizardAnswers): { ok: true } | { ok: false;
       if (!a.netWorthBand) return { ok: false, message: "Please select a net worth band." };
       return { ok: true };
     case "tax_residency_country":
-      if (!(a.taxResidencyCountry ?? "").trim()) return { ok: false, message: "Please enter a tax residency country." };
+      if (!(a.taxResidencyCountry ?? "").trim())
+        return { ok: false, message: "Please enter a tax residency country." };
       return { ok: true };
     case "tax_resident_eu":
       if (!a.isTaxResidentEU) return { ok: false, message: "Please select EU tax residency status." };
@@ -736,14 +817,14 @@ function toggleInArray<T>(arr: T[], item: T) {
   return arr.includes(item) ? arr.filter((x) => x !== item) : [...arr, item];
 }
 
-function parseMoney(v: string) {
+function parseMoney(v: string): number | null {
   const cleaned = v.replace(/[^\d]/g, "");
   if (!cleaned) return null;
   const n = Number(cleaned);
   return Number.isFinite(n) ? n : null;
 }
 
-function parseIntSafe(v: string) {
+function parseIntSafe(v: string): number | null {
   const cleaned = v.replace(/[^\d]/g, "");
   if (!cleaned) return null;
   const n = parseInt(cleaned, 10);
@@ -762,16 +843,18 @@ function formatIntWithCommas(n: number | null | undefined) {
 
 function humanTier(tier: string) {
   const t = String(tier || "").toUpperCase();
-  if (t === "FINANCE_READY") return "Finance Ready";
+  if (t === "FINANCE_READY" || t === "FINANCE_READY") return "Finance Ready";
   if (t === "CONDITIONAL") return "Conditional";
-  if (t === "HIGH_RISK") return "High Complexity";
+  if (t === "HIGH_RISK" || t === "HIGH_COMPLEXITY") return "High Complexity";
   return tier || "Unknown";
 }
 
 function scoreMeaning(score: number) {
   const s = Number(score ?? 0);
-  if (s >= 80) return "Strong finance readiness. With a clean document pack, you can move toward lender outreach with normal expectations on structure and terms.";
-  if (s >= 50) return "Feasible, but expect conditions. You’ll likely need tighter documentation, structuring clarity, or adjustments to deposit/LTV expectations.";
+  if (s >= 80)
+    return "Strong finance readiness. With a clean document pack, you can move toward lender outreach with normal expectations on structure and terms.";
+  if (s >= 50)
+    return "Feasible, but expect conditions. You’ll likely need tighter documentation, structuring clarity, or adjustments to deposit/LTV expectations.";
   return "High complexity profile. In its current form it may be declined — treat this as a diagnostic to improve liquidity, structure, or vessel profile before outreach.";
 }
 
@@ -782,57 +865,55 @@ function severityFromDelta(delta: number): "low" | "medium" | "high" {
   return "low";
 }
 
-function normalizeSeverity(v: any): "low" | "medium" | "high" {
-  const s = String(v ?? "").toLowerCase();
-  if (s === "high") return "high";
-  if (s === "medium") return "medium";
-  if (s === "low") return "low";
-  return "medium";
+function severityFromRiskSeverity(sev: RiskSeverity): "low" | "medium" | "high" {
+  const s = String(sev ?? "").toUpperCase();
+  if (s === "CRITICAL" || s === "HIGH") return "high";
+  if (s === "MEDIUM") return "medium";
+  return "low";
 }
 
-function buildPrettyFlags(
-  riskFlagsRaw: any[],
-  hits: Array<{ matched: boolean; delta: number; flag?: string }>
-): Array<{ id: string; text: string; severity: "low" | "medium" | "high" }> {
-  const riskFlags = Array.isArray(riskFlagsRaw) ? riskFlagsRaw : [];
+type PrettyFlag = { id: string; text: string; severity: "low" | "medium" | "high" };
+
+function buildPrettyFlags(riskFlagsRaw: EngineRiskFlag[] | unknown, hits: EngineHit[]): PrettyFlag[] {
+  const riskFlags: EngineRiskFlag[] = Array.isArray(riskFlagsRaw)
+    ? (riskFlagsRaw.filter((x): x is EngineRiskFlag => {
+        return (
+          isRecord(x) &&
+          typeof x.code === "string" &&
+          typeof x.severity === "string"
+        );
+      }) as EngineRiskFlag[])
+    : [];
 
   const byFlag = new Map<string, number>();
   for (const h of hits ?? []) {
     if (!h?.matched) continue;
-    if (!h?.flag) continue;
-    const key = String(h.flag);
+    if (!h?.flagCode) continue;
+    const key = String(h.flagCode);
     const prev = byFlag.get(key);
-    const d = Number(h.delta ?? 0);
+    const d = Number(h.weightedDelta ?? 0);
     if (prev == null) byFlag.set(key, d);
     else byFlag.set(key, Math.min(prev, d));
   }
 
-  return riskFlags
-    .map((f: any) => {
-      if (typeof f === "string") {
-        const id = f;
-        const d = byFlag.get(f) ?? -8;
-        return { id, text: prettyEngineFlag(f), severity: severityFromDelta(d) };
-      }
+  const out: PrettyFlag[] = [];
 
-      if (f && typeof f === "object") {
-        const code = f.code != null ? String(f.code) : "";
-        const label = f.label != null ? String(f.label) : "";
-        const sev = f.severity != null ? normalizeSeverity(f.severity) : undefined;
+  for (const f of riskFlags) {
+    const code = String(f.code);
+    const delta = byFlag.get(code) ?? -8;
 
-        const id = code || label || (f.id != null ? String(f.id) : "") || JSON.stringify(f);
+    out.push({
+      id: code,
+      text: prettyEngineFlag(code),
+      severity: severityFromRiskSeverity(f.severity) ?? severityFromDelta(delta),
+    });
+  }
 
-        const lookupKey = code || label;
-        const d = lookupKey ? byFlag.get(lookupKey) ?? -8 : -8;
-
-        return {
-          id,
-          text: label || (code ? prettyEngineFlag(code) : "Risk flag"),
-          severity: sev ?? severityFromDelta(d),
-        };
-      }
-
-      return null;
-    })
-    .filter(Boolean) as any;
+  // Dedup (just in case)
+  const seen = new Set<string>();
+  return out.filter((x) => {
+    if (seen.has(x.id)) return false;
+    seen.add(x.id);
+    return true;
+  });
 }

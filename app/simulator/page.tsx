@@ -20,13 +20,16 @@ const C = {
   tint: "#f0efea",
 };
 
-function formatMoney(n: number, currency: "EUR" | "USD") {
+type Currency = "EUR" | "USD";
+
+function isCurrency(v: string): v is Currency {
+  return v === "EUR" || v === "USD";
+}
+
+function formatMoney(n: number, currency: Currency) {
   const symbol = currency === "USD" ? "$" : "€";
   const v = Number.isFinite(n) ? n : 0;
-  return (
-    symbol +
-    new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 }).format(Math.round(v))
-  );
+  return symbol + new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 }).format(Math.round(v));
 }
 
 function formatPct(n: number) {
@@ -42,7 +45,7 @@ function parseMoney(v: string) {
 }
 
 export default function SimulatorPage() {
-  const [currency, setCurrency] = useState<"EUR" | "USD">("EUR");
+  const [currency, setCurrency] = useState<Currency>("EUR");
   const [price, setPrice] = useState<number>(3500000);
   const [deposit, setDeposit] = useState<number>(1050000);
   const [termYears, setTermYears] = useState<number>(15);
@@ -127,7 +130,10 @@ export default function SimulatorPage() {
                     </div>
                     <select
                       value={currency}
-                      onChange={(e) => setCurrency(e.target.value as any)}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (isCurrency(v)) setCurrency(v);
+                      }}
                       style={{
                         width: "100%",
                         padding: "12px 12px",
@@ -233,15 +239,7 @@ export default function SimulatorPage() {
                     <div style={{ fontSize: 13, color: C.gray2, fontWeight: 700 }}>{formatPct(rate)}</div>
                   </div>
 
-                  <input
-                    type="range"
-                    min={3.5}
-                    max={11.5}
-                    step={0.05}
-                    value={rate}
-                    onChange={(e) => setRate(Number(e.target.value))}
-                    style={{ width: "100%" }}
-                  />
+                  <input type="range" min={3.5} max={11.5} step={0.05} value={rate} onChange={(e) => setRate(Number(e.target.value))} style={{ width: "100%" }} />
 
                   <input
                     value={rate.toFixed(2)}

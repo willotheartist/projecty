@@ -26,14 +26,38 @@ type DemoResponse = {
   };
 };
 
-async function readJsonSafe(res: Response) {
+type Errorish = { error?: unknown; message?: unknown };
+
+async function readJsonSafe(res: Response): Promise<unknown | null> {
   const text = await res.text().catch(() => "");
   if (!text) return null;
   try {
-    return JSON.parse(text);
+    return JSON.parse(text) as unknown;
   } catch {
     return null;
   }
+}
+
+function isErrorish(v: unknown): v is Errorish {
+  return typeof v === "object" && v !== null;
+}
+
+function getErrorMessage(v: unknown): string | null {
+  if (!isErrorish(v)) return null;
+
+  const err = (v as Errorish).error;
+  const msg = (v as Errorish).message;
+
+  if (typeof err === "string" && err.trim()) return err;
+  if (typeof msg === "string" && msg.trim()) return msg;
+
+  return null;
+}
+
+function isDemoResponse(v: unknown): v is DemoResponse {
+  if (typeof v !== "object" || v === null) return false;
+  const o = v as Partial<DemoResponse>;
+  return o.ok === true && typeof o.ids?.assessmentId === "string" && typeof o.result?.readinessScore === "number";
 }
 
 export default function DemoPanel() {
@@ -44,9 +68,21 @@ export default function DemoPanel() {
   const headline = useMemo(() => {
     if (!demo) return null;
     const tier = String(demo.result.tier || "").toUpperCase();
-    if (tier === "READY") return { title: "Finance readiness: ready", sub: "Strong profile. Expect broad lender appetite." };
-    if (tier === "CONDITIONAL") return { title: "Finance readiness: conditional", sub: "Viable, but expect conditions and tighter filters." };
-    if (tier === "HIGH_RISK") return { title: "Finance readiness: high risk", sub: "Expect limited appetite. Mitigation needed before proceeding." };
+    if (tier === "READY")
+      return {
+        title: "Finance readiness: ready",
+        sub: "Strong profile. Expect broad lender appetite.",
+      };
+    if (tier === "CONDITIONAL")
+      return {
+        title: "Finance readiness: conditional",
+        sub: "Viable, but expect conditions and tighter filters.",
+      };
+    if (tier === "HIGH_RISK")
+      return {
+        title: "Finance readiness: high risk",
+        sub: "Expect limited appetite. Mitigation needed before proceeding.",
+      };
     return { title: `Finance readiness: ${tier.toLowerCase()}`, sub: "Assessment generated." };
   }, [demo]);
 
@@ -60,19 +96,22 @@ export default function DemoPanel() {
         cache: "no-store",
       });
 
-      const json = (await readJsonSafe(res)) as DemoResponse | null;
+      const jsonUnknown = await readJsonSafe(res);
 
-      if (!res.ok || !json?.ok) {
-        const msg =
-          (json as any)?.error ||
-          (json as any)?.message ||
-          `Request failed (${res.status})`;
+      if (!res.ok) {
+        const msg = getErrorMessage(jsonUnknown) ?? `Request failed (${res.status})`;
         throw new Error(msg);
       }
 
-      setDemo(json);
-    } catch (e: any) {
-      setErr(e?.message ?? "Unknown error");
+      if (!isDemoResponse(jsonUnknown)) {
+        const msg = getErrorMessage(jsonUnknown) ?? "Unexpected response shape";
+        throw new Error(msg);
+      }
+
+      setDemo(jsonUnknown);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Unknown error";
+      setErr(msg);
       setDemo(null);
     } finally {
       setLoading(false);
@@ -107,16 +146,20 @@ export default function DemoPanel() {
   }
 
   return (
-    <div style={{
-      borderRadius: 20,
-      border: "1px solid rgba(0,0,0,0.10)",
-      background: "#ffffff",
-      padding: 24,
-      boxShadow: "0 8px 40px rgba(0,0,0,0.06)",
-    }}>
+    <div
+      style={{
+        borderRadius: 20,
+        border: "1px solid rgba(0,0,0,0.10)",
+        background: "#ffffff",
+        padding: 24,
+        boxShadow: "0 8px 40px rgba(0,0,0,0.06)",
+      }}
+    >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" as const }}>
         <div>
-          <div style={{ fontSize: 11, letterSpacing: "0.22em", color: "rgba(0,0,0,0.46)", textTransform: "uppercase" as const }}>LIVE DEMO</div>
+          <div style={{ fontSize: 11, letterSpacing: "0.22em", color: "rgba(0,0,0,0.46)", textTransform: "uppercase" as const }}>
+            LIVE DEMO
+          </div>
           <div style={{ marginTop: 8, fontSize: 15, fontWeight: 500 }}>Generate a real assessment from your engine + DB.</div>
           <div style={{ marginTop: 4, fontSize: 13, color: "rgba(0,0,0,0.62)" }}>This calls your /api/dev/demo endpoint and renders the output.</div>
         </div>
@@ -144,25 +187,34 @@ export default function DemoPanel() {
       </div>
 
       {err ? (
-        <div style={{
-          marginTop: 20, borderRadius: 14,
-          border: "1px solid rgba(210,60,60,0.2)",
-          background: "rgba(210,60,60,0.05)",
-          padding: "12px 16px", fontSize: 13, color: "rgba(210,60,60,0.9)",
-        }}>
+        <div
+          style={{
+            marginTop: 20,
+            borderRadius: 14,
+            border: "1px solid rgba(210,60,60,0.2)",
+            background: "rgba(210,60,60,0.05)",
+            padding: "12px 16px",
+            fontSize: 13,
+            color: "rgba(210,60,60,0.9)",
+          }}
+        >
           {err}
         </div>
       ) : null}
 
       {demo ? (
         <div style={{ marginTop: 24 }}>
-          <div style={{
-            borderRadius: 16,
-            border: "1px solid rgba(0,0,0,0.10)",
-            background: "#f9f8f5",
-            padding: 20,
-          }}>
-            <div style={{ fontSize: 11, letterSpacing: "0.22em", color: "rgba(0,0,0,0.46)", textTransform: "uppercase" as const }}>ASSESSMENT RESULT</div>
+          <div
+            style={{
+              borderRadius: 16,
+              border: "1px solid rgba(0,0,0,0.10)",
+              background: "#f9f8f5",
+              padding: 20,
+            }}
+          >
+            <div style={{ fontSize: 11, letterSpacing: "0.22em", color: "rgba(0,0,0,0.46)", textTransform: "uppercase" as const }}>
+              ASSESSMENT RESULT
+            </div>
 
             <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap" as const, alignItems: "flex-end", justifyContent: "space-between", gap: 24 }}>
               <div>
@@ -170,11 +222,18 @@ export default function DemoPanel() {
                   {demo.result.readinessScore}
                   <span style={{ marginLeft: 8, fontSize: 16, color: "rgba(0,0,0,0.46)" }}>/100</span>
                 </div>
-                <div style={{
-                  marginTop: 8, display: "inline-block",
-                  padding: "4px 12px", background: "#FFF86C",
-                  borderRadius: 8, fontSize: 13, fontWeight: 700, color: "#0a0a0a",
-                }}>
+                <div
+                  style={{
+                    marginTop: 8,
+                    display: "inline-block",
+                    padding: "4px 12px",
+                    background: "#FFF86C",
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: "#0a0a0a",
+                  }}
+                >
                   {headline?.title}
                 </div>
                 <div style={{ marginTop: 6, fontSize: 13, color: "rgba(0,0,0,0.62)" }}>{headline?.sub}</div>
@@ -188,13 +247,17 @@ export default function DemoPanel() {
 
                 <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
                   <button
-                    onClick={() => downloadPdf().catch((e) => setErr(e?.message ?? "PDF error"))}
+                    onClick={() => downloadPdf().catch((e: unknown) => setErr(e instanceof Error ? e.message : "PDF error"))}
                     style={{
-                      height: 40, borderRadius: 10,
+                      height: 40,
+                      borderRadius: 10,
                       border: "1px solid rgba(0,0,0,0.12)",
                       background: "#ffffff",
-                      padding: "0 16px", fontSize: 13, fontWeight: 500,
-                      cursor: "pointer", transition: "all 0.15s",
+                      padding: "0 16px",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      transition: "all 0.15s",
                     }}
                   >
                     Download PDF
@@ -209,7 +272,9 @@ export default function DemoPanel() {
                 {demo.result.riskFlags?.length ? (
                   <div style={{ marginTop: 8 }}>
                     {demo.result.riskFlags.map((f, i) => (
-                      <div key={i} style={{ fontSize: 13, color: "rgba(0,0,0,0.62)", marginBottom: 4 }}>• {f}</div>
+                      <div key={i} style={{ fontSize: 13, color: "rgba(0,0,0,0.62)", marginBottom: 4 }}>
+                        • {f}
+                      </div>
                     ))}
                   </div>
                 ) : (

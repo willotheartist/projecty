@@ -1,12 +1,15 @@
 // lib/engine/runAssessment.ts
 
 import { prisma } from "@/lib/prisma";
+import type { Prisma, Client, Vessel } from "@prisma/client";
 import {
   clamp,
   evaluateRule,
   RuleRow,
   EvalHit,
   RiskSeverity,
+  RuleCondition,
+  RuleEffect,
 } from "./rules";
 
 type RunArgs = {
@@ -17,7 +20,19 @@ type RunArgs = {
   assessmentId?: string;
 };
 
+type WhatIfArgs = {
+  clientId: string;
+  vesselId: string;
+  ruleSetVersion?: string;
+  overrides?: unknown; // flexible: UI can send any JSON-like shape
+};
+
 const ENGINE_VERSION = "engine_v2";
+
+type AssessmentContext = {
+  client: Client;
+  vessel: Vessel;
+};
 
 function tierFromScore(score: number) {
   if (score >= 80) return "FINANCE_READY";
@@ -31,7 +46,7 @@ function ltvFromScore(score: number) {
   return { min: 20, max: 35 };
 }
 
-function recommendedPathFromContext(ctx: any, score: number) {
+function recommendedPathFromContext(ctx: AssessmentContext, score: number) {
   if (score < 50)
     return "High complexity profile. Structured review required before lender outreach.";
 
@@ -49,21 +64,38 @@ async function getLatestRuleSetVersion(): Promise<string> {
   return latest?.version ?? "v2.0";
 }
 
-function buildInputSnapshot(client: any, vessel: any) {
-  return {
-    client,
-    vessel,
-  };
+/**
+ * Prisma JSON columns cannot safely store Dates/BigInt/etc.
+ * We normalise by JSON round-tripping.
+ */
+function toInputJsonValue(value: unknown): Prisma.InputJsonValue {
+  const s = JSON.stringify(value);
+  return (s ? (JSON.parse(s) as unknown) : null) as Prisma.InputJsonValue;
 }
 
-function compute(client: any, vessel: any, rules: RuleRow[]) {
-  const ctx = { client, vessel };
+function buildInputSnapshot(client: Client, vessel: Vessel): Prisma.InputJsonValue {
+  return toInputJsonValue({ client, vessel });
+}
+
+function severityRank(s: RiskSeverity) {
+  const map: Record<RiskSeverity, number> = {
+    LOW: 1,
+    MEDIUM: 2,
+    HIGH: 3,
+    CRITICAL: 4,
+  };
+  return map[s];
+}
+
+function compute(client: Client, vessel: Vessel, rules: RuleRow[]) {
+  const ctx: AssessmentContext = { client, vessel };
+  const ctxRecord: Record<string, unknown> = { client, vessel };
 
   let score = 60;
   const hits: EvalHit[] = [];
 
   for (const rule of rules) {
-    const hit = evaluateRule(rule, ctx);
+    const hit = evaluateRule(rule, ctxRecord);
     hits.push(hit);
     score += hit.weightedDelta;
   }
@@ -93,9 +125,28 @@ function compute(client: any, vessel: any, rules: RuleRow[]) {
   };
 }
 
-function severityRank(s: RiskSeverity) {
-  const map = { LOW: 1, MEDIUM: 2, HIGH: 3, CRITICAL: 4 };
-  return map[s];
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+/**
+ * Apply lightweight overrides to cloned client/vessel (no DB write).
+ * Supported shapes:
+ *  - { client: { ... }, vessel: { ... } }
+ *  - { client: {...} } or { vessel: {...} }
+ */
+function applyOverrides(base: AssessmentContext, overrides: unknown): AssessmentContext {
+  if (!overrides || !isRecord(overrides)) return base;
+
+  const nextClient = isRecord(overrides.client)
+    ? ({ ...base.client, ...(overrides.client as Record<string, unknown>) } as Client)
+    : base.client;
+
+  const nextVessel = isRecord(overrides.vessel)
+    ? ({ ...base.vessel, ...(overrides.vessel as Record<string, unknown>) } as Vessel)
+    : base.vessel;
+
+  return { client: nextClient, vessel: nextVessel };
 }
 
 export async function runAssessment({
@@ -122,9 +173,9 @@ export async function runAssessment({
 
   const rules: RuleRow[] = ruleSet.rules.map((r) => ({
     id: r.id,
-    condition: r.condition as any,
+    condition: r.condition as unknown as RuleCondition,
     weight: r.weight,
-    effect: r.effect as any,
+    effect: r.effect as unknown as RuleEffect,
   }));
 
   const computed = compute(client, vessel, rules);
@@ -144,7 +195,7 @@ export async function runAssessment({
           tier: computed.tier,
           ltvEstimateMin: computed.ltv.min,
           ltvEstimateMax: computed.ltv.max,
-          riskFlags: computed.riskFlags,
+          riskFlags: toInputJsonValue(computed.riskFlags),
           recommendedPath: computed.recommendedPath,
         },
       })
@@ -158,7 +209,7 @@ export async function runAssessment({
           tier: computed.tier,
           ltvEstimateMin: computed.ltv.min,
           ltvEstimateMax: computed.ltv.max,
-          riskFlags: computed.riskFlags,
+          riskFlags: toInputJsonValue(computed.riskFlags),
           recommendedPath: computed.recommendedPath,
         },
       });
@@ -170,8 +221,8 @@ export async function runAssessment({
       ruleSetVersion: version,
       engineVersion: ENGINE_VERSION,
       inputSnapshot: buildInputSnapshot(client, vessel),
-      hits: computed.hits,
-      outputSnapshot: computed,
+      hits: toInputJsonValue(computed.hits),
+      outputSnapshot: toInputJsonValue(computed),
     },
   });
 
@@ -179,6 +230,53 @@ export async function runAssessment({
     assessmentId: assessment.id,
     assessmentRunId: run.id,
     ruleSetVersion: version,
+    ...computed,
+  };
+}
+
+/**
+ * What-if runner: compute an assessment result without creating Assessment/AssessmentRun rows.
+ * Returns an object compatible with your /whatif route builder.
+ */
+export async function whatIfAssessment({
+  clientId,
+  vesselId,
+  ruleSetVersion,
+  overrides,
+}: WhatIfArgs) {
+  const version = ruleSetVersion ?? (await getLatestRuleSetVersion());
+
+  const [client, vessel, ruleSet] = await Promise.all([
+    prisma.client.findUnique({ where: { id: clientId } }),
+    prisma.vessel.findUnique({ where: { id: vesselId } }),
+    prisma.ruleSet.findUnique({
+      where: { version },
+      include: { rules: true },
+    }),
+  ]);
+
+  if (!client) throw new Error("Client not found");
+  if (!vessel) throw new Error("Vessel not found");
+  if (!ruleSet) throw new Error(`RuleSet not found: ${version}`);
+
+  const rules: RuleRow[] = ruleSet.rules.map((r) => ({
+    id: r.id,
+    condition: r.condition as unknown as RuleCondition,
+    weight: r.weight,
+    effect: r.effect as unknown as RuleEffect,
+  }));
+
+  const baseCtx: AssessmentContext = { client, vessel };
+  const ctx = applyOverrides(baseCtx, overrides);
+
+  const computed = compute(ctx.client, ctx.vessel, rules);
+
+  return {
+    ruleSetVersion: version,
+    engineVersion: ENGINE_VERSION,
+    inputSnapshot: buildInputSnapshot(ctx.client, ctx.vessel),
+  
+    outputSnapshot: toInputJsonValue(computed),
     ...computed,
   };
 }

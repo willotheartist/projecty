@@ -1,6 +1,6 @@
 // app/page.tsx
 import Link from "next/link";
-import DemoPanel from "./DemoPanel";
+
 
 export default function Page() {
   return (
@@ -75,7 +75,7 @@ export default function Page() {
             </p>
 
             <div className="mx-auto mt-10 max-w-3xl">
-              <DemoPanel />
+         
             </div>
 
             <p className="mx-auto mt-6 max-w-3xl text-[11px] leading-relaxed text-(--muted)">

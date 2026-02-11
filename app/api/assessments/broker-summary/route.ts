@@ -1,16 +1,24 @@
-// app/api/assessments/broker-summary/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function getObj(v: unknown): Record<string, unknown> {
+  return isRecord(v) ? v : {};
+}
+
 function fmtEUR(n: number) {
+  const x = Number.isFinite(n) ? n : 0;
   try {
     return new Intl.NumberFormat("en-GB", {
       style: "currency",
       currency: "EUR",
       maximumFractionDigits: 0,
-    }).format(n);
+    }).format(x);
   } catch {
-    return `€${Math.round(n).toLocaleString()}`;
+    return `€${Math.round(x).toLocaleString()}`;
   }
 }
 
@@ -24,9 +32,10 @@ function humanTier(tier: string) {
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const assessmentId = String(body?.assessmentId ?? "");
+    const raw = (await req.json()) as unknown;
+    const body = getObj(raw);
 
+    const assessmentId = String(body.assessmentId ?? "");
     if (!assessmentId) {
       return NextResponse.json({ ok: false, error: "Missing assessmentId" }, { status: 400 });
     }
@@ -51,15 +60,17 @@ export async function POST(req: Request) {
       );
     }
 
-    const snap = run.inputSnapshot as any;
+    const snap = getObj(run.inputSnapshot);
+    const client = getObj(snap.client);
+    const vessel = getObj(snap.vessel);
 
-    const buyerName = String(snap?.client?.name ?? "Buyer");
-    const residency = String(snap?.client?.residency ?? "Unknown");
+    const buyerName = String(client.name ?? "Buyer");
+    const residency = String(client.residency ?? "Unknown");
 
-    const purchasePrice = Number(snap?.vessel?.purchasePrice ?? 0);
-    const yearBuilt = Number(snap?.vessel?.yearBuilt ?? 0);
-    const usageType = String(snap?.vessel?.usageType ?? "Unknown");
-    const intendedFlag = snap?.vessel?.intendedFlag ? String(snap.vessel.intendedFlag) : "—";
+    const purchasePrice = Number(vessel.purchasePrice ?? 0);
+    const yearBuilt = Number(vessel.yearBuilt ?? 0);
+    const usageType = String(vessel.usageType ?? "Unknown");
+    const intendedFlag = vessel.intendedFlag ? String(vessel.intendedFlag) : "—";
 
     const score = Number(assessment.readinessScore ?? 0);
     const tierRaw = String(assessment.tier ?? "UNKNOWN");
@@ -69,7 +80,7 @@ export async function POST(req: Request) {
     const ltvMax = Number(assessment.ltvEstimateMax ?? 0);
 
     const flags: string[] = Array.isArray(assessment.riskFlags)
-      ? (assessment.riskFlags as any).map((x: any) => String(x))
+      ? (assessment.riskFlags as unknown[]).map((x) => String(x))
       : [];
 
     const bankParagraph =
@@ -93,7 +104,8 @@ export async function POST(req: Request) {
         toBuyer: buyerParagraph,
       },
     });
-  } catch (err: any) {
-    return NextResponse.json({ ok: false, error: err?.message ?? "Unknown error" }, { status: 500 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }
 }
