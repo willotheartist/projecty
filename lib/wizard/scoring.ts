@@ -1,3 +1,4 @@
+// lib/wizard/scoring.ts
 import {
   AssessmentResult,
   NetWorthBand,
