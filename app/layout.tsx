@@ -16,9 +16,61 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-serif",
 });
 
+const SITE_URL = "https://www.waaza.co";
+
+const TITLE = "Waaza — Yacht Financing Intelligence";
+const DESCRIPTION =
+  "Waaza analyses key buyer and vessel indicators to generate a structured financing readiness score, indicative LTV range, and lender-ready reports.";
+
 export const metadata: Metadata = {
-  title: "ProjectY",
-  description: "Yacht finance readiness scoring + lender-ready reports.",
+  metadataBase: new URL(SITE_URL),
+
+  title: {
+    default: TITLE,
+    template: "%s — Waaza",
+  },
+
+  description: DESCRIPTION,
+
+  alternates: {
+    canonical: "/",
+  },
+
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/faviconico.png", type: "image/png" },
+    ],
+    apple: [{ url: "/iconpng.png" }],
+  },
+
+  openGraph: {
+    type: "website",
+    url: "/",
+    title: TITLE,
+    description: DESCRIPTION,
+    siteName: "Waaza",
+    images: [
+      {
+        url: "/hero.png",
+        width: 1200,
+        height: 630,
+        alt: "Waaza — Yacht Financing Intelligence",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/hero.png"],
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -31,8 +83,6 @@ export default function RootLayout({
       <body className="antialiased">
         <Header />
         {children}
-
-        {/* Waaza AI assistant (floating) */}
         <WaazaAssistant startHref="/wizard" />
       </body>
     </html>
