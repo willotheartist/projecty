@@ -1,4 +1,3 @@
-// app/page.tsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -108,7 +107,6 @@ export default function LandingPage() {
           .hero-left .hero-h1{ max-width: 720px !important; margin-left:auto; margin-right:auto; }
         }
 
-        /* ✅ Mobile: bigger + centered (instead of shrinking too much) */
         @media(max-width:600px){
           .hero-h1{font-size:44px!important; letter-spacing:-1.2px!important}
           .section-h2{font-size:32px!important}
@@ -122,7 +120,9 @@ export default function LandingPage() {
         {/* Spacer for sticky header */}
         <div style={{ height: 72 }} />
 
-        {/* HERO */}
+        {/* ════════════════════════════════════════════
+            HERO
+            ════════════════════════════════════════════ */}
         <section style={{ padding: "80px clamp(24px,5vw,80px) 100px", background: C.bg }}>
           <div
             className="hero-split"
@@ -218,9 +218,14 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* 3-COL VALUE PROPS */}
+        {/* ════════════════════════════════════════════
+            3-COL VALUE PROPS
+            ════════════════════════════════════════════ */}
         <section style={{ padding: "100px clamp(24px,5vw,80px)", background: C.bg }}>
-          <div className="grid-3" style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 48 }}>
+          <div
+            className="grid-3"
+            style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 48 }}
+          >
             {[
               { title: "Score every buyer", desc: "Replace guesswork with a structured 0–100 financing readiness index calibrated to real lender criteria." },
               { title: "Structure every deal", desc: "Get recommended financing paths — loan, leasing, or hybrid — with jurisdiction and ownership logic encoded." },
@@ -228,7 +233,16 @@ export default function LandingPage() {
             ].map((v, i) => (
               <FadeUp key={i} delay={i * 120}>
                 <div style={{ width: 14, height: 14, borderRadius: "50%", background: C.accent, marginBottom: 24 }} />
-                <h3 style={{ fontFamily: "var(--font-serif), 'Instrument Serif', serif", fontSize: "clamp(28px,3.5vw,40px)", fontWeight: 400, lineHeight: 1.1, marginBottom: 16, letterSpacing: -0.5 }}>
+                <h3
+                  style={{
+                    fontFamily: "var(--font-serif), 'Instrument Serif', serif",
+                    fontSize: "clamp(28px,3.5vw,40px)",
+                    fontWeight: 400,
+                    lineHeight: 1.1,
+                    marginBottom: 16,
+                    letterSpacing: -0.5,
+                  }}
+                >
                   {v.title}
                 </h3>
                 <p style={{ fontSize: 16, color: C.gray3, lineHeight: 1.65, maxWidth: 360 }}>{v.desc}</p>
@@ -237,43 +251,123 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* TINTED FEATURE — READINESS ENGINE */}
+        {/* ════════════════════════════════════════════
+            TINTED FEATURE — READINESS ENGINE
+            ════════════════════════════════════════════ */}
         <section style={{ padding: "0 clamp(24px,5vw,80px) 100px" }}>
           <FadeUp>
-            <div style={{ maxWidth: 1280, margin: "0 auto", background: C.white, borderRadius: 28, padding: "clamp(40px,5vw,80px)", overflow: "hidden" }}>
-              <div className="split" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }}>
+            <div
+              style={{
+                maxWidth: 1280,
+                margin: "0 auto",
+                background: C.white,
+                borderRadius: 28,
+                padding: "clamp(40px,5vw,80px)",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                className="split"
+                style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }}
+              >
                 <div>
                   <FadeUp delay={100}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-                      <div style={{ width: 36, height: 36, borderRadius: 10, background: C.accentPale, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, color: C.black }}>
+                      <div
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 10,
+                          background: C.accentPale,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 18,
+                          color: C.black,
+                        }}
+                      >
                         ◎
                       </div>
                       <span style={{ fontSize: 15, fontWeight: 600 }}>Readiness Engine</span>
                     </div>
                   </FadeUp>
                   <FadeUp delay={200}>
-                    <h2 className="section-h2" style={{ fontFamily: "var(--font-serif), 'Instrument Serif', serif", fontSize: "clamp(32px,4vw,52px)", fontWeight: 400, lineHeight: 1.08, letterSpacing: -1, marginBottom: 20 }}>
+                    <h2
+                      className="section-h2"
+                      style={{
+                        fontFamily: "var(--font-serif), 'Instrument Serif', serif",
+                        fontSize: "clamp(32px,4vw,52px)",
+                        fontWeight: 400,
+                        lineHeight: 1.08,
+                        letterSpacing: -1,
+                        marginBottom: 20,
+                      }}
+                    >
                       Know if a deal is financeable before you pick up the phone.
                     </h2>
                   </FadeUp>
                   <FadeUp delay={300}>
                     <p style={{ fontSize: 16, color: C.gray3, lineHeight: 1.7, maxWidth: 440, marginBottom: 28 }}>
-                      The readiness engine scores buyer profiles against encoded lender criteria — surfacing risk flags, LTV bands, and structuring direction instantly.
+                      The readiness engine scores buyer profiles against encoded lender criteria — surfacing risk flags,
+                      LTV bands, and structuring direction instantly.
                     </p>
                   </FadeUp>
                   <FadeUp delay={400}>
-                    <a href="#contact" className="pill-black" style={{ display: "inline-block", padding: "12px 28px", background: C.black, color: "#fff", fontSize: 14, fontWeight: 600, borderRadius: 10, transition: "background .2s" }}>
+                    <a
+                      href="#contact"
+                      className="pill-black"
+                      style={{
+                        display: "inline-block",
+                        padding: "12px 28px",
+                        background: C.black,
+                        color: "#fff",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        borderRadius: 10,
+                        transition: "background .2s",
+                      }}
+                    >
                       Learn more
                     </a>
                   </FadeUp>
                 </div>
                 <FadeUp delay={250}>
                   <div style={{ background: C.bg, borderRadius: 20, padding: 32, border: `1px solid ${C.gray6}` }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: 2, color: C.gray4, marginBottom: 20, textTransform: "uppercase" as const }}>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        letterSpacing: 2,
+                        color: C.gray4,
+                        marginBottom: 20,
+                        textTransform: "uppercase" as const,
+                      }}
+                    >
                       ASSESSMENT OUTPUT
                     </div>
-                    <div style={{ fontFamily: "var(--font-serif), 'Instrument Serif', serif", fontSize: 72, color: C.black, lineHeight: 1, marginBottom: 4 }}>82</div>
-                    <div style={{ display: "inline-block", padding: "4px 12px", background: C.accent, borderRadius: 8, fontSize: 13, fontWeight: 700, color: C.black, marginBottom: 24 }}>
+                    <div
+                      style={{
+                        fontFamily: "var(--font-serif), 'Instrument Serif', serif",
+                        fontSize: 72,
+                        color: C.black,
+                        lineHeight: 1,
+                        marginBottom: 4,
+                      }}
+                    >
+                      82
+                    </div>
+                    <div
+                      style={{
+                        display: "inline-block",
+                        padding: "4px 12px",
+                        background: C.accent,
+                        borderRadius: 8,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: C.black,
+                        marginBottom: 24,
+                      }}
+                    >
                       Finance Ready
                     </div>
                     {[
@@ -282,9 +376,26 @@ export default function LandingPage() {
                       ["Risk Flags", "Vessel age approaching limit"],
                       ["Complexity Tier", "Moderate"],
                     ].map(([k, v], i) => (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderTop: `1px solid ${C.gray6}`, fontSize: 14 }}>
+                      <div
+                        key={i}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          padding: "12px 0",
+                          borderTop: `1px solid ${C.gray6}`,
+                          fontSize: 14,
+                        }}
+                      >
                         <span style={{ color: C.gray4 }}>{k}</span>
-                        <span style={{ fontWeight: 500, color: k === "Risk Flags" ? "#d97706" : C.gray1, textAlign: "right" as const }}>{v}</span>
+                        <span
+                          style={{
+                            fontWeight: 500,
+                            color: k === "Risk Flags" ? "#d97706" : C.gray1,
+                            textAlign: "right" as const,
+                          }}
+                        >
+                          {v}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -294,21 +405,45 @@ export default function LandingPage() {
           </FadeUp>
         </section>
 
-        {/* ...the rest of your page stays exactly as you pasted... */}
-        {/* (I’m keeping everything below unchanged to avoid “creative liberties”) */}
-
-        {/* HOW IT WORKS */}
+        {/* ════════════════════════════════════════════
+            HOW IT WORKS
+            ════════════════════════════════════════════ */}
         <section id="how" style={{ padding: "100px clamp(24px,5vw,80px) 120px" }}>
           <div style={{ maxWidth: 1280, margin: "0 auto" }}>
             <FadeUp>
-              <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: "uppercase" as const, color: C.gray2, marginBottom: 20 }}>HOW IT WORKS</p>
+              <p
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  letterSpacing: 2,
+                  textTransform: "uppercase" as const,
+                  color: C.gray2,
+                  marginBottom: 20,
+                }}
+              >
+                HOW IT WORKS
+              </p>
             </FadeUp>
             <FadeUp delay={100}>
-              <h2 className="section-h2" style={{ fontFamily: "var(--font-serif), 'Instrument Serif', serif", fontSize: "clamp(36px,5vw,64px)", fontWeight: 400, lineHeight: 1.05, letterSpacing: -1.5, maxWidth: 800, marginBottom: 64 }}>
+              <h2
+                className="section-h2"
+                style={{
+                  fontFamily: "var(--font-serif), 'Instrument Serif', serif",
+                  fontSize: "clamp(36px,5vw,64px)",
+                  fontWeight: 400,
+                  lineHeight: 1.05,
+                  letterSpacing: -1.5,
+                  maxWidth: 800,
+                  marginBottom: 64,
+                }}
+              >
                 From buyer profile to financing intelligence — in minutes.
               </h2>
             </FadeUp>
-            <div className="grid-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 40 }}>
+            <div
+              className="grid-4"
+              style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 40 }}
+            >
               {[
                 { num: "01", title: "Input buyer & vessel data", desc: "Liquidity, net worth, residency, income type, vessel price, age, and intended use." },
                 { num: "02", title: "Engine scores readiness", desc: "Deterministic rules produce a 0–100 score with risk flags and LTV estimation bands." },
@@ -316,7 +451,16 @@ export default function LandingPage() {
                 { num: "04", title: "Generate buyer report", desc: "Institutional-grade PDF with executive summary, risk analysis, and next steps." },
               ].map((s, i) => (
                 <FadeUp key={i} delay={i * 100}>
-                  <div style={{ fontFamily: "var(--font-serif), 'Instrument Serif', serif", fontSize: 48, lineHeight: 1, marginBottom: 16 }}>{s.num}</div>
+                  <div
+                    style={{
+                      fontFamily: "var(--font-serif), 'Instrument Serif', serif",
+                      fontSize: 48,
+                      lineHeight: 1,
+                      marginBottom: 16,
+                    }}
+                  >
+                    {s.num}
+                  </div>
                   <h3 style={{ fontSize: 17, fontWeight: 600, marginBottom: 10 }}>{s.title}</h3>
                   <p style={{ fontSize: 14, color: C.gray3, lineHeight: 1.6 }}>{s.desc}</p>
                 </FadeUp>
@@ -325,12 +469,362 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* (rest unchanged...) */}
+        {/* ════════════════════════════════════════════
+            PLATFORM — BENTO GRID
+            ════════════════════════════════════════════ */}
+        <section id="platform" style={{ padding: "0 clamp(24px,5vw,80px) 120px" }}>
+          <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+            <FadeUp>
+              <p
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  letterSpacing: 2,
+                  textTransform: "uppercase" as const,
+                  color: C.gray2,
+                  marginBottom: 20,
+                }}
+              >
+                THE PLATFORM
+              </p>
+            </FadeUp>
+            <FadeUp delay={100}>
+              <h2
+                className="section-h2"
+                style={{
+                  fontFamily: "var(--font-serif), 'Instrument Serif', serif",
+                  fontSize: "clamp(36px,5vw,64px)",
+                  fontWeight: 400,
+                  lineHeight: 1.05,
+                  letterSpacing: -1.5,
+                  maxWidth: 700,
+                  marginBottom: 56,
+                }}
+              >
+                Every transaction. Every buyer. One source of truth.
+              </h2>
+            </FadeUp>
 
-        {/* CTA */}
+            <div className="bento-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              {[
+                {
+                  title: "Readiness Scoring",
+                  desc: "0–100 index combining liquidity strength, asset quality, structuring complexity, income stability, and jurisdiction sensitivity.",
+                  bg: C.white,
+                  span: false,
+                },
+                {
+                  title: "Institutional Reports",
+                  desc: "PDF and web reports with executive summary, LTV projections, structuring recommendation, risk flags, and next steps.",
+                  bg: C.white,
+                  span: false,
+                },
+                {
+                  title: "Versioned Rule Engine",
+                  desc: "Every rule stored, versioned, and auditable. Adjust weights, thresholds, and conditions without rebuilding. Transparent by design.",
+                  bg: C.accentPale,
+                  span: true,
+                },
+                {
+                  title: "Broker Dashboard",
+                  desc: "Financing intelligence embedded in the broker's existing workflow — triggered from the buyer profile, before offer negotiation.",
+                  bg: C.white,
+                  span: false,
+                },
+                {
+                  title: "API & Embeddable Widget",
+                  desc: "REST endpoints and a lightweight drop-in module. Any broker website can surface a readiness score preview.",
+                  bg: C.white,
+                  span: false,
+                },
+              ].map((f, i) => (
+                <FadeUp key={i} delay={i * 80} style={f.span ? { gridColumn: "span 2" } : {}}>
+                  <div
+                    className={`bento ${f.span ? "bento-span2" : ""}`}
+                    style={{
+                      background: f.bg,
+                      borderRadius: 20,
+                      padding: "36px 32px",
+                      transition: "transform .2s",
+                      height: "100%",
+                    }}
+                  >
+                    <h3 style={{ fontSize: 20, fontWeight: 600, marginBottom: 10 }}>{f.title}</h3>
+                    <p style={{ fontSize: 15, color: C.gray3, lineHeight: 1.65, maxWidth: 520 }}>{f.desc}</p>
+                  </div>
+                </FadeUp>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════════════════════════════════
+            QUOTE
+            ════════════════════════════════════════════ */}
+        <FadeUp style={{ padding: "100px clamp(24px,5vw,80px)" }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
+            <h2
+              style={{
+                fontFamily: "var(--font-serif), 'Instrument Serif', serif",
+                fontSize: "clamp(28px,4vw,48px)",
+                fontWeight: 400,
+                fontStyle: "italic",
+                lineHeight: 1.2,
+                letterSpacing: -0.5,
+                maxWidth: 900,
+                margin: "0 auto 32px",
+              }}
+            >
+              &ldquo;Finally, a structured way to qualify financing before wasting time with lenders who were never going
+              to approve the deal.&rdquo;
+            </h2>
+            <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" as const }}>
+              YACHT BROKER
+            </p>
+            <p
+              style={{
+                fontSize: 12,
+                letterSpacing: 1,
+                color: C.gray4,
+                marginTop: 2,
+                textTransform: "uppercase" as const,
+              }}
+            >
+              MEDITERRANEAN REGION
+            </p>
+          </div>
+        </FadeUp>
+
+        {/* ════════════════════════════════════════════
+            TINTED FEATURE — REPORTS
+            ════════════════════════════════════════════ */}
+        <section style={{ padding: "0 clamp(24px,5vw,80px) 100px" }}>
+          <FadeUp>
+            <div
+              style={{
+                maxWidth: 1280,
+                margin: "0 auto",
+                background: C.white,
+                borderRadius: 28,
+                padding: "clamp(40px,5vw,80px)",
+              }}
+            >
+              <div
+                className="split"
+                style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }}
+              >
+                <FadeUp delay={150}>
+                  <div style={{ background: C.bg, borderRadius: 20, padding: 36, border: `1px solid ${C.gray6}` }}>
+                    <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+                      <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ff5f57" }} />
+                      <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ffbd2e" }} />
+                      <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#28ca41" }} />
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        letterSpacing: 2,
+                        color: C.gray4,
+                        marginBottom: 16,
+                        textTransform: "uppercase" as const,
+                      }}
+                    >
+                      BUYER FINANCING REPORT
+                    </div>
+                    {[
+                      "1. Executive Summary",
+                      "2. Financing Readiness Score",
+                      "3. Indicative Financing Structure",
+                      "4. LTV & Cost Projection",
+                      "5. Risk Considerations",
+                      "6. Next Steps",
+                    ].map((s, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          padding: "10px 0",
+                          borderBottom: i < 5 ? `1px solid ${C.gray6}` : "none",
+                          fontSize: 14,
+                          color: i === 0 ? C.black : C.gray3,
+                          fontWeight: i === 0 ? 600 : 400,
+                        }}
+                      >
+                        {s}
+                      </div>
+                    ))}
+                  </div>
+                </FadeUp>
+
+                <div>
+                  <FadeUp delay={100}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+                      <div
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: 10,
+                          background: C.accentPale,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 18,
+                          color: C.black,
+                        }}
+                      >
+                        ⊞
+                      </div>
+                      <span style={{ fontSize: 15, fontWeight: 600 }}>Report Generator</span>
+                    </div>
+                  </FadeUp>
+                  <FadeUp delay={200}>
+                    <h2
+                      className="section-h2"
+                      style={{
+                        fontFamily: "var(--font-serif), 'Instrument Serif', serif",
+                        fontSize: "clamp(32px,4vw,52px)",
+                        fontWeight: 400,
+                        lineHeight: 1.08,
+                        letterSpacing: -1,
+                        marginBottom: 20,
+                      }}
+                    >
+                      Reports that look like they came from a private bank.
+                    </h2>
+                  </FadeUp>
+                  <FadeUp delay={300}>
+                    <p style={{ fontSize: 16, color: C.gray3, lineHeight: 1.7, maxWidth: 440, marginBottom: 28 }}>
+                      Generate institutional-grade buyer reports in one click. PDF and web view with every section a
+                      lender expects to see.
+                    </p>
+                  </FadeUp>
+                  <FadeUp delay={400}>
+                    <div>
+                      {[
+                        "Executive summary with readiness score",
+                        "Structuring recommendation with jurisdiction logic",
+                        "Risk flags and documentation checklist",
+                        "Shareable with buyers and lenders",
+                      ].map((item, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                          <span style={{ color: C.black, fontWeight: 700, fontSize: 16 }}>✓</span>
+                          <span style={{ fontSize: 15, color: C.gray2 }}>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </FadeUp>
+                </div>
+              </div>
+            </div>
+          </FadeUp>
+        </section>
+
+        {/* ════════════════════════════════════════════
+            WHO IT'S FOR
+            ════════════════════════════════════════════ */}
+        <section id="who" style={{ padding: "100px clamp(24px,5vw,80px) 120px" }}>
+          <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+            <FadeUp>
+              <p
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  letterSpacing: 2,
+                  textTransform: "uppercase" as const,
+                  color: C.gray2,
+                  marginBottom: 20,
+                }}
+              >
+                WHO IT&#39;S FOR
+              </p>
+            </FadeUp>
+            <FadeUp delay={100}>
+              <h2
+                className="section-h2"
+                style={{
+                  fontFamily: "var(--font-serif), 'Instrument Serif', serif",
+                  fontSize: "clamp(36px,5vw,64px)",
+                  fontWeight: 400,
+                  lineHeight: 1.05,
+                  letterSpacing: -1.5,
+                  maxWidth: 700,
+                  marginBottom: 56,
+                }}
+              >
+                Built for the people who close yacht deals.
+              </h2>
+            </FadeUp>
+
+            <div className="grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
+              {[
+                {
+                  title: "Yacht Brokers",
+                  desc: "Qualify buyer financing before engaging lenders. Reduce wasted outreach. Increase deal confidence.",
+                  items: ["Score every buyer in minutes", "Generate shareable reports", "Embedded in your workflow"],
+                },
+                {
+                  title: "Broker Networks",
+                  desc: "Standardise financing conversations across your organisation with a structured intelligence module.",
+                  items: ["White-label ready", "API integration", "Usage analytics dashboard"],
+                },
+                {
+                  title: "Finance Advisors",
+                  desc: "Encode your structuring expertise into a scalable engine. Build on the intelligence layer.",
+                  items: ["Custom rule configuration", "Scenario comparison", "Lender matching (v2)"],
+                },
+              ].map((w, i) => (
+                <FadeUp key={i} delay={i * 120}>
+                  <div
+                    className="feature-card"
+                    style={{
+                      background: C.white,
+                      borderRadius: 20,
+                      padding: "36px 28px",
+                      transition: "all .25s",
+                      height: "100%",
+                    }}
+                  >
+                    <h3
+                      style={{
+                        fontFamily: "var(--font-serif), 'Instrument Serif', serif",
+                        fontSize: 28,
+                        fontWeight: 400,
+                        marginBottom: 12,
+                        letterSpacing: -0.3,
+                      }}
+                    >
+                      {w.title}
+                    </h3>
+                    <p style={{ fontSize: 14, color: C.gray3, lineHeight: 1.65, marginBottom: 20 }}>{w.desc}</p>
+                    {w.items.map((item, j) => (
+                      <div key={j} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                        <span style={{ color: C.black, fontWeight: 700, fontSize: 14 }}>✓</span>
+                        <span style={{ fontSize: 14, color: C.gray2 }}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </FadeUp>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════════════════════════════════
+            CTA
+            ════════════════════════════════════════════ */}
         <section id="contact" style={{ padding: "120px clamp(24px,5vw,80px)", background: C.white, textAlign: "center" }}>
           <FadeUp>
-            <h2 style={{ fontFamily: "var(--font-serif), 'Instrument Serif', serif", fontSize: "clamp(36px,5.5vw,68px)", fontWeight: 400, lineHeight: 1.05, letterSpacing: -1.5, maxWidth: 800, margin: "0 auto 20px" }}>
+            <h2
+              style={{
+                fontFamily: "var(--font-serif), 'Instrument Serif', serif",
+                fontSize: "clamp(36px,5.5vw,68px)",
+                fontWeight: 400,
+                lineHeight: 1.05,
+                letterSpacing: -1.5,
+                maxWidth: 800,
+                margin: "0 auto 20px",
+              }}
+            >
               Book a free, 15-minute demo with the founding team.
             </h2>
           </FadeUp>
@@ -340,7 +834,16 @@ export default function LandingPage() {
             </p>
           </FadeUp>
           <FadeUp delay={200}>
-            <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" as const, maxWidth: 540, margin: "0 auto" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                justifyContent: "center",
+                flexWrap: "wrap" as const,
+                maxWidth: 540,
+                margin: "0 auto",
+              }}
+            >
               <input
                 type="email"
                 placeholder="Work Email*"
@@ -382,20 +885,43 @@ export default function LandingPage() {
           </FadeUp>
         </section>
 
-        {/* FOOTER */}
+        {/* ════════════════════════════════════════════
+            FOOTER
+            ════════════════════════════════════════════ */}
         <footer style={{ padding: "60px clamp(24px,5vw,80px) 32px", borderTop: `1px solid ${C.gray6}` }}>
-          <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap" as const, gap: 40 }}>
+          <div
+            style={{
+              maxWidth: 1280,
+              margin: "0 auto",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              flexWrap: "wrap" as const,
+              gap: 40,
+            }}
+          >
             <div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/waaza.png" alt="Waaza" style={{ height: 28, marginBottom: 8 }} />
               <p style={{ color: C.gray3, fontSize: 14, marginTop: 8, lineHeight: 1.6 }}>
-                The financing intelligence layer<br />
+                The financing intelligence layer
+                <br />
                 for yacht transactions.
               </p>
             </div>
             <div style={{ display: "flex", gap: 60 }}>
               <div>
-                <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase" as const, marginBottom: 14 }}>Platform</p>
+                <p
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    letterSpacing: 1.5,
+                    textTransform: "uppercase" as const,
+                    marginBottom: 14,
+                  }}
+                >
+                  Platform
+                </p>
                 <a href="#platform" style={{ display: "block", fontSize: 14, color: C.gray3, marginBottom: 10 }}>
                   Readiness Engine
                 </a>
@@ -407,7 +933,17 @@ export default function LandingPage() {
                 </a>
               </div>
               <div>
-                <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase" as const, marginBottom: 14 }}>Company</p>
+                <p
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    letterSpacing: 1.5,
+                    textTransform: "uppercase" as const,
+                    marginBottom: 14,
+                  }}
+                >
+                  Company
+                </p>
                 <a href="#who" style={{ display: "block", fontSize: 14, color: C.gray3, marginBottom: 10 }}>
                   Who It&#39;s For
                 </a>
@@ -417,8 +953,17 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          <div style={{ maxWidth: 1280, margin: "40px auto 0", paddingTop: 24, borderTop: `1px solid ${C.gray6}` }}>
-            <p style={{ color: C.gray4, fontSize: 12 }}>© 2026 Waaza — Yacht Financing Intelligence. All rights reserved.</p>
+          <div
+            style={{
+              maxWidth: 1280,
+              margin: "40px auto 0",
+              paddingTop: 24,
+              borderTop: `1px solid ${C.gray6}`,
+            }}
+          >
+            <p style={{ color: C.gray4, fontSize: 12 }}>
+              © 2026 Waaza — Yacht Financing Intelligence. All rights reserved.
+            </p>
           </div>
         </footer>
       </div>

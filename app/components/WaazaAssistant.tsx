@@ -652,32 +652,29 @@ export default function WaazaAssistant({ startHref = "/wizard" }: Props) {
                         <motion.button
                           key={c.label}
                           type="button"
-                          whileHover={{ y: -1 }}
-                          whileTap={{ scale: 0.97 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={c.onClick}
                           style={{
-                            borderRadius: 999,
-                            padding: "9px 16px",
-                            fontSize: 13,
-                            fontWeight: 600,
+                            borderRadius: 10,
+                            padding: "10px 18px",
+                            fontSize: 13.5,
+                            fontWeight: 650,
                             cursor: "pointer",
                             border: c.primary
-                              ? "1px solid #0a0a0a"
-                              : "1px solid rgba(0,0,0,0.14)",
+                              ? "1.5px solid #0a0a0a"
+                              : "1.5px solid rgba(0,0,0,0.13)",
                             background: c.primary ? "#0a0a0a" : "#ffffff",
-                            color: c.primary ? "#ffffff" : "rgba(0,0,0,0.78)",
-                            transition: "all 150ms ease",
-                            boxShadow: c.primary
-                              ? "0 2px 8px rgba(0,0,0,0.15)"
-                              : "none",
+                            color: c.primary ? "#ffffff" : "rgba(0,0,0,0.7)",
+                            transition: "background 150ms ease, border-color 150ms ease",
+                            boxShadow: "none",
                           }}
                           onMouseEnter={(e) => {
                             const btn = e.currentTarget as HTMLButtonElement;
                             if (c.primary) {
                               btn.style.background = "#1a1a1a";
                             } else {
-                              btn.style.background = "#f8f8f8";
-                              btn.style.borderColor = "rgba(0,0,0,0.22)";
+                              btn.style.background = "#f5f5f5";
+                              btn.style.borderColor = "rgba(0,0,0,0.2)";
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -686,7 +683,7 @@ export default function WaazaAssistant({ startHref = "/wizard" }: Props) {
                               btn.style.background = "#0a0a0a";
                             } else {
                               btn.style.background = "#ffffff";
-                              btn.style.borderColor = "rgba(0,0,0,0.14)";
+                              btn.style.borderColor = "rgba(0,0,0,0.13)";
                             }
                           }}
                         >
