@@ -1,17 +1,13 @@
 // app/widget/findaly/findaly-widget.tsx
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 /*
-  Waaza × Findaly — Compact Financing Widget
-  Pretto-density: everything visible without scrolling.
-  Changes:
-  - Wider + better alignment (100% width, no maxWidth container)
-  - Removed score + scoring fetch
-  - Removed deposit % pills
-  - Deposit is editable; live % indicator
-  - No grey “box behind it”, no shadows anywhere
+  Waaza × Findaly — Inline Financing Widget (no outer card)
+  - Full-width, no grey box, no shadows
+  - No "score"
+  - Deposit is editable; % is derived live
 */
 
 function getIndicativeRate(termYears: number, ltvPct: number): number {
@@ -49,6 +45,7 @@ const TERM_STEPS = [10, 15, 20, 25];
 
 export default function FindalyWidget() {
   const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+
   const initialPrice = Number(params?.get("price") || 0);
   const initialYear = Number(params?.get("year") || 2020);
   const initialUsage = params?.get("usage") || "private";
@@ -57,41 +54,30 @@ export default function FindalyWidget() {
 
   const sym = currency === "GBP" ? "£" : currency === "USD" ? "$" : "€";
 
+  // Price
   const [price, setPrice] = useState(initialPrice || 685000);
   const [priceInput, setPriceInput] = useState(fmt(initialPrice || 685000));
 
-  // Deposit is now editable (amount), with live % indicator
-  const [depositAmt, setDepositAmt] = useState(() =>
-    Math.round(((initialPrice || 685000) * 30) / 100)
-  );
-  const [depositInput, setDepositInput] = useState(() =>
-    fmt(Math.round(((initialPrice || 685000) * 30) / 100))
-  );
+  // Deposit (editable)
+  const defaultDeposit = Math.round((initialPrice || 685000) * 0.3);
+  const [deposit, setDeposit] = useState(defaultDeposit);
+  const [depositInput, setDepositInput] = useState(fmt(defaultDeposit));
 
   const [termYears, setTermYears] = useState(20);
 
-  // Keep deposit clamped when price changes (so LTV doesn't go negative / weird)
+  // Keep inputs formatted when external params change (rare, but safe)
   useEffect(() => {
     setPriceInput(fmt(price));
-    setDepositAmt((d) => {
-      const clamped = Math.max(0, Math.min(d, price));
-      return clamped;
-    });
-    setDepositInput((v) => {
-      const n = parseMoney(v);
-      const clamped = Math.max(0, Math.min(n, price));
-      return fmt(clamped);
-    });
   }, [price]);
 
+  // Derived
+  const loan = useMemo(() => Math.max(price - deposit, 0), [price, deposit]);
   const depositPct = useMemo(() => {
     if (price <= 0) return 0;
-    return Math.round((depositAmt / price) * 100);
-  }, [depositAmt, price]);
+    return Math.max(0, Math.min(100, Math.round((deposit / price) * 100)));
+  }, [deposit, price]);
 
-  const loan = useMemo(() => Math.max(price - depositAmt, 0), [price, depositAmt]);
   const ltvPct = useMemo(() => (price > 0 ? Math.round((loan / price) * 100) : 0), [loan, price]);
-
   const rate = useMemo(() => getIndicativeRate(termYears, ltvPct), [termYears, ltvPct]);
   const monthly = useMemo(() => calcMonthly(loan, rate, termYears), [loan, rate, termYears]);
 
@@ -107,26 +93,30 @@ export default function FindalyWidget() {
   function onDepositChange(v: string) {
     setDepositInput(v);
     const n = parseMoney(v);
-    // clamp to [0, price]
-    const clamped = Math.max(0, Math.min(n, price));
-    setDepositAmt(clamped);
+    setDeposit(Math.max(0, Math.min(price, n)));
+  }
+
+  function onDepositBlur() {
+    // clamp + reformat on blur
+    const n = Math.max(0, Math.min(price, deposit));
+    setDeposit(n);
+    setDepositInput(fmt(n));
   }
 
   const wizardUrl =
     `/wizard?price=${price}` +
     `&year=${initialYear}` +
-    `&usage=${initialUsage}` +
-    `&liquidity=${depositAmt}` +
-    `&country=${encodeURIComponent(country || "")}` +
-    `&currency=${encodeURIComponent(currency || "")}`;
+    `&usage=${encodeURIComponent(initialUsage)}` +
+    `&liquidity=${deposit}` +
+    `&country=${encodeURIComponent(country || "")}`;
 
+  // Inline, no “outer card” styles.
   return (
     <div
       style={{
         fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
         color: "#1a1a1a",
-        padding: 0, // no outer padding = aligns with host card
-        background: "transparent",
+        width: "100%",
       }}
     >
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
@@ -135,218 +125,234 @@ export default function FindalyWidget() {
         rel="stylesheet"
       />
 
+      {/* Header row */}
       <div
         style={{
-          width: "100%",
-          background: "#fff",
-          borderRadius: 14,
-          border: "1px solid #e8e8e4",
-          padding: "18px 22px 20px",
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 12,
+          alignItems: "flex-start",
+          marginBottom: 14,
         }}
       >
-        {/* Header row */}
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: -0.2 }}>
+            How much would this boat cost me?
+          </div>
+          <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 2 }}>
+            powered by <span style={{ fontWeight: 700, color: "#1a1a1a" }}>Waaza</span>
+          </div>
+        </div>
+
+        {/* Small rate badge (optional, compact, no score) */}
+        <div
+          style={{
+            padding: "6px 10px",
+            borderRadius: 10,
+            fontSize: 12,
+            fontWeight: 800,
+            background: "#fffde0",
+            border: "1px solid rgba(255,248,108,0.65)",
+            color: "#0a0a0a",
+            whiteSpace: "nowrap",
+            lineHeight: 1,
+          }}
+        >
+          Rate {rate}%
+        </div>
+      </div>
+
+      {/* Inputs row */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 12,
+          marginBottom: 14,
+        }}
+      >
+        <div>
+          <label style={lbl}>Price of vessel</label>
+          <div style={inputWrap}>
+            <span style={pre}>{sym}</span>
+            <input
+              value={priceInput}
+              onChange={(e) => onPriceChange(e.target.value)}
+              onBlur={() => setPriceInput(fmt(price))}
+              inputMode="numeric"
+              style={inp}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label style={lbl}>
+            Deposit{" "}
+            <span style={{ fontWeight: 500, color: "#9ca3af" }}>
+              ({depositPct}% of price)
+            </span>
+          </label>
+          <div style={inputWrap}>
+            <span style={pre}>{sym}</span>
+            <input
+              value={depositInput}
+              onChange={(e) => onDepositChange(e.target.value)}
+              onBlur={onDepositBlur}
+              inputMode="numeric"
+              style={inp}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Term slider */}
+      <div style={{ marginBottom: 14 }}>
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "flex-start",
-            marginBottom: 16,
-            gap: 12,
+            alignItems: "baseline",
+            marginBottom: 8,
           }}
         >
-          <div>
-            <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: -0.2 }}>
-              How much would this boat cost me?
-            </div>
-            <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 1 }}>
-              thanks to our partner{" "}
-              <span style={{ fontWeight: 600, color: "#1a1a1a" }}>Waaza</span>
-            </div>
-          </div>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#4b5563" }}>Loan term</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#111827" }}>
+            {termYears} years
+          </span>
         </div>
 
-        {/* Price + Deposit row */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-          <div>
-            <label style={lbl}>Price of vessel</label>
-            <div style={inputWrap}>
-              <span style={pre}>{sym}</span>
-              <input
-                value={priceInput}
-                onChange={(e) => onPriceChange(e.target.value)}
-                onBlur={() => setPriceInput(fmt(price))}
-                inputMode="numeric"
-                style={inp}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label style={lbl}>
-              Deposit{" "}
-              <span style={{ fontWeight: 600, color: "#6b7280" }}>
-                ({depositPct}%)
-              </span>{" "}
-              <span style={{ fontWeight: 400, color: "#9ca3af" }}>· 30% typical</span>
-            </label>
-            <div style={inputWrap}>
-              <span style={pre}>{sym}</span>
-              <input
-                value={depositInput}
-                onChange={(e) => onDepositChange(e.target.value)}
-                onBlur={() => setDepositInput(fmt(depositAmt))}
-                inputMode="numeric"
-                style={inp}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Loan term — compact slider with rate */}
-        <div style={{ marginBottom: 16 }}>
+        <div style={{ position: "relative", height: 28, userSelect: "none" }}>
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-              marginBottom: 8,
+              position: "absolute",
+              top: 11,
+              left: 0,
+              right: 0,
+              height: 5,
+              borderRadius: 3,
+              background: "#e8e8e4",
             }}
-          >
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#4b5563" }}>Loan term</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "#1a1a1a" }}>Rate {rate}%</span>
-          </div>
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: 11,
+              left: 0,
+              width: `${termPct}%`,
+              height: 5,
+              borderRadius: 3,
+              background: "linear-gradient(90deg, #FFF86C, #e8e060)",
+            }}
+          />
+          <input
+            type="range"
+            min={0}
+            max={TERM_STEPS.length - 1}
+            step={1}
+            value={termIndex >= 0 ? termIndex : 2}
+            onChange={(e) => setTermYears(TERM_STEPS[Number(e.target.value)])}
+            style={{
+              position: "absolute",
+              top: 2,
+              left: -2,
+              width: "calc(100% + 4px)",
+              height: 24,
+              opacity: 0,
+              cursor: "pointer",
+              zIndex: 2,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: 5,
+              left: `calc(${termPct}% - 8px)`,
+              width: 16,
+              height: 16,
+              borderRadius: "50%",
+              background: "#FFF86C",
+              border: "2.5px solid #1a1a1a",
+              boxShadow: "none", // <- no shadow
+              pointerEvents: "none",
+              transition: "left 0.12s ease",
+            }}
+          />
+        </div>
 
-          {/* Slider */}
-          <div style={{ position: "relative", height: 28, userSelect: "none" }}>
-            <div
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+          {TERM_STEPS.map((t) => (
+            <span
+              key={t}
               style={{
-                position: "absolute",
-                top: 11,
-                left: 0,
-                right: 0,
-                height: 5,
-                borderRadius: 3,
-                background: "#e8e8e4",
+                fontSize: 11,
+                fontWeight: termYears === t ? 800 : 500,
+                color: termYears === t ? "#1a1a1a" : "#b0b0a8",
               }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: 11,
-                left: 0,
-                width: `${termPct}%`,
-                height: 5,
-                borderRadius: 3,
-                background: "linear-gradient(90deg, #FFF86C, #e8e060)",
-              }}
-            />
-            <input
-              type="range"
-              min={0}
-              max={TERM_STEPS.length - 1}
-              step={1}
-              value={termIndex >= 0 ? termIndex : 2}
-              onChange={(e) => setTermYears(TERM_STEPS[Number(e.target.value)])}
-              style={{
-                position: "absolute",
-                top: 2,
-                left: -2,
-                width: "calc(100% + 4px)",
-                height: 24,
-                opacity: 0,
-                cursor: "pointer",
-                zIndex: 2,
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: 5,
-                left: `calc(${termPct}% - 8px)`,
-                width: 16,
-                height: 16,
-                borderRadius: "50%",
-                background: "#FFF86C",
-                border: "2.5px solid #1a1a1a",
-                boxShadow: "none", // no shadows
-                pointerEvents: "none",
-                transition: "left 0.12s ease",
-              }}
-            />
-          </div>
+            >
+              {t} years
+            </span>
+          ))}
+        </div>
+      </div>
 
-          {/* Labels */}
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
-            {TERM_STEPS.map((t) => (
-              <span
-                key={t}
-                style={{
-                  fontSize: 11,
-                  fontWeight: termYears === t ? 700 : 400,
-                  color: termYears === t ? "#1a1a1a" : "#b0b0a8",
-                }}
-              >
-                {t} years
-              </span>
-            ))}
+      {/* Result row */}
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "12px 14px",
+          background: "transparent", // <- no grey box
+          borderRadius: 12,
+          border: "1px solid #e8e8e4",
+        }}
+      >
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: -0.9, lineHeight: 1 }}>
+            {fmt(monthly)}
+            <span style={{ fontSize: 14, fontWeight: 600, color: "#6b7280" }}>
+              {sym}/month
+            </span>
+          </div>
+          <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>
+            Total interest: {sym}
+            {fmt(Math.max(monthly * termYears * 12 - loan, 0))} · LTV: {ltvPct}%
           </div>
         </div>
 
-        {/* Result bar — clean (no grey box) */}
-        <div
+        <a
+          href={wizardUrl}
+          target="_blank"
+          rel="noopener noreferrer"
           style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 14,
-            paddingTop: 14,
-            borderTop: "1px solid #e8e8e4",
+            padding: "10px 16px",
+            background: "#FFF86C",
+            color: "#1a1a1a",
+            fontSize: 13,
+            fontWeight: 800,
+            borderRadius: 10,
+            border: "1px solid rgba(0,0,0,0.12)",
+            cursor: "pointer",
+            textDecoration: "none",
+            whiteSpace: "nowrap",
+            fontFamily: "inherit",
+            flexShrink: 0,
           }}
         >
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.8, lineHeight: 1 }}>
-              {fmt(monthly)} {sym}
-              <span style={{ fontSize: 14, fontWeight: 500, color: "#6b7280" }}>/month</span>
-            </div>
-            <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 6, lineHeight: 1.4 }}>
-              Total interest: {sym}
-              {fmt(Math.max(monthly * termYears * 12 - loan, 0))} · LTV: {ltvPct}%
-            </div>
-          </div>
-
-          <a
-            href={wizardUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              padding: "10px 16px",
-              background: "#FFF86C",
-              color: "#1a1a1a",
-              fontSize: 13,
-              fontWeight: 800,
-              borderRadius: 10,
-              border: "1px solid rgba(0,0,0,0.10)",
-              cursor: "pointer",
-              textDecoration: "none",
-              whiteSpace: "nowrap",
-              fontFamily: "inherit",
-              flexShrink: 0,
-            }}
-          >
-            Refine my project
-          </a>
-        </div>
+          Refine my project
+        </a>
       </div>
     </div>
   );
 }
 
-/* ── Compact styles ── */
+/* styles */
 const lbl: React.CSSProperties = {
   display: "block",
   fontSize: 12,
-  fontWeight: 600,
-  color: "#4b5563",
+  fontWeight: 700,
+  color: "#374151",
   marginBottom: 6,
 };
 
@@ -358,9 +364,9 @@ const inputWrap: React.CSSProperties = {
 
 const pre: React.CSSProperties = {
   position: "absolute",
-  left: 10,
+  left: 12,
   fontSize: 13,
-  fontWeight: 600,
+  fontWeight: 700,
   color: "#9ca3af",
   pointerEvents: "none",
 };
@@ -368,14 +374,14 @@ const pre: React.CSSProperties = {
 const inp: React.CSSProperties = {
   width: "100%",
   height: 40,
-  paddingLeft: 26,
-  paddingRight: 10,
+  paddingLeft: 28,
+  paddingRight: 12,
   fontSize: 14,
-  fontWeight: 700,
+  fontWeight: 800,
   fontFamily: "inherit",
   border: "1px solid #e8e8e4",
   borderRadius: 10,
-  background: "#ffffff", // no grey tint
-  color: "#1a1a1a",
+  background: "transparent", // <- no grey field
+  color: "#111827",
   boxSizing: "border-box",
 };
