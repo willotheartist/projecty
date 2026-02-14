@@ -2,11 +2,13 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { defaultAnswers } from "@/lib/wizard/defaults";
 import { WizardAnswers, RiskFlag } from "@/lib/wizard/types";
 import { riskFlagLabel, prettyEngineFlag } from "@/lib/wizard/labels";
 
 type StepId =
+  | "client_name"
   | "purchase_price"
   | "usage_intent"
   | "year_built"
@@ -30,6 +32,11 @@ type Step = {
 };
 
 const STEPS: Step[] = [
+  {
+    id: "client_name",
+    title: "Who is this assessment for?",
+    hint: "Enter the buyer's name or a reference. This helps you identify the assessment later.",
+  },
   {
     id: "purchase_price",
     title: "What is the approximate purchase price of the yacht?",
@@ -103,7 +110,7 @@ const STEPS: Step[] = [
   { id: "results", title: "Financing Readiness Summary" },
 ];
 
-/** ---------- Engine response types aligned to runAssessment() ---------- */
+/** ---------- Engine response types ---------- */
 
 type RiskSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
@@ -142,6 +149,7 @@ type EngineAssessResponse = {
     assessmentRunId: string;
   };
   result?: EngineResult;
+  authenticated?: boolean;
 };
 
 /** ---------- tiny helpers ---------- */
@@ -161,6 +169,7 @@ function getErrorMessage(e: unknown): string {
 }
 
 export default function WizardClient() {
+  const router = useRouter();
   const [answers, setAnswers] = useState<WizardAnswers>(defaultAnswers);
   const [idx, setIdx] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -168,6 +177,9 @@ export default function WizardClient() {
   const [engineRes, setEngineRes] = useState<EngineAssessResponse | null>(null);
   const [isAssessing, setIsAssessing] = useState(false);
   const [isPdfLoading, setIsPdfLoading] = useState(false);
+
+  // Track client name separately (not in WizardAnswers type)
+  const [clientName, setClientName] = useState("");
 
   const step = STEPS[idx];
   const isResults = step.id === "results";
@@ -183,7 +195,7 @@ export default function WizardClient() {
     setError(null);
 
     const a = draft ?? answers;
-    const v = validateStep(step.id, a);
+    const v = validateStep(step.id, a, clientName);
     if (!v.ok) {
       setError(v.message);
       return;
@@ -205,6 +217,7 @@ export default function WizardClient() {
 
   function reset() {
     setAnswers(defaultAnswers);
+    setClientName("");
     setIdx(0);
     setError(null);
     setEngineRes(null);
@@ -220,7 +233,7 @@ export default function WizardClient() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isResults, idx, answers]);
+  }, [isResults, idx, answers, clientName]);
 
   useEffect(() => {
     if (!isResults) return;
@@ -236,7 +249,10 @@ export default function WizardClient() {
         const res = await fetch("/api/wizard/assess", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(answers),
+          body: JSON.stringify({
+            ...answers,
+            clientName: clientName.trim() || "Assessment Buyer",
+          }),
         });
 
         const jsonUnknown = (await res.json()) as unknown;
@@ -266,7 +282,7 @@ export default function WizardClient() {
     return () => {
       cancelled = true;
     };
-  }, [isResults, answers]);
+  }, [isResults, answers, clientName]);
 
   async function generatePdf() {
     const assessmentId = engineRes?.ids?.assessmentId ?? engineRes?.result?.assessmentId;
@@ -336,7 +352,7 @@ export default function WizardClient() {
 
             {!isResults ? (
               <div className="wz-field">
-                {renderStep(step.id, answers, setAnswers, nextWithPatch)}
+                {renderStep(step.id, answers, setAnswers, nextWithPatch, clientName, setClientName)}
                 {error && <div className="wz-error">{error}</div>}
               </div>
             ) : (
@@ -346,7 +362,18 @@ export default function WizardClient() {
                     Calculating financing readiness…
                   </div>
                 ) : engineRes?.ok && engineRes.result ? (
-                  <ResultsView engine={engineRes.result} />
+                  <ResultsView
+                    engine={engineRes.result}
+                    authenticated={engineRes.authenticated ?? false}
+                    assessmentId={engineRes.ids?.assessmentId}
+                    onViewDashboard={() => {
+                      if (engineRes.ids?.assessmentId) {
+                        router.push(`/dashboard/${engineRes.ids.assessmentId}`);
+                      } else {
+                        router.push("/dashboard");
+                      }
+                    }}
+                  />
                 ) : (
                   <div style={{ padding: 8, color: "rgba(0,0,0,0.62)" }}>
                     {error ? "Assessment failed." : "No result yet."}
@@ -407,9 +434,22 @@ function renderStep(
   id: StepId,
   a: WizardAnswers,
   setA: React.Dispatch<React.SetStateAction<WizardAnswers>>,
-  nextWithPatch: (patch: Partial<WizardAnswers>) => void
+  nextWithPatch: (patch: Partial<WizardAnswers>) => void,
+  clientName: string,
+  setClientName: React.Dispatch<React.SetStateAction<string>>
 ) {
   switch (id) {
+    case "client_name":
+      return (
+        <input
+          className="input"
+          placeholder="e.g. John Smith or Deal Reference #42"
+          value={clientName}
+          onChange={(e) => setClientName(e.target.value)}
+          autoFocus
+        />
+      );
+
     case "purchase_price":
       return (
         <div className="wz-inputRow">
@@ -706,8 +746,13 @@ function OptionList(props: {
   );
 }
 
-function ResultsView(props: { engine: EngineResult }) {
-  const { engine } = props;
+function ResultsView(props: {
+  engine: EngineResult;
+  authenticated: boolean;
+  assessmentId?: string;
+  onViewDashboard: () => void;
+}) {
+  const { engine, authenticated, onViewDashboard } = props;
 
   const tierLabel = humanTier(engine.tier);
   const meaning = scoreMeaning(engine.readinessScore);
@@ -735,6 +780,52 @@ function ResultsView(props: { engine: EngineResult }) {
       <div className="panel">
         <div style={{ fontSize: 14, color: "rgba(0,0,0,0.62)" }}>Recommended direction</div>
         <div style={{ marginTop: 8, fontSize: 16, lineHeight: 1.45 }}>{engine.recommendedPath}</div>
+
+        {/* Dashboard CTA */}
+        {authenticated && (
+          <button
+            onClick={onViewDashboard}
+            style={{
+              marginTop: 20,
+              width: "100%",
+              padding: "12px 16px",
+              borderRadius: 10,
+              border: "1px solid rgba(0,0,0,0.12)",
+              background: "#0a0a0a",
+              color: "#fff",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+              fontFamily: "var(--font), inherit",
+              transition: "background 0.2s",
+            }}
+          >
+            View on Dashboard →
+          </button>
+        )}
+
+        {!authenticated && (
+          <a
+            href="/login"
+            style={{
+              display: "block",
+              marginTop: 20,
+              width: "100%",
+              padding: "12px 16px",
+              borderRadius: 10,
+              border: "1px solid rgba(0,0,0,0.12)",
+              background: "rgba(255,248,108,0.15)",
+              color: "#0a0a0a",
+              fontSize: 13,
+              fontWeight: 500,
+              textAlign: "center",
+              textDecoration: "none",
+              cursor: "pointer",
+            }}
+          >
+            Sign in to save assessments to your dashboard
+          </a>
+        )}
       </div>
 
       <div className="panel" style={{ gridColumn: "1 / -1" }}>
@@ -757,8 +848,16 @@ function ResultsView(props: { engine: EngineResult }) {
   );
 }
 
-function validateStep(id: StepId, a: WizardAnswers): { ok: true } | { ok: false; message: string } {
+function validateStep(
+  id: StepId,
+  a: WizardAnswers,
+  clientName: string
+): { ok: true } | { ok: false; message: string } {
   switch (id) {
+    case "client_name":
+      if (!clientName.trim())
+        return { ok: false, message: "Please enter a buyer name or reference." };
+      return { ok: true };
     case "purchase_price":
       if (!a.purchasePrice || a.purchasePrice <= 0)
         return { ok: false, message: "Please enter an approximate purchase price." };
@@ -854,15 +953,8 @@ function scoreMeaning(score: number) {
   if (s >= 80)
     return "Strong finance readiness. With a clean document pack, you can move toward lender outreach with normal expectations on structure and terms.";
   if (s >= 50)
-    return "Feasible, but expect conditions. You’ll likely need tighter documentation, structuring clarity, or adjustments to deposit/LTV expectations.";
+    return "Feasible, but expect conditions. You'll likely need tighter documentation, structuring clarity, or adjustments to deposit/LTV expectations.";
   return "High complexity profile. In its current form it may be declined — treat this as a diagnostic to improve liquidity, structure, or vessel profile before outreach.";
-}
-
-function severityFromDelta(delta: number): "low" | "medium" | "high" {
-  const d = Number(delta ?? 0);
-  if (d <= -15) return "high";
-  if (d <= -7) return "medium";
-  return "low";
 }
 
 function severityFromRiskSeverity(sev: RiskSeverity): "low" | "medium" | "high" {
@@ -900,16 +992,13 @@ function buildPrettyFlags(riskFlagsRaw: EngineRiskFlag[] | unknown, hits: Engine
 
   for (const f of riskFlags) {
     const code = String(f.code);
-    const delta = byFlag.get(code) ?? -8;
-
     out.push({
       id: code,
       text: prettyEngineFlag(code),
-      severity: severityFromRiskSeverity(f.severity) ?? severityFromDelta(delta),
+      severity: severityFromRiskSeverity(f.severity),
     });
   }
 
-  // Dedup (just in case)
   const seen = new Set<string>();
   return out.filter((x) => {
     if (seen.has(x.id)) return false;

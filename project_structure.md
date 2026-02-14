@@ -1,14 +1,14 @@
 # 📁 projecty - Project Structure
 
-*Generated on: 12/02/2026, 15:44:45*
+*Generated on: 14/02/2026, 18:53:00*
 
 ## 📋 Quick Overview
 
 | Metric | Value |
 |--------|-------|
-| 📄 Total Files | 63 |
-| 📁 Total Folders | 31 |
-| 🌳 Max Depth | 4 levels |
+| 📄 Total Files | 96 |
+| 📁 Total Folders | 54 |
+| 🌳 Max Depth | 5 levels |
 | 🛠️ Tech Stack | React, Next.js, TypeScript, CSS, Node.js |
 
 ## ⭐ Important Files
@@ -24,40 +24,41 @@
 
 ### By File Type
 
-- 🔷 **.ts** (TypeScript files): 24 files (38.1%)
-- ⚛️ **.tsx** (React TypeScript files): 9 files (14.3%)
-- 🖼️ **.png** (PNG images): 5 files (7.9%)
-- 🎨 **.svg** (SVG images): 5 files (7.9%)
-- ⚙️ **.json** (JSON files): 3 files (4.8%)
-- 📄 **.txt** (Text files): 2 files (3.2%)
-- 📖 **.md** (Markdown files): 2 files (3.2%)
-- 🎨 **.css** (Stylesheets): 2 files (3.2%)
-- 📄 **.mjs** (Other files): 2 files (3.2%)
-- ⚙️ **.yaml** (YAML files): 2 files (3.2%)
-- 📄 **.sql** (Other files): 2 files (3.2%)
-- 🚫 **.gitignore** (Git ignore): 1 files (1.6%)
-- 🖼️ **.ico** (Icon files): 1 files (1.6%)
-- ⚙️ **.toml** (TOML files): 1 files (1.6%)
-- 📄 **.prisma** (Other files): 1 files (1.6%)
-- 📕 **.pdf** (PDF files): 1 files (1.6%)
+- 🔷 **.ts** (TypeScript files): 37 files (38.5%)
+- ⚛️ **.tsx** (React TypeScript files): 27 files (28.1%)
+- 🖼️ **.png** (PNG images): 5 files (5.2%)
+- 🎨 **.svg** (SVG images): 5 files (5.2%)
+- ⚙️ **.json** (JSON files): 3 files (3.1%)
+- 📄 **.sql** (Other files): 3 files (3.1%)
+- 📄 **.txt** (Text files): 2 files (2.1%)
+- 📖 **.md** (Markdown files): 2 files (2.1%)
+- 🎨 **.css** (Stylesheets): 2 files (2.1%)
+- 📄 **.mjs** (Other files): 2 files (2.1%)
+- ⚙️ **.yaml** (YAML files): 2 files (2.1%)
+- 🚫 **.gitignore** (Git ignore): 1 files (1.0%)
+- 🖼️ **.ico** (Icon files): 1 files (1.0%)
+- ⚙️ **.toml** (TOML files): 1 files (1.0%)
+- 📄 **.prisma** (Other files): 1 files (1.0%)
+- 📕 **.pdf** (PDF files): 1 files (1.0%)
+- 📄 **.tsbuildinfo** (Other files): 1 files (1.0%)
 
 ### By Category
 
-- **TypeScript**: 24 files (38.1%)
-- **Assets**: 11 files (17.5%)
-- **React**: 9 files (14.3%)
-- **Config**: 6 files (9.5%)
-- **Docs**: 5 files (7.9%)
-- **Other**: 5 files (7.9%)
-- **Styles**: 2 files (3.2%)
-- **DevOps**: 1 files (1.6%)
+- **TypeScript**: 37 files (38.5%)
+- **React**: 27 files (28.1%)
+- **Assets**: 11 files (11.5%)
+- **Other**: 7 files (7.3%)
+- **Config**: 6 files (6.3%)
+- **Docs**: 5 files (5.2%)
+- **Styles**: 2 files (2.1%)
+- **DevOps**: 1 files (1.0%)
 
 ### 📁 Largest Directories
 
-- **root**: 63 files
-- **app**: 22 files
-- **lib**: 11 files
-- **app/api**: 10 files
+- **root**: 96 files
+- **app**: 51 files
+- **app/api**: 21 files
+- **lib**: 13 files
 - **public**: 10 files
 
 ## 🌳 Directory Structure
@@ -83,6 +84,19 @@ projecty/
 │   │   │   │   └── 🔷 route.ts
 │   │   │   └── 📂 whatif/
 │   │   │   │   └── 🔷 route.ts
+│   │   ├── 📂 auth/
+│   │   │   ├── 📂 login/
+│   │   │   │   └── 🔷 route.ts
+│   │   │   ├── 📂 logout/
+│   │   │   │   └── 🔷 route.ts
+│   │   │   ├── 📂 me/
+│   │   │   │   └── 🔷 route.ts
+│   │   │   └── 📂 register/
+│   │   │   │   └── 🔷 route.ts
+│   │   ├── 📂 dashboard/
+│   │   │   ├── 📂 [id]/
+│   │   │   │   └── 🔷 route.ts
+│   │   │   └── 🔷 route.ts
 │   │   ├── 📂 dev/
 │   │   │   ├── 📂 demo/
 │   │   │   │   └── 🔷 route.ts
@@ -90,22 +104,60 @@ projecty/
 │   │   │   │   └── 🔷 route.ts
 │   │   │   └── 📂 ping-db/
 │   │   │   │   └── 🔷 route.ts
+│   │   ├── 📂 keys/
+│   │   │   └── 🔷 route.ts
+│   │   ├── 📂 v1/
+│   │   │   ├── 📂 assessments/
+│   │   │   │   ├── 📂 [id]/
+│   │   │   │   │   └── 🔷 route.ts
+│   │   │   │   └── 🔷 route.ts
+│   │   │   └── 📂 reports/
+│   │   │   │   └── 🔷 route.ts
+│   │   ├── 📂 widget/
+│   │   │   └── 📂 assess/
+│   │   │   │   └── 🔷 route.ts
 │   │   └── 📂 wizard/
 │   │   │   └── 📂 assess/
 │   │   │   │   └── 🔷 route.ts
 │   ├── 🧩 components/
 │   │   ├── ⚛️ Header.tsx
+│   │   ├── ⚛️ LayoutShell.tsx
 │   │   └── ⚛️ WaazaAssistant.tsx
+│   ├── 📂 dashboard/
+│   │   ├── 📂 [id]/
+│   │   │   ├── ⚛️ assessment-detail.tsx
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ dashboard-client.tsx
+│   │   ├── ⚛️ layout.tsx
+│   │   ├── ⚛️ page.tsx
+│   │   └── 📂 settings/
+│   │   │   ├── ⚛️ page.tsx
+│   │   │   └── ⚛️ settings-client.tsx
 │   ├── ⚛️ DemoPanel.tsx
 │   ├── 🖼️ favicon.ico
 │   ├── 🎨 globals.css
 │   ├── ⚛️ layout.tsx
+│   ├── 📂 login/
+│   │   ├── ⚛️ layout.tsx
+│   │   └── ⚛️ page.tsx
 │   ├── 📂 old/
 │   │   └── ⚛️ page.tsx
 │   ├── ⚛️ page.tsx
 │   ├── 📂 simulator/
 │   │   └── ⚛️ page.tsx
 │   ├── 📂 v2/
+│   ├── 📂 widget/
+│   │   ├── 📂 demo/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 findaly/
+│   │   │   ├── 📂 demo/
+│   │   │   │   └── ⚛️ page.tsx
+│   │   │   ├── ⚛️ findaly-widget.tsx
+│   │   │   ├── ⚛️ layout.tsx
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ layout.tsx
+│   │   ├── ⚛️ page.tsx
+│   │   └── ⚛️ widget-client.tsx
 │   └── 📂 wizard/
 │   │   ├── ⚛️ page.tsx
 │   │   ├── ⚛️ wizard-client.tsx
@@ -113,6 +165,8 @@ projecty/
 ├── 🔵 🔍 **eslint.config.mjs**
 ├── 📄 headers.txt
 ├── 📚 lib/
+│   ├── 🔷 apiAuth.ts
+│   ├── 🔷 auth.ts
 │   ├── 📂 engine/
 │   │   ├── 🔷 loanSimulator.ts
 │   │   ├── 🔷 rateModel.ts
@@ -140,6 +194,8 @@ projecty/
 │   │   │   └── 📄 migration.sql
 │   │   ├── 📂 20260210144754_assessment_runs/
 │   │   │   └── 📄 migration.sql
+│   │   ├── 📂 20260212145659_add_user_auth/
+│   │   │   └── 📄 migration.sql
 │   │   └── ⚙️ migration_lock.toml
 │   ├── 📄 schema.prisma
 │   └── 🔷 seed.ts
@@ -157,7 +213,8 @@ projecty/
 │   └── 🎨 window.svg
 ├── 🔴 📖 **README.md**
 ├── 📕 report.pdf
-└── 🟡 🔷 **tsconfig.json**
+├── 🟡 🔷 **tsconfig.json**
+└── 📄 tsconfig.tsbuildinfo
 ```
 
 ## 📖 Legend

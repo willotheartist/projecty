@@ -1,3 +1,4 @@
+// app/components/WaazaAssistant.tsx
 "use client";
 
 import * as React from "react";
@@ -63,24 +64,6 @@ function WaazaAvatar({ size = 28 }: { size?: number }) {
         style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
       />
     </div>
-  );
-}
-
-/* ── Online dot ── */
-function OnlineDot() {
-  return (
-    <span
-      style={{
-        position: "absolute",
-        bottom: -1,
-        right: -1,
-        width: 10,
-        height: 10,
-        borderRadius: 10,
-        background: "#22c55e",
-        border: "2px solid #0a0a0a",
-      }}
-    />
   );
 }
 
@@ -198,10 +181,7 @@ export default function WaazaAssistant({ startHref = "/wizard" }: Props) {
     if (r === "self") {
       pushUser("For myself");
       pushAssistantDelayed(
-        [
-          "Perfect. I can run a quick financing simulation in under 60 seconds.",
-          "Ready to start?",
-        ],
+        ["Perfect. I can run a quick financing simulation in under 60 seconds.", "Ready to start?"],
         () => setStep("selfStart")
       );
       return;
@@ -209,26 +189,23 @@ export default function WaazaAssistant({ startHref = "/wizard" }: Props) {
     if (r === "client") {
       pushUser("For a client");
       pushAssistantDelayed(
-        [
-          "Great — I'll help you run a structured readiness assessment.",
-          "Want a quick preview or the full simulation?",
-        ],
+        ["Great — I'll help you run a structured readiness assessment.", "Want a quick preview or the full simulation?"],
         () => setStep("clientMode")
       );
       return;
     }
     pushUser("Just browsing");
-    pushAssistantDelayed(
-      ["No worries. Want to see an example of what Waaza produces?"],
-      () => setStep("browseDemo")
-    );
+    pushAssistantDelayed(["No worries. Want to see an example of what Waaza produces?"], () => setStep("browseDemo"));
   };
 
   const goStart = () => {
     try {
       localStorage.setItem("waaza_ai_entry", JSON.stringify({ role, ts: now() }));
     } catch {}
-    window.location.href = startHref;
+
+    // eslint/react-hooks immutability: avoid assigning to location.href
+    // `assign` is the recommended imperative navigation API.
+    window.location.assign(startHref);
   };
 
   const showExample = () => {
@@ -256,9 +233,7 @@ export default function WaazaAssistant({ startHref = "/wizard" }: Props) {
   const fullSimulation = () => {
     pushUser("Full simulation");
     pushAssistantDelayed(
-      [
-        "Perfect. We'll collect the minimum inputs and produce a score, LTV band, risk flags, and recommended next steps.",
-      ],
+      ["Perfect. We'll collect the minimum inputs and produce a score, LTV band, risk flags, and recommended next steps."],
       () => setStep("selfStart")
     );
   };
@@ -320,13 +295,7 @@ export default function WaazaAssistant({ startHref = "/wizard" }: Props) {
         }}
       >
         {/* Avatar slot */}
-        {!isUser ? (
-          showAvatar ? (
-            <WaazaAvatar size={26} />
-          ) : (
-            <div style={{ width: 26, flexShrink: 0 }} />
-          )
-        ) : null}
+        {!isUser ? showAvatar ? <WaazaAvatar size={26} /> : <div style={{ width: 26, flexShrink: 0 }} /> : null}
 
         <div
           style={{
@@ -384,7 +353,10 @@ export default function WaazaAssistant({ startHref = "/wizard" }: Props) {
         {!open && (
           <motion.button
             type="button"
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              setOpen(true);
+              setStep((s) => (s === "intro" ? "role" : s));
+            }}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
@@ -570,12 +542,8 @@ export default function WaazaAssistant({ startHref = "/wizard" }: Props) {
                     </div>
 
                     <div style={{ lineHeight: 1.15 }}>
-                      <div style={{ fontWeight: 700, fontSize: 14.5, letterSpacing: -0.2 }}>
-                        Waaza AI
-                      </div>
-                      <div style={{ fontSize: 12, opacity: 0.55, fontWeight: 500 }}>
-                        Financing guide
-                      </div>
+                      <div style={{ fontWeight: 700, fontSize: 14.5, letterSpacing: -0.2 }}>Waaza AI</div>
+                      <div style={{ fontSize: 12, opacity: 0.55, fontWeight: 500 }}>Financing guide</div>
                     </div>
                   </div>
                 </div>
@@ -707,7 +675,14 @@ export default function WaazaAssistant({ startHref = "/wizard" }: Props) {
                       background: "#fafafa",
                     }}
                   >
-                    <span style={{ flex: 1, fontSize: 13.5, color: "rgba(0,0,0,0.32)", fontWeight: 500 }}>
+                    <span
+                      style={{
+                        flex: 1,
+                        fontSize: 13.5,
+                        color: "rgba(0,0,0,0.32)",
+                        fontWeight: 500,
+                      }}
+                    >
                       Write a message...
                     </span>
 

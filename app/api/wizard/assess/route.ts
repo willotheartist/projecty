@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { runAssessment } from "@/lib/engine/runAssessment";
 import { WizardAnswers } from "@/lib/wizard/types";
+import { getSessionUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +21,8 @@ function mapIncomeType(v: unknown) {
 
 function mapUsageType(v: unknown) {
   const x = String(v ?? "").toLowerCase();
-  // Prisma enum: PRIVATE / CHARTER
   if (x === "private") return "PRIVATE" as const;
-  return "CHARTER" as const; // private_plus_charter, commercial_charter -> CHARTER
+  return "CHARTER" as const;
 }
 
 function mapOwnershipIntent(v: unknown) {
@@ -58,24 +58,36 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "Missing/invalid liquidityAvailable" }, { status: 400 });
     }
 
-    // Actor (simple for now)
-    const actorEmail = "founder@projecty.local";
-    const actor = await prisma.user.upsert({
-      where: { email: actorEmail },
-      update: {},
-      create: { email: actorEmail, role: "ADMIN" },
-    });
+    // ── Resolve actor: logged-in user OR fallback to system user ──
+    const sessionUser = await getSessionUser();
+    let actorId: string;
+    let actorEmail: string;
 
-    // Create lightweight Client + Vessel so the engine can run
+    if (sessionUser) {
+      actorId = sessionUser.id;
+      actorEmail = sessionUser.email;
+    } else {
+      // Fallback for unauthenticated wizard usage (e.g. landing page demo)
+      const fallbackEmail = "system@waaza.co";
+      const systemUser = await prisma.user.upsert({
+        where: { email: fallbackEmail },
+        update: {},
+        create: { email: fallbackEmail, role: "ADMIN", name: "System" },
+      });
+      actorId = systemUser.id;
+      actorEmail = systemUser.email;
+    }
+
+    // Create Client + Vessel
     const client = await prisma.client.create({
       data: {
-        name: "Wizard Buyer",
+        name: (raw as Record<string, unknown>)?.clientName as string || "Assessment Buyer",
         residency: taxResidencyCountry,
         liquidityAvailable,
         netWorthBand,
         incomeType,
         ownershipIntent,
-        createdById: actor.id,
+        createdById: actorId,
       },
     });
 
@@ -96,7 +108,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // Run the engine (defaults to latest ruleset)
+    // Run the engine
     const result = await runAssessment({
       clientId: client.id,
       vesselId: vessel.id,
@@ -112,9 +124,11 @@ export async function POST(req: Request) {
         assessmentRunId: result.assessmentRunId,
       },
       result,
+      authenticated: !!sessionUser,
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Unknown error";
+    console.error("Wizard assess error:", msg);
     return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }
 }

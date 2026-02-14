@@ -2,8 +2,7 @@
 import type { Metadata } from "next";
 import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
-import Header from "./components/Header";
-import WaazaAssistant from "./components/WaazaAssistant";
+import LayoutShell from "./components/LayoutShell";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -81,9 +80,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${instrumentSerif.variable}`}>
       <body className="antialiased">
-        <Header />
-        {children}
-        <WaazaAssistant startHref="/wizard" />
+        <LayoutShell>{children}</LayoutShell>
       </body>
     </html>
   );

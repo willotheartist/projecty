@@ -32,16 +32,39 @@ enum OwnershipIntent {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  role      Role     @default(BROKER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?
+  name         String?
+  role         Role     @default(BROKER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  clients       Client[]
-  assessments   Assessment[]
-  auditLogs     AuditLog[]
+  clients        Client[]
+  assessments    Assessment[]
+  auditLogs      AuditLog[]
   assessmentRuns AssessmentRun[]
+  apiKeys        ApiKey[]
+}
+
+model ApiKey {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name         String    @default("Default")
+  keyHash      String    @unique
+  prefix       String
+
+  lastUsedAt   DateTime?
+  requestCount Int       @default(0)
+  rateLimit    Int       @default(100)
+
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+
+  @@index([userId])
+  @@index([keyHash])
 }
 
 model Client {
