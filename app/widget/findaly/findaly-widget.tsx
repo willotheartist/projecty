@@ -1,29 +1,29 @@
 // app/widget/findaly/findaly-widget.tsx
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 
 /*
-  Waaza × Findaly — Compact Financing Widget
-  Pretto-density: everything visible without scrolling.
+  Waaza × Findaly — Minimal Financing Widget
+  Two inputs. One slider. One number. Done.
 */
 
-function getIndicativeRate(termYears: number, ltvPct: number): number {
-  let base = 3.8;
-  if (termYears <= 10) base = 3.2;
-  else if (termYears <= 15) base = 3.5;
-  else if (termYears <= 20) base = 3.8;
-  else base = 4.1;
-  if (ltvPct > 70) base += 0.6;
-  else if (ltvPct > 60) base += 0.3;
-  else if (ltvPct > 50) base += 0.1;
-  return Math.round(base * 10) / 10;
+function getRate(years: number, ltv: number): number {
+  let r = 3.8;
+  if (years <= 10) r = 3.2;
+  else if (years <= 15) r = 3.5;
+  else if (years <= 20) r = 3.8;
+  else r = 4.1;
+  if (ltv > 70) r += 0.6;
+  else if (ltv > 60) r += 0.3;
+  else if (ltv > 50) r += 0.1;
+  return Math.round(r * 10) / 10;
 }
 
-function calcMonthly(principal: number, annualRate: number, termYears: number): number {
-  if (principal <= 0 || termYears <= 0) return 0;
-  const r = annualRate / 100 / 12;
-  const n = termYears * 12;
+function pmt(principal: number, rate: number, years: number): number {
+  if (principal <= 0 || years <= 0) return 0;
+  const r = rate / 100 / 12;
+  const n = years * 12;
   if (r === 0) return principal / n;
   return (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
 }
@@ -37,257 +37,134 @@ function parseMoney(v: string): number {
   return c ? Number(c) : 0;
 }
 
-const TERM_STEPS = [10, 15, 20, 25];
+const TERMS = [10, 15, 20, 25];
 
 export default function FindalyWidget() {
-  const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-  const initialPrice = Number(params?.get("price") || 0);
-  const initialYear = Number(params?.get("year") || 2020);
-  const initialUsage = params?.get("usage") || "private";
-  const currency = (params?.get("currency") || "EUR").toUpperCase();
-  const country = params?.get("country") || "";
+  const p = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const initPrice = Number(p?.get("price") || 0) || 685000;
+  const initYear = Number(p?.get("year") || 2020);
+  const usage = p?.get("usage") || "private";
+  const cur = (p?.get("currency") || "EUR").toUpperCase();
+  const sym = cur === "GBP" ? "£" : cur === "USD" ? "$" : "€";
 
-  const sym = currency === "GBP" ? "£" : currency === "USD" ? "$" : "€";
+  const [price, setPrice] = useState(initPrice);
+  const [priceStr, setPriceStr] = useState(fmt(initPrice));
+  const [depositStr, setDepositStr] = useState(fmt(Math.round(initPrice * 0.3)));
+  const [deposit, setDeposit] = useState(Math.round(initPrice * 0.3));
+  const [term, setTerm] = useState(20);
 
-  const [price, setPrice] = useState(initialPrice || 685000);
-  const [priceInput, setPriceInput] = useState(fmt(initialPrice || 685000));
-  const [depositPct, setDepositPct] = useState(30);
-  const [termYears, setTermYears] = useState(20);
-  const [score, setScore] = useState<number | null>(null);
-  const [loadingScore, setLoadingScore] = useState(false);
-
-  const deposit = useMemo(() => Math.round(price * depositPct / 100), [price, depositPct]);
   const loan = useMemo(() => Math.max(price - deposit, 0), [price, deposit]);
-  const ltvPct = useMemo(() => price > 0 ? Math.round((loan / price) * 100) : 0, [loan, price]);
-  const rate = useMemo(() => getIndicativeRate(termYears, ltvPct), [termYears, ltvPct]);
-  const monthly = useMemo(() => calcMonthly(loan, rate, termYears), [loan, rate, termYears]);
+  const ltv = useMemo(() => (price > 0 ? Math.round((loan / price) * 100) : 0), [loan, price]);
+  const rate = useMemo(() => getRate(term, ltv), [term, ltv]);
+  const monthly = useMemo(() => pmt(loan, rate, term), [loan, rate, term]);
 
-  const termIndex = TERM_STEPS.indexOf(termYears);
-  const termPct = termIndex >= 0 ? (termIndex / (TERM_STEPS.length - 1)) * 100 : 50;
+  const ti = TERMS.indexOf(term);
+  const tPct = ti >= 0 ? (ti / (TERMS.length - 1)) * 100 : 50;
 
-  const fetchScore = useCallback(async () => {
-    if (price <= 0 || deposit <= 0) return;
-    setLoadingScore(true);
-    try {
-      const res = await fetch("/api/widget/assess", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          purchasePrice: price,
-          yearBuilt: initialYear,
-          liquidityAvailable: deposit,
-          residency: country || "Unknown",
-          incomeType: "mixed",
-        }),
-      });
-      const data = await res.json();
-      if (data.readinessScore != null) setScore(data.readinessScore);
-    } catch { /* silent */ } finally {
-      setLoadingScore(false);
-    }
-  }, [price, deposit, initialYear, country]);
+  const depositPct = price > 0 ? Math.round((deposit / price) * 100) : 0;
 
-  useEffect(() => {
-    const t = setTimeout(fetchScore, 800);
-    return () => clearTimeout(t);
-  }, [fetchScore]);
-
-  function onPriceChange(v: string) {
-    setPriceInput(v);
-    const n = parseMoney(v);
-    if (n > 0) setPrice(n);
-  }
-
-  const wizardUrl = `/wizard?price=${price}&year=${initialYear}&usage=${initialUsage}&liquidity=${deposit}`;
+  const wizardUrl = `/wizard?price=${price}&year=${initYear}&usage=${usage}&liquidity=${deposit}`;
 
   return (
-    <div style={{
-      fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      color: "#1a1a1a",
-      padding: "0 16px",
-    }}>
+    <div style={{ fontFamily: "'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif", color: "#1a1a1a" }}>
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
       <div style={{
-        maxWidth: 480,
+        maxWidth: 460,
         margin: "0 auto",
         background: "#fff",
-        borderRadius: 14,
-        border: "1px solid #e8e8e4",
-        padding: "18px 22px 20px",
+        borderRadius: 12,
+        border: "1px solid #e5e5e0",
+        padding: "16px 20px 18px",
       }}>
-        {/* Header row */}
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
-        }}>
-          <div>
-            <div style={{ fontSize: 15, fontWeight: 700, letterSpacing: -0.2 }}>
-              How much would this boat cost me?
-            </div>
-            <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 1 }}>
-              thanks to our partner <span style={{ fontWeight: 600, color: "#1a1a1a" }}>Waaza</span>
-            </div>
-          </div>
-          {score !== null && !loadingScore && (
-            <div style={{
-              padding: "4px 10px",
-              borderRadius: 6,
-              fontSize: 11,
-              fontWeight: 700,
-              background: score >= 80 ? "#dcfce7" : score >= 50 ? "#fef3c7" : "#fef2f2",
-              color: score >= 80 ? "#16a34a" : score >= 50 ? "#d97706" : "#dc2626",
-              whiteSpace: "nowrap",
-            }}>
-              Score: {score}
-            </div>
-          )}
+        {/* Title */}
+        <div style={{ marginBottom: 14 }}>
+          <span style={{ fontSize: 14, fontWeight: 700 }}>How much would this boat cost me?</span>
+          <span style={{ fontSize: 11, color: "#aaa", marginLeft: 8 }}>thanks to our partner <b style={{ color: "#1a1a1a" }}>Waaza</b></span>
         </div>
 
-        {/* Price + Deposit row */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
-          <div>
-            <label style={lbl}>Price of vessel</label>
-            <div style={inputWrap}>
-              <span style={pre}>{sym}</span>
-              <input
-                value={priceInput}
-                onChange={(e) => onPriceChange(e.target.value)}
-                onBlur={() => setPriceInput(fmt(price))}
-                inputMode="numeric"
-                style={inp}
-              />
-            </div>
-          </div>
-          <div>
-            <label style={lbl}>
-              Deposit <span style={{ fontWeight: 400, color: "#b0b0a8" }}>({depositPct}% recommended)</span>
-            </label>
-            <div style={inputWrap}>
-              <span style={pre}>{sym}</span>
-              <input value={fmt(deposit)} readOnly style={{ ...inp, color: "#6b7280" }} />
-            </div>
-          </div>
+        {/* Two inputs */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+          <Field
+            label="Price of vessel"
+            sym={sym}
+            value={priceStr}
+            onChange={(v) => {
+              setPriceStr(v);
+              const n = parseMoney(v);
+              if (n > 0) setPrice(n);
+            }}
+            onBlur={() => setPriceStr(fmt(price))}
+          />
+          <Field
+            label={`Deposit (${depositPct}% recommended)`}
+            sym={sym}
+            value={depositStr}
+            onChange={(v) => {
+              setDepositStr(v);
+              const n = parseMoney(v);
+              if (n >= 0) setDeposit(n);
+            }}
+            onBlur={() => setDepositStr(fmt(deposit))}
+          />
         </div>
 
-        {/* Deposit % pills — single compact row */}
-        <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
-          {[10, 20, 30, 40, 50, 60].map((pct) => (
-            <button
-              key={pct}
-              onClick={() => setDepositPct(pct)}
-              style={{
-                flex: 1,
-                padding: "5px 0",
-                borderRadius: 6,
-                border: depositPct === pct ? "2px solid #FFF86C" : "1px solid #e8e8e4",
-                background: depositPct === pct ? "#fffde0" : "transparent",
-                fontSize: 12,
-                fontWeight: depositPct === pct ? 700 : 500,
-                color: depositPct === pct ? "#1a1a1a" : "#9ca3af",
-                cursor: "pointer",
-                fontFamily: "inherit",
-                transition: "all 0.12s",
-              }}
-            >
-              {pct}%
-            </button>
-          ))}
-        </div>
-
-        {/* Loan term — compact slider with rate */}
-        <div style={{ marginBottom: 16 }}>
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-            marginBottom: 8,
-          }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "#4b5563" }}>Loan term</span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}>Rate {rate}%</span>
+        {/* Slider */}
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "#555" }}>Loan term – Rate {rate}</span>
           </div>
-
-          {/* Slider */}
-          <div style={{ position: "relative", height: 28, userSelect: "none" }}>
-            <div style={{
-              position: "absolute", top: 11, left: 0, right: 0,
-              height: 5, borderRadius: 3, background: "#e8e8e4",
-            }} />
-            <div style={{
-              position: "absolute", top: 11, left: 0,
-              width: `${termPct}%`, height: 5, borderRadius: 3,
-              background: "linear-gradient(90deg, #FFF86C, #e8e060)",
-            }} />
+          <div style={{ position: "relative", height: 24, userSelect: "none" }}>
+            <div style={{ position: "absolute", top: 10, left: 0, right: 0, height: 4, borderRadius: 2, background: "#e8e8e3" }} />
+            <div style={{ position: "absolute", top: 10, left: 0, width: `${tPct}%`, height: 4, borderRadius: 2, background: "#c8d946" }} />
             <input
-              type="range" min={0} max={TERM_STEPS.length - 1} step={1}
-              value={termIndex >= 0 ? termIndex : 2}
-              onChange={(e) => setTermYears(TERM_STEPS[Number(e.target.value)])}
-              style={{
-                position: "absolute", top: 2, left: -2, width: "calc(100% + 4px)",
-                height: 24, opacity: 0, cursor: "pointer", zIndex: 2,
-              }}
+              type="range" min={0} max={TERMS.length - 1} step={1}
+              value={ti >= 0 ? ti : 2}
+              onChange={(e) => setTerm(TERMS[Number(e.target.value)])}
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 24, opacity: 0, cursor: "pointer", zIndex: 2 }}
             />
             <div style={{
-              position: "absolute", top: 5, left: `calc(${termPct}% - 8px)`,
+              position: "absolute", top: 4, left: `calc(${tPct}% - 8px)`,
               width: 16, height: 16, borderRadius: "50%",
-              background: "#FFF86C", border: "2.5px solid #1a1a1a",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.15)",
-              pointerEvents: "none", transition: "left 0.12s ease",
+              background: "#c8d946", border: "2px solid #fff",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+              pointerEvents: "none", transition: "left 0.1s",
             }} />
           </div>
-
-          {/* Labels */}
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
-            {TERM_STEPS.map((t) => (
-              <span key={t} style={{
-                fontSize: 11,
-                fontWeight: termYears === t ? 700 : 400,
-                color: termYears === t ? "#1a1a1a" : "#b0b0a8",
-              }}>
+            {TERMS.map((t) => (
+              <span key={t} style={{ fontSize: 11, fontWeight: term === t ? 700 : 400, color: term === t ? "#1a1a1a" : "#bbb" }}>
                 {t} years
               </span>
             ))}
           </div>
         </div>
 
-        {/* Result bar — monthly payment + CTA on one line */}
+        {/* Result */}
         <div style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "12px 16px",
-          background: "#f9f8f5",
-          borderRadius: 10,
-          border: "1px solid #e8e8e4",
         }}>
           <div>
-            <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.8, lineHeight: 1 }}>
-              {fmt(monthly)} {sym}<span style={{ fontSize: 14, fontWeight: 500, color: "#6b7280" }}>/month</span>
-            </div>
-            <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 3 }}>
-              Total interest: {sym}{fmt(Math.max(monthly * termYears * 12 - loan, 0))} · LTV: {ltvPct}%
-            </div>
+            <span style={{ fontSize: 26, fontWeight: 700, letterSpacing: -1 }}>{fmt(monthly)} {sym}</span>
+            <span style={{ fontSize: 14, color: "#888", marginLeft: 2 }}>/month</span>
           </div>
           <a
             href={wizardUrl}
             target="_blank"
             rel="noopener noreferrer"
             style={{
-              padding: "10px 16px",
-              background: "#FFF86C",
+              padding: "9px 16px",
+              background: "#c8d946",
               color: "#1a1a1a",
               fontSize: 13,
               fontWeight: 700,
               borderRadius: 8,
-              border: "none",
-              cursor: "pointer",
               textDecoration: "none",
               whiteSpace: "nowrap",
               fontFamily: "inherit",
-              flexShrink: 0,
             }}
           >
             Refine my project
@@ -298,20 +175,28 @@ export default function FindalyWidget() {
   );
 }
 
-/* ── Compact styles ── */
-
-const lbl: React.CSSProperties = {
-  display: "block", fontSize: 12, fontWeight: 600, color: "#4b5563", marginBottom: 4,
-};
-const inputWrap: React.CSSProperties = {
-  position: "relative", display: "flex", alignItems: "center",
-};
-const pre: React.CSSProperties = {
-  position: "absolute", left: 10, fontSize: 13, fontWeight: 500, color: "#9ca3af", pointerEvents: "none",
-};
-const inp: React.CSSProperties = {
-  width: "100%", height: 38, paddingLeft: 26, paddingRight: 10,
-  fontSize: 14, fontWeight: 600, fontFamily: "inherit",
-  border: "1px solid #e8e8e4", borderRadius: 8, background: "#f9f8f5",
-  color: "#1a1a1a", boxSizing: "border-box",
-};
+function Field({ label, sym, value, onChange, onBlur }: {
+  label: string; sym: string; value: string;
+  onChange: (v: string) => void; onBlur: () => void;
+}) {
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 500, color: "#777", marginBottom: 3 }}>{label}</div>
+      <div style={{ position: "relative" }}>
+        <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", fontSize: 13, color: "#aaa", pointerEvents: "none" }}>{sym}</span>
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
+          inputMode="numeric"
+          style={{
+            width: "100%", height: 36, paddingLeft: 24, paddingRight: 8,
+            fontSize: 14, fontWeight: 600, fontFamily: "inherit",
+            border: "1px solid #e5e5e0", borderRadius: 8, background: "#fafaf7",
+            color: "#1a1a1a", boxSizing: "border-box",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
