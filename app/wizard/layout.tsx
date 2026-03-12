@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Widget",
-  description: "Embeddable widget pages and utilities.",
+  title: "Readiness Intake",
+  description: "Structured intake flow for financing readiness.",
   robots: {
     index: false,
-    follow: false,
+    follow: true,
   },
 };
 
-export default function WidgetLayout({
+export default function WizardLayout({
   children,
 }: {
   children: React.ReactNode;

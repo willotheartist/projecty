@@ -1,4 +1,3 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
@@ -19,17 +18,30 @@ const SITE_URL = "https://www.waaza.co";
 
 const TITLE = "Waaza — Yacht Financing Intelligence";
 const DESCRIPTION =
-  "Waaza analyses key buyer and vessel indicators to generate a structured financing readiness score, indicative LTV range, and lender-ready reports.";
+  "Waaza helps buyers, brokers and advisors understand yacht financing readiness, indicative repayments, deal complexity and better next steps before formal lender outreach.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
 
   title: {
     default: TITLE,
-    template: "%s — Waaza",
+    template: "%s | Waaza",
   },
 
   description: DESCRIPTION,
+
+  keywords: [
+    "yacht finance calculator",
+    "boat finance calculator",
+    "yacht financing",
+    "superyacht financing",
+    "can you finance a yacht",
+    "how long can you finance a yacht",
+    "yacht loan calculator",
+    "marine finance",
+    "yacht financing intelligence",
+    "boat loan calculator",
+  ],
 
   alternates: {
     canonical: "/",
@@ -54,7 +66,7 @@ export const metadata: Metadata = {
         url: "/hero.png",
         width: 1200,
         height: 630,
-        alt: "Waaza — Yacht Financing Intelligence",
+        alt: "Waaza yacht financing intelligence platform",
       },
     ],
   },
@@ -70,6 +82,23 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+
+  category: "finance",
+};
+
+const orgSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Waaza",
+  url: SITE_URL,
+  logo: `${SITE_URL}/waaza.png`,
+};
+
+const siteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Waaza",
+  url: SITE_URL,
 };
 
 export default function RootLayout({
@@ -80,6 +109,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${instrumentSerif.variable}`}>
       <body className="antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }}
+        />
         <LayoutShell>{children}</LayoutShell>
       </body>
     </html>

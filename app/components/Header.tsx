@@ -1,4 +1,4 @@
-// components/Header.tsx
+// app/components/Header.tsx
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -169,9 +169,9 @@ const Arrow = () => <span style={{ opacity: 0.65, fontSize: 14 }}>›</span>;
 
 /* ---------------------------------- Types --------------------------------- */
 
-type MenuItem = { icon: IconNode; label: string; desc: string };
+type MenuItem = { icon: IconNode; label: string; desc: string; href: string };
 type MenuColumn = { title: string; items: MenuItem[] };
-type MenuFeatured = { label: string; title: string; desc: string; cta: string };
+type MenuFeatured = { label: string; title: string; desc: string; cta: string; href: string };
 type MenuDef = { columns: MenuColumn[]; featured: MenuFeatured };
 
 const menus = {
@@ -180,17 +180,17 @@ const menus = {
       {
         title: "Intelligence Engine",
         items: [
-          { icon: I.target, label: "Readiness Scoring", desc: "0–100 financing readiness index" },
-          { icon: I.cog, label: "Rule Engine", desc: "Versioned, deterministic logic" },
-          { icon: I.layers, label: "Scenario Modelling", desc: "Loan vs leasing comparison" },
+          { icon: I.target, label: "Readiness Scoring", desc: "0–100 financing readiness index", href: "/platform/readiness-scoring" },
+          { icon: I.cog, label: "Rule Engine", desc: "Versioned, deterministic logic", href: "/platform/rule-engine" },
+          { icon: I.layers, label: "Scenario Modelling", desc: "Loan vs leasing comparison", href: "/platform/scenario-modelling" },
         ],
       },
       {
         title: "Broker Tools",
         items: [
-          { icon: I.grid, label: "Dashboard", desc: "Embedded financing workflow" },
-          { icon: I.file, label: "Report Generator", desc: "Institutional-grade buyer PDFs" },
-          { icon: I.list, label: "Case Tracking", desc: "Submission to approval pipeline" },
+          { icon: I.grid, label: "Dashboard", desc: "Embedded financing workflow", href: "/platform/broker-dashboard" },
+          { icon: I.file, label: "Report Generator", desc: "Institutional-grade buyer PDFs", href: "/platform/report-generator" },
+          { icon: I.list, label: "Case Tracking", desc: "Submission to approval pipeline", href: "/platform/case-tracking" },
         ],
       },
     ],
@@ -199,6 +199,7 @@ const menus = {
       title: "What-If Scenario Engine",
       desc: "Compare loan vs leasing structures side-by-side with jurisdiction-specific modelling.",
       cta: "Explore",
+      href: "/platform/scenario-modelling",
     },
   },
   Solutions: {
@@ -206,25 +207,26 @@ const menus = {
       {
         title: "By Role",
         items: [
-          { icon: I.anchor, label: "Yacht Brokers", desc: "Score buyers, generate reports" },
-          { icon: I.building, label: "Broker Networks", desc: "White-label intelligence module" },
-          { icon: I.chart, label: "Finance Advisors", desc: "Encode structuring expertise" },
+          { icon: I.anchor, label: "Yacht Brokers", desc: "Score buyers, generate reports", href: "/solutions/yacht-brokers" },
+          { icon: I.building, label: "Broker Networks", desc: "White-label intelligence module", href: "/solutions/broker-networks" },
+          { icon: I.chart, label: "Finance Advisors", desc: "Encode structuring expertise", href: "/solutions/finance-advisors" },
         ],
       },
       {
         title: "By Use Case",
         items: [
-          { icon: I.check, label: "Pre-Qualification", desc: "Assess financing before lender outreach" },
-          { icon: I.scale, label: "Structuring", desc: "Loan, leasing, and ownership paths" },
-          { icon: I.filePen, label: "Buyer Reports", desc: "Private-bank grade documentation" },
+          { icon: I.check, label: "Pre-Qualification", desc: "Assess financing before lender outreach", href: "/solutions/pre-qualification" },
+          { icon: I.scale, label: "Structuring", desc: "Loan, leasing, and ownership paths", href: "/solutions/structuring" },
+          { icon: I.filePen, label: "Buyer Reports", desc: "Private-bank grade documentation", href: "/solutions/buyer-reports" },
         ],
       },
     ],
     featured: {
-      label: "Coming Soon",
-      title: "Lender Matching Engine",
-      desc: "Encoded lender criteria with approval probability scoring and rate band estimation.",
+      label: "Built for deal teams",
+      title: "Structured financing workflows for modern brokers",
+      desc: "Bring calculators, readiness scoring and lender-facing reports into one cleaner operating flow.",
       cta: "Learn More",
+      href: "/solutions/yacht-brokers",
     },
   },
   Resources: {
@@ -232,17 +234,17 @@ const menus = {
       {
         title: "Learn",
         items: [
-          { icon: I.book, label: "Documentation", desc: "API reference and guides" },
-          { icon: I.plug, label: "Integrations", desc: "Connect to broker systems" },
-          { icon: I.help, label: "FAQ", desc: "Common questions answered" },
+          { icon: I.book, label: "Documentation", desc: "API reference and guides", href: "/documentation" },
+          { icon: I.plug, label: "Integrations", desc: "Connect to broker systems", href: "/integrations" },
+          { icon: I.help, label: "FAQ", desc: "Common questions answered", href: "/faq" },
         ],
       },
       {
         title: "Company",
         items: [
-          { icon: I.briefcase, label: "About", desc: "Our thesis and approach" },
-          { icon: I.pen, label: "Blog", desc: "Market insights and updates" },
-          { icon: I.handshake, label: "Partners", desc: "Join the broker network" },
+          { icon: I.briefcase, label: "About", desc: "Our thesis and approach", href: "/about" },
+          { icon: I.pen, label: "Blog", desc: "Market insights and updates", href: "/blog" },
+          { icon: I.handshake, label: "Partners", desc: "Join the broker network", href: "/partners" },
         ],
       },
     ],
@@ -251,6 +253,7 @@ const menus = {
       title: "Yacht Financing Landscape 2026",
       desc: "How UHNW buyers are financing yacht acquisitions — lender trends, structuring shifts, and digital adoption.",
       cta: "Download Report",
+      href: "/blog",
     },
   },
 } satisfies Record<string, MenuDef>;
@@ -320,6 +323,13 @@ export default function Header() {
     setMobileOpen(false);
     setMobileSection(null);
     router.push("/wizard");
+  }
+
+  function goTo(href: string) {
+    setMobileOpen(false);
+    setMobileSection(null);
+    closeMenu();
+    router.push(href);
   }
 
   const data: MenuDef | null = activeMenu ? menus[activeMenu] : null;
@@ -449,7 +459,6 @@ export default function Header() {
           backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
 
-        /* ✅ Full-width on mobile + responsive on tablets */
         .drawer {
           position: fixed; top: 0; right: 0; height: 100%;
           width: min(520px, 92vw);
@@ -469,7 +478,6 @@ export default function Header() {
         }
         .drawer-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
 
-        /* ✅ Close button: just an X, but still a proper touch target */
         .close-x {
           width: 44px; height: 44px;
           display: inline-flex; align-items: center; justify-content: center;
@@ -481,7 +489,7 @@ export default function Header() {
         .close-x:hover { opacity: 0.7; }
 
         @media (max-width: 420px) {
-          .drawer-actions .ghost-cta { display: none; } /* keep it clean on tiny screens */
+          .drawer-actions .ghost-cta { display: none; }
           .drawer-actions { gap: 8px; }
           .pill-cta-yellow { padding: 12px 16px; }
         }
@@ -521,7 +529,6 @@ export default function Header() {
         .m-item-text { min-width: 0; }
       `}</style>
 
-      {/* Desktop dropdown backdrop */}
       <div
         onClick={closeMenu}
         style={{
@@ -537,7 +544,6 @@ export default function Header() {
         }}
       />
 
-      {/* MOBILE drawer */}
       {mobileOpen && (
         <>
           <div
@@ -554,15 +560,11 @@ export default function Header() {
                 src="/waaza.png"
                 alt="Waaza"
                 style={{ height: 32, cursor: "pointer" }}
-                onClick={() => {
-                  setMobileOpen(false);
-                  setMobileSection(null);
-                  router.push("/");
-                }}
+                onClick={() => goTo("/")}
               />
 
               <div className="drawer-actions">
-                <button className="ghost-cta" type="button">
+                <button className="ghost-cta" type="button" onClick={() => goTo("/login")}>
                   Log in
                 </button>
 
@@ -607,7 +609,7 @@ export default function Header() {
                     {open && (
                       <div className="m-items">
                         {flatItems.map((it, idx) => (
-                          <div key={`${k}-${idx}`} className="m-item">
+                          <div key={`${k}-${idx}`} className="m-item" onClick={() => goTo(it.href)}>
                             <div className="m-item-left">
                               <div className="m-item-ic">{it.icon}</div>
                               <div className="m-item-text">
@@ -625,7 +627,7 @@ export default function Header() {
               })}
 
               <div className="m-section">
-                <button type="button" className="m-section-btn" aria-expanded={false}>
+                <button type="button" className="m-section-btn" onClick={() => goTo("/case-studies")}>
                   <span>Case Studies</span>
                   <span className="caret" style={{ transform: "rotate(-90deg)" }}>
                     ▾
@@ -637,7 +639,6 @@ export default function Header() {
         </>
       )}
 
-      {/* Header / Nav */}
       <nav
         onMouseLeave={scheduleClose}
         style={{
@@ -673,7 +674,6 @@ export default function Header() {
             onClick={() => router.push("/")}
           />
 
-          {/* Desktop center nav */}
           <div className="desktopOnly" style={{ alignItems: "center", gap: 6 }}>
             {menuKeys.map((key: MenuKey) => (
               <div
@@ -685,20 +685,20 @@ export default function Header() {
                 <span className="chev">▾</span>
               </div>
             ))}
-            <span className="nav-plain" style={{ marginLeft: 8 }}>
+            <span className="nav-plain" style={{ marginLeft: 8 }} onClick={() => router.push("/case-studies")}>
               Case Studies
             </span>
           </div>
 
-          {/* Desktop right */}
           <div className="desktopOnly" style={{ alignItems: "center", gap: 14 }}>
-            <span className="nav-plain">Sign In</span>
+            <span className="nav-plain" onClick={() => router.push("/login")}>
+              Sign In
+            </span>
             <button className="pill-cta-yellow" type="button" onClick={() => router.push("/wizard")}>
               Simulate my financing →
             </button>
           </div>
 
-          {/* Mobile right */}
           <div className="mobileOnly" style={{ alignItems: "center", gap: 10 }}>
             <button className="pill-cta-yellow" type="button" onClick={() => setMobileOpen(true)}>
               Menu
@@ -706,7 +706,6 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Desktop mega dropdown */}
         <div
           onMouseEnter={() => clear()}
           onMouseLeave={scheduleClose}
@@ -760,6 +759,7 @@ export default function Header() {
                       key={`${String(activeMenu)}-${ci}-${ii}`}
                       className="mi-row dd-item"
                       style={{ animationDelay: `${80 + ci * 60 + ii * 70}ms` }}
+                      onClick={() => goTo(item.href)}
                     >
                       <div className="mi-icon">{item.icon}</div>
                       <div style={{ minWidth: 0 }}>
@@ -824,7 +824,9 @@ export default function Header() {
                 </div>
 
                 <div>
-                  <span className="feat-cta">{data.featured.cta}</span>
+                  <span className="feat-cta" onClick={() => goTo(data.featured.href)}>
+                    {data.featured.cta}
+                  </span>
                 </div>
               </div>
             </div>
