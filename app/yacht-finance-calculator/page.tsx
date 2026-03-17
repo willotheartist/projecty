@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Yacht Finance Calculator | Waaza",
   description:
-    "Use Waaza’s yacht finance calculator page to explore indicative repayments, borrowing context, readiness factors and the variables that shape yacht financing conversations.",
+    "Use Waaza’s yacht finance calculator to explore indicative repayments, deposit scenarios, term changes and the broader financing context around a yacht purchase.",
   alternates: {
     canonical: "/yacht-finance-calculator",
   },
@@ -16,26 +16,26 @@ const faqSchema = {
   mainEntity: [
     {
       "@type": "Question",
-      name: "What is a yacht finance calculator?",
+      name: "What does a yacht finance calculator do?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "A yacht finance calculator helps estimate indicative monthly repayments or borrowing range based on assumptions like price, deposit, term length and rate. It is most useful as an early directional tool rather than a final lender decision.",
+        text: "A yacht finance calculator helps estimate indicative monthly repayments or borrowing range based on assumptions such as purchase price, deposit, term and rate.",
       },
     },
     {
       "@type": "Question",
-      name: "Is a yacht finance calculator accurate?",
+      name: "Is a yacht finance calculator enough to understand financing?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "A yacht finance calculator can be directionally useful, but actual lender outcomes depend on the borrower profile, vessel profile, intended usage, structure, documentation and underwriting process.",
+        text: "A calculator is useful as a starting point, but not enough on its own. The broader financing picture also depends on borrower strength, vessel profile, intended use and structure.",
       },
     },
     {
       "@type": "Question",
-      name: "Why use Waaza instead of a generic calculator?",
+      name: "Why does deposit size matter so much?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Waaza is designed to connect repayment estimation with financing readiness, complexity and next-step context rather than stopping at a single repayment number.",
+        text: "Deposit size changes the leverage profile of the deal. That affects repayment context and can also influence how straightforward or ambitious the case appears.",
       },
     },
   ],
@@ -60,7 +60,7 @@ export default function Page() {
       />
 
       <main style={{ background: C.bg, color: C.black, padding: "88px 24px 120px" }}>
-        <div style={{ maxWidth: 1080, margin: "0 auto" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <p
             style={{
               fontSize: 13,
@@ -71,40 +71,41 @@ export default function Page() {
               marginBottom: 18,
             }}
           >
-            Calculator
+            Commercial SEO page
           </p>
 
           <h1
             style={{
               fontFamily: "var(--font-serif), serif",
-              fontSize: "clamp(42px,6vw,80px)",
-              lineHeight: 1.04,
+              fontSize: "clamp(44px,6vw,82px)",
+              lineHeight: 1.03,
               fontWeight: 400,
-              letterSpacing: -1.8,
+              letterSpacing: -1.9,
               marginBottom: 22,
-              maxWidth: 900,
+              maxWidth: 920,
             }}
           >
-            Yacht finance calculator
+            Yacht finance calculator: estimate repayments, explore scenarios and understand what really changes the picture
           </h1>
 
           <p
             style={{
               fontSize: 18,
-              lineHeight: 1.82,
+              lineHeight: 1.84,
               color: C.gray2,
-              maxWidth: 940,
+              maxWidth: 980,
               marginBottom: 30,
             }}
           >
-            A yacht finance calculator is usually one of the first places a serious buyer or broker
-            starts when trying to make sense of a deal. That makes sense. Before anyone wants a long
-            explanation, they usually want to understand whether the financing picture looks broadly
-            realistic. The problem is that most calculators are too shallow. They show a repayment
-            estimate, but they do not help the user understand what is actually shaping that number,
-            what may complicate the case, or why one scenario may be more realistic than another.
-            Waaza is more useful because it treats the calculator as the beginning of the financing
-            conversation rather than the end of it.
+            A yacht finance calculator is one of the most useful early tools in the financing
+            journey, but only if it is used properly. At its simplest, a calculator helps estimate
+            monthly repayments or borrowing range based on purchase price, deposit, term and
+            indicative rate. That is helpful, especially when someone is trying to understand whether
+            a deal feels broadly realistic. The problem is that many calculators stop there. They do
+            not help the user understand why the number changes, what may complicate the case, or
+            when a more structured readiness conversation becomes necessary. Waaza is designed to do
+            more than give a flat estimate. It uses the calculator as the gateway into a smarter
+            financing workflow.
           </p>
 
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 38 }}>
@@ -143,100 +144,118 @@ export default function Page() {
           </div>
 
           <div style={{ display: "grid", gap: 18 }}>
-            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 32 }}>
-              <h2 style={{ fontSize: 30, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
-                What a yacht finance calculator should actually help you understand
+            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 34 }}>
+              <h2 style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
+                What a yacht finance calculator should help you do
               </h2>
-              <p style={{ fontSize: 16, lineHeight: 1.85, color: C.gray2, marginBottom: 14 }}>
-                A useful yacht finance calculator should not just spit out a repayment figure. It
-                should help the user understand how the financing picture behaves when key
-                assumptions change. Deposit size matters. Loan term matters. The indicative rate
-                matters. Vessel age matters. Usage matters. These are not minor details. They are
-                the core forces shaping whether a financing conversation is likely to feel
-                straightforward or structurally more difficult.
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2, marginBottom: 14 }}>
+                A useful calculator should do more than display a payment figure. It should help you
+                think through the relationship between price, deposit, term length and financing
+                context. In other words, it should improve decision-making rather than just creating
+                a momentary sense of certainty.
               </p>
-              <p style={{ fontSize: 16, lineHeight: 1.85, color: C.gray2 }}>
-                That is why Waaza treats the calculator as part of a broader financing workflow.
-                Repayment estimation is useful, but only when it is connected to readiness,
-                complexity and better next-step thinking.
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2 }}>
+                That matters because a repayment number can look comfortable while the broader case is
+                still structurally weak. Likewise, a more demanding monthly number may still sit
+                inside a stronger overall financing picture if the leverage is sensible and the case
+                is well framed. The number is useful, but it is never the whole story.
               </p>
             </section>
 
-            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 32 }}>
-              <h2 style={{ fontSize: 30, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
-                What changes the output of a yacht finance calculator
+            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 34 }}>
+              <h2 style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
+                The four variables most users focus on first
               </h2>
-              <p style={{ fontSize: 16, lineHeight: 1.85, color: C.gray2, marginBottom: 10 }}>
-                Even before formal underwriting begins, a financing scenario is shaped by several
-                major variables:
-              </p>
-              <ul style={{ paddingLeft: 20 }}>
+              <ul style={{ paddingLeft: 20, marginBottom: 16 }}>
                 {[
-                  "Purchase price and how ambitious the overall transaction is",
-                  "Deposit size and leverage appetite",
-                  "Indicative rate assumptions",
-                  "Loan term and how repayment is spread over time",
-                  "Vessel age, condition and general lender appetite toward the asset",
-                  "Whether the vessel is intended for private use or more complex usage patterns",
-                  "Ownership path, structure and jurisdiction-sensitive considerations",
+                  "Purchase price, because it sets the overall scale of the transaction",
+                  "Deposit size, because it changes the leverage profile dramatically",
+                  "Term length, because it affects monthly affordability",
+                  "Indicative rate, because it influences both repayments and overall cost",
                 ].map((item) => (
                   <li key={item} style={{ fontSize: 16, lineHeight: 1.95, color: C.gray2 }}>
                     {item}
                   </li>
                 ))}
               </ul>
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2 }}>
+                These variables matter because they are the easiest to model quickly. But a serious
+                financing conversation does not end there. A calculator becomes much more useful when
+                it is understood as part of a wider context.
+              </p>
             </section>
 
-            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 32 }}>
-              <h2 style={{ fontSize: 30, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
-                Why Waaza is more useful than a generic finance widget
+            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 34 }}>
+              <h2 style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
+                What changes the result beyond the obvious numbers
               </h2>
-              <p style={{ fontSize: 16, lineHeight: 1.85, color: C.gray2, marginBottom: 14 }}>
-                A generic finance widget is usually isolated. It gives a number, maybe a simple term
-                selector, and little else. That is enough for surface-level curiosity but not enough
-                for a serious financing discussion. Waaza is more useful because it connects the
-                number to a wider conversation about readiness and realism.
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2, marginBottom: 14 }}>
+                In yacht financing, the repayment estimate is shaped by more than just maths. Vessel
+                age can influence how straightforward the case appears. Intended use can introduce
+                more complexity. Ownership structure can change the overall framing of the deal. The
+                result is that two cases with similar headline numbers can still feel very different
+                once the broader context is considered.
               </p>
-              <p style={{ fontSize: 16, lineHeight: 1.85, color: C.gray2 }}>
-                That matters for buyers who want a more grounded understanding of what they are
-                getting into, for brokers who want fewer vague conversations, and for advisors who
-                benefit when a case arrives with more structured thinking already in place.
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2 }}>
+                This is why Waaza connects calculator behaviour with readiness and scenario-based
+                thinking. It helps users understand not only what the repayment estimate is, but what
+                may be influencing it behind the scenes.
               </p>
             </section>
 
-            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 32 }}>
-              <h2 style={{ fontSize: 30, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
-                When to use the calculator and when to go deeper
+            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 34 }}>
+              <h2 style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
+                Why deposit size changes the conversation so much
               </h2>
-              <p style={{ fontSize: 16, lineHeight: 1.85, color: C.gray2, marginBottom: 14 }}>
-                The calculator is a strong first step when you want directional clarity. It is useful
-                when you want to understand how changes in deposit, term or vessel context affect the
-                picture. But once the conversation becomes more serious, it helps to move into a more
-                structured readiness workflow.
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2, marginBottom: 14 }}>
+                Deposit size is one of the most powerful levers in the early financing picture. A
+                larger deposit does not only reduce monthly repayments. It also changes how ambitious
+                the leverage request appears. That can affect how comfortable the overall case looks,
+                especially once asset and structure considerations are taken into account.
               </p>
-              <p style={{ fontSize: 16, lineHeight: 1.85, color: C.gray2 }}>
-                That is where Waaza becomes more differentiated. It does not force you to stay inside
-                a flat repayment tool. It gives you a path into readiness scoring, scenario thinking
-                and clearer next-step framing.
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2 }}>
+                This is why a calculator is most useful when it lets the user explore scenarios rather
+                than locking them into one flat assumption. In practical terms, deposit size often
+                changes the emotional tone of the financing conversation as much as the numerical one.
               </p>
             </section>
 
-            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 32 }}>
-              <h2 style={{ fontSize: 30, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
-                Related pages
+            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 34 }}>
+              <h2 style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
+                When a calculator stops being enough
+              </h2>
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2, marginBottom: 14 }}>
+                A calculator is strongest at the beginning of the journey, when a buyer or broker
+                needs quick directional clarity. But once the conversation becomes more serious, a
+                deeper workflow becomes more valuable. That is where readiness scoring, scenario
+                modelling and report-led communication begin to matter more than a single repayment
+                number.
+              </p>
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2 }}>
+                In Waaza, the calculator is not meant to be the end state. It is meant to make the
+                next step smarter.
+              </p>
+            </section>
+
+            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 34 }}>
+              <h2 style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
+                Continue your research
               </h2>
               <div style={{ display: "grid", gap: 10 }}>
-                <Link href="/boat-finance-calculator" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
-                  Boat finance calculator
-                </Link>
                 <Link href="/yacht-financing" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
                   Yacht financing
                 </Link>
-                <Link href="/superyacht-financing" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
-                  Superyacht financing
+                <Link href="/boat-finance-calculator" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
+                  Boat finance calculator
                 </Link>
                 <Link href="/can-you-finance-a-yacht" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
                   Can you finance a yacht?
+                </Link>
+                <Link href="/how-long-can-you-finance-a-yacht" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
+                  How long can you finance a yacht?
+                </Link>
+                <Link href="/superyacht-financing" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
+                  Superyacht financing
                 </Link>
               </div>
             </section>

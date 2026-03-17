@@ -1,13 +1,13 @@
 # 📁 projecty - Project Structure
 
-*Generated on: 12/03/2026, 13:29:44*
+*Generated on: 16/03/2026, 22:13:07*
 
 ## 📋 Quick Overview
 
 | Metric | Value |
 |--------|-------|
-| 📄 Total Files | 96 |
-| 📁 Total Folders | 54 |
+| 📄 Total Files | 145 |
+| 📁 Total Folders | 89 |
 | 🌳 Max Depth | 5 levels |
 | 🛠️ Tech Stack | React, Next.js, TypeScript, CSS, Node.js |
 
@@ -24,42 +24,43 @@
 
 ### By File Type
 
-- 🔷 **.ts** (TypeScript files): 37 files (38.5%)
-- ⚛️ **.tsx** (React TypeScript files): 27 files (28.1%)
-- 🖼️ **.png** (PNG images): 5 files (5.2%)
-- 🎨 **.svg** (SVG images): 5 files (5.2%)
-- ⚙️ **.json** (JSON files): 3 files (3.1%)
-- 📄 **.sql** (Other files): 3 files (3.1%)
-- 📄 **.txt** (Text files): 2 files (2.1%)
-- 📖 **.md** (Markdown files): 2 files (2.1%)
-- 🎨 **.css** (Stylesheets): 2 files (2.1%)
-- 📄 **.mjs** (Other files): 2 files (2.1%)
-- ⚙️ **.yaml** (YAML files): 2 files (2.1%)
-- 🚫 **.gitignore** (Git ignore): 1 files (1.0%)
-- 🖼️ **.ico** (Icon files): 1 files (1.0%)
-- ⚙️ **.toml** (TOML files): 1 files (1.0%)
-- 📄 **.prisma** (Other files): 1 files (1.0%)
-- 📕 **.pdf** (PDF files): 1 files (1.0%)
-- 📄 **.tsbuildinfo** (Other files): 1 files (1.0%)
+- ⚛️ **.tsx** (React TypeScript files): 62 files (42.8%)
+- 🔷 **.ts** (TypeScript files): 40 files (27.6%)
+- 🖼️ **.jpg** (JPEG images): 11 files (7.6%)
+- 🖼️ **.png** (PNG images): 5 files (3.4%)
+- 🎨 **.svg** (SVG images): 5 files (3.4%)
+- ⚙️ **.json** (JSON files): 3 files (2.1%)
+- 📄 **.sql** (Other files): 3 files (2.1%)
+- 📄 **.txt** (Text files): 2 files (1.4%)
+- 📖 **.md** (Markdown files): 2 files (1.4%)
+- 🎨 **.css** (Stylesheets): 2 files (1.4%)
+- 📄 **.mjs** (Other files): 2 files (1.4%)
+- ⚙️ **.yaml** (YAML files): 2 files (1.4%)
+- 🚫 **.gitignore** (Git ignore): 1 files (0.7%)
+- 🖼️ **.ico** (Icon files): 1 files (0.7%)
+- ⚙️ **.toml** (TOML files): 1 files (0.7%)
+- 📄 **.prisma** (Other files): 1 files (0.7%)
+- 📕 **.pdf** (PDF files): 1 files (0.7%)
+- 📄 **.tsbuildinfo** (Other files): 1 files (0.7%)
 
 ### By Category
 
-- **TypeScript**: 37 files (38.5%)
-- **React**: 27 files (28.1%)
-- **Assets**: 11 files (11.5%)
-- **Other**: 7 files (7.3%)
-- **Config**: 6 files (6.3%)
-- **Docs**: 5 files (5.2%)
-- **Styles**: 2 files (2.1%)
-- **DevOps**: 1 files (1.0%)
+- **React**: 62 files (42.8%)
+- **TypeScript**: 40 files (27.6%)
+- **Assets**: 22 files (15.2%)
+- **Other**: 7 files (4.8%)
+- **Config**: 6 files (4.1%)
+- **Docs**: 5 files (3.4%)
+- **Styles**: 2 files (1.4%)
+- **DevOps**: 1 files (0.7%)
 
 ### 📁 Largest Directories
 
-- **root**: 96 files
-- **app**: 51 files
+- **root**: 145 files
+- **app**: 88 files
 - **app/api**: 21 files
-- **lib**: 13 files
-- **public**: 10 files
+- **public**: 21 files
+- **lib**: 14 files
 
 ## 🌳 Directory Structure
 
@@ -70,6 +71,8 @@ projecty/
 │   ├── ⚙️ project.json
 │   └── 📄 README.txt
 ├── 🚀 app/
+│   ├── 📂 about/
+│   │   └── ⚛️ page.tsx
 │   ├── 🔌 api/
 │   │   ├── 📂 assess/
 │   │   │   └── 🔷 route.ts
@@ -119,9 +122,19 @@ projecty/
 │   │   └── 📂 wizard/
 │   │   │   └── 📂 assess/
 │   │   │   │   └── 🔷 route.ts
+│   ├── 📂 blog/
+│   │   └── ⚛️ page.tsx
+│   ├── 📂 boat-finance-calculator/
+│   │   └── ⚛️ page.tsx
+│   ├── 📂 can-you-finance-a-yacht/
+│   │   └── ⚛️ page.tsx
+│   ├── 📂 case-studies/
+│   │   └── ⚛️ page.tsx
 │   ├── 🧩 components/
 │   │   ├── ⚛️ Header.tsx
 │   │   ├── ⚛️ LayoutShell.tsx
+│   │   ├── ⚛️ MarketingRichPage.tsx
+│   │   ├── ⚛️ SeoClusterPage.tsx
 │   │   └── ⚛️ WaazaAssistant.tsx
 │   ├── 📂 dashboard/
 │   │   ├── 📂 [id]/
@@ -134,8 +147,28 @@ projecty/
 │   │   │   ├── ⚛️ page.tsx
 │   │   │   └── ⚛️ settings-client.tsx
 │   ├── ⚛️ DemoPanel.tsx
+│   ├── 📂 documentation/
+│   │   └── ⚛️ page.tsx
+│   ├── 📂 faq/
+│   │   └── ⚛️ page.tsx
 │   ├── 🖼️ favicon.ico
+│   ├── 📂 financing/
+│   │   ├── 📂 _components/
+│   │   │   └── ⚛️ FinancingSiloShell.tsx
+│   │   ├── 📂 how-yacht-financing-works/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ page.tsx
+│   │   ├── 📂 typical-deposit-for-yacht-financing/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 what-is-yacht-financing/
+│   │   │   └── ⚛️ page.tsx
+│   │   └── 📂 what-lenders-look-for-in-yacht-financing/
+│   │   │   └── ⚛️ page.tsx
 │   ├── 🎨 globals.css
+│   ├── 📂 how-long-can-you-finance-a-yacht/
+│   │   └── ⚛️ page.tsx
+│   ├── 📂 integrations/
+│   │   └── ⚛️ page.tsx
 │   ├── ⚛️ layout.tsx
 │   ├── 📂 login/
 │   │   ├── ⚛️ layout.tsx
@@ -143,7 +176,40 @@ projecty/
 │   ├── 📂 old/
 │   │   └── ⚛️ page.tsx
 │   ├── ⚛️ page.tsx
+│   ├── 📂 partners/
+│   │   └── ⚛️ page.tsx
+│   ├── 📂 platform/
+│   │   ├── 📂 broker-dashboard/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 case-tracking/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 readiness-scoring/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 report-generator/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 rule-engine/
+│   │   │   └── ⚛️ page.tsx
+│   │   └── 📂 scenario-modelling/
+│   │   │   └── ⚛️ page.tsx
+│   ├── 🔷 robots.ts
 │   ├── 📂 simulator/
+│   │   ├── ⚛️ layout.tsx
+│   │   └── ⚛️ page.tsx
+│   ├── 🔷 sitemap.ts
+│   ├── 📂 solutions/
+│   │   ├── 📂 broker-networks/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 buyer-reports/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 finance-advisors/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 pre-qualification/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 structuring/
+│   │   │   └── ⚛️ page.tsx
+│   │   └── 📂 yacht-brokers/
+│   │   │   └── ⚛️ page.tsx
+│   ├── 📂 superyacht-financing/
 │   │   └── ⚛️ page.tsx
 │   ├── 📂 v2/
 │   ├── 📂 widget/
@@ -158,10 +224,15 @@ projecty/
 │   │   ├── ⚛️ layout.tsx
 │   │   ├── ⚛️ page.tsx
 │   │   └── ⚛️ widget-client.tsx
-│   └── 📂 wizard/
+│   ├── 📂 wizard/
+│   │   ├── ⚛️ layout.tsx
 │   │   ├── ⚛️ page.tsx
 │   │   ├── ⚛️ wizard-client.tsx
 │   │   └── 🎨 wizard.css
+│   ├── 📂 yacht-finance-calculator/
+│   │   └── ⚛️ page.tsx
+│   └── 📂 yacht-financing/
+│   │   └── ⚛️ page.tsx
 ├── 🔵 🔍 **eslint.config.mjs**
 ├── 📄 headers.txt
 ├── 📚 lib/
@@ -177,6 +248,8 @@ projecty/
 │   ├── 🔷 prisma.ts
 │   ├── 📂 report/
 │   │   └── 🔷 buildReport.ts
+│   ├── 📂 seo/
+│   │   └── 🔷 schema.ts
 │   └── 📂 wizard/
 │   │   ├── 🔷 defaults.ts
 │   │   ├── 🔷 labels.ts
@@ -206,6 +279,18 @@ projecty/
 │   ├── 🎨 file.svg
 │   ├── 🎨 globe.svg
 │   ├── 🖼️ hero.png
+│   ├── 📂 home/
+│   │   ├── 🖼️ waaza-yacht-financing-tool--1.jpg
+│   │   ├── 🖼️ waaza-yacht-financing-tool--10.jpg
+│   │   ├── 🖼️ waaza-yacht-financing-tool--11.jpg
+│   │   ├── 🖼️ waaza-yacht-financing-tool--2.jpg
+│   │   ├── 🖼️ waaza-yacht-financing-tool--3.jpg
+│   │   ├── 🖼️ waaza-yacht-financing-tool--4.jpg
+│   │   ├── 🖼️ waaza-yacht-financing-tool--5.jpg
+│   │   ├── 🖼️ waaza-yacht-financing-tool--6.jpg
+│   │   ├── 🖼️ waaza-yacht-financing-tool--7.jpg
+│   │   ├── 🖼️ waaza-yacht-financing-tool--8.jpg
+│   │   └── 🖼️ waaza-yacht-financing-tool--9.jpg
 │   ├── 🖼️ iconpng.png
 │   ├── 🎨 next.svg
 │   ├── 🎨 vercel3.svg
@@ -233,6 +318,7 @@ projecty/
 - ⚙️ Config: TOML files
 - 🖼️ Assets: PNG images
 - 🎨 Assets: SVG images
+- 🖼️ Assets: JPEG images
 - 📕 Docs: PDF files
 
 ### Importance Levels

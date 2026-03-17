@@ -4,10 +4,41 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Superyacht Financing | Waaza",
   description:
-    "Learn how superyacht financing differs from simpler marine finance conversations and why readiness, structure and clarity matter even more.",
+    "A deeper guide to superyacht financing, including why higher-value transactions require stronger readiness, clearer structure and better-prepared conversations.",
   alternates: {
     canonical: "/superyacht-financing",
   },
+};
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "How is superyacht financing different from ordinary boat finance?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Superyacht financing usually involves greater transaction value, more structural nuance, higher expectations around documentation and a stronger need for early-stage clarity before formal lender outreach.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Why does readiness matter more in superyacht financing?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Because the cost of ambiguity rises quickly in higher-value transactions. Poorly framed early conversations can waste serious time and reduce the quality of later financing discussions.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Who benefits from a platform like Waaza in superyacht financing?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Buyers, brokers and advisors all benefit because the platform helps create earlier clarity around strength, complexity and likely next steps before the process becomes more formal.",
+      },
+    },
+  ],
 };
 
 export default function Page() {
@@ -22,160 +53,190 @@ export default function Page() {
   };
 
   return (
-    <main style={{ background: C.bg, color: C.black, padding: "88px 24px 120px" }}>
-      <div style={{ maxWidth: 1080, margin: "0 auto" }}>
-        <p
-          style={{
-            fontSize: 13,
-            fontWeight: 700,
-            letterSpacing: 1.8,
-            textTransform: "uppercase",
-            color: C.gray3,
-            marginBottom: 18,
-          }}
-        >
-          Guide
-        </p>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
 
-        <h1
-          style={{
-            fontFamily: "var(--font-serif), serif",
-            fontSize: "clamp(42px,6vw,80px)",
-            lineHeight: 1.04,
-            fontWeight: 400,
-            letterSpacing: -1.8,
-            marginBottom: 22,
-            maxWidth: 900,
-          }}
-        >
-          Superyacht financing
-        </h1>
-
-        <p
-          style={{
-            fontSize: 18,
-            lineHeight: 1.82,
-            color: C.gray2,
-            maxWidth: 960,
-            marginBottom: 30,
-          }}
-        >
-          Superyacht financing usually involves a more demanding conversation than simpler marine
-          finance scenarios. Values are higher, structures are often more nuanced, and the cost of
-          ambiguity rises quickly. That is why early-stage clarity matters even more here. When a
-          high-value transaction begins with vague assumptions and weak framing, everyone risks
-          wasting time. Waaza is useful in this context because it helps organise the conversation
-          before outside financing discussions become unnecessarily messy.
-        </p>
-
-        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 38 }}>
-          <Link
-            href="/yacht-financing"
+      <main style={{ background: C.bg, color: C.black, padding: "88px 24px 120px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <p
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "15px 24px",
-              borderRadius: 12,
-              background: C.accent,
-              color: C.black,
+              fontSize: 13,
               fontWeight: 700,
+              letterSpacing: 1.8,
+              textTransform: "uppercase",
+              color: C.gray3,
+              marginBottom: 18,
             }}
           >
-            Yacht financing guide
-          </Link>
+            Premium / high-value guide
+          </p>
 
-          <Link
-            href="/wizard"
+          <h1
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "15px 24px",
-              borderRadius: 12,
-              background: C.white,
-              border: `1px solid ${C.gray6}`,
-              color: C.black,
-              fontWeight: 700,
+              fontFamily: "var(--font-serif), serif",
+              fontSize: "clamp(44px,6vw,82px)",
+              lineHeight: 1.03,
+              fontWeight: 400,
+              letterSpacing: -1.9,
+              marginBottom: 22,
+              maxWidth: 940,
             }}
           >
-            Run readiness intake
-          </Link>
+            Superyacht financing: why bigger transactions demand better preparation, not just bigger numbers
+          </h1>
+
+          <p
+            style={{
+              fontSize: 18,
+              lineHeight: 1.84,
+              color: C.gray2,
+              maxWidth: 980,
+              marginBottom: 30,
+            }}
+          >
+            Superyacht financing is not simply yacht financing with an extra zero attached. As deal
+            size grows, the cost of poor early framing grows with it. Ambiguity becomes more
+            expensive. Structural nuance becomes more important. Expectations around documentation,
+            readiness and overall deal coherence become harder to ignore. That is why higher-value
+            transactions benefit even more from a disciplined early-stage financing process.
+          </p>
+
+          <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 38 }}>
+            <Link
+              href="/yacht-financing"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "15px 24px",
+                borderRadius: 12,
+                background: C.accent,
+                color: C.black,
+                fontWeight: 700,
+              }}
+            >
+              Read yacht financing guide
+            </Link>
+
+            <Link
+              href="/wizard"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "15px 24px",
+                borderRadius: 12,
+                background: C.white,
+                border: `1px solid ${C.gray6}`,
+                color: C.black,
+                fontWeight: 700,
+              }}
+            >
+              Run readiness intake
+            </Link>
+          </div>
+
+          <div style={{ display: "grid", gap: 18 }}>
+            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 34 }}>
+              <h2 style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
+                Why superyacht financing deserves its own conversation
+              </h2>
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2, marginBottom: 14 }}>
+                At higher transaction values, the margin for vague thinking gets smaller. The buyer
+                may still begin with the same questions — what can I borrow, what might the monthly
+                picture look like, what feels realistic — but the quality of the conversation matters
+                much more. A poorly framed case in a lower-value context may waste some time. A
+                poorly framed case in a superyacht context can waste a great deal more than that.
+              </p>
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2 }}>
+                That is why superyacht financing should be approached as a more structured and
+                preparation-heavy conversation. It is not just about access to financing. It is about
+                the quality of the case entering the conversation.
+              </p>
+            </section>
+
+            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 34 }}>
+              <h2 style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
+                What becomes more important as deal value rises
+              </h2>
+              <ul style={{ paddingLeft: 20, marginBottom: 16 }}>
+                {[
+                  "Clearer early-stage readiness and buyer strength signals",
+                  "Stronger discipline around leverage expectations",
+                  "Better alignment between asset choice and financing appetite",
+                  "More attention to structure, ownership path and transaction framing",
+                  "Less tolerance for vague or underprepared conversations",
+                ].map((item) => (
+                  <li key={item} style={{ fontSize: 16, lineHeight: 1.95, color: C.gray2 }}>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2 }}>
+                None of this means superyacht financing is only for perfectly frictionless cases. It
+                means preparation matters more, and structure matters earlier.
+              </p>
+            </section>
+
+            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 34 }}>
+              <h2 style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
+                Why brokers and advisors need stronger early qualification here
+              </h2>
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2, marginBottom: 14 }}>
+                In higher-value deals, brokers and advisors carry more risk when early conversations
+                are weakly framed. If the buyer’s financing position is unclear, if the asset
+                introduces more complexity than expected, or if the structure is not thought through,
+                momentum can become deceptive. The deal may feel active without being properly
+                prepared.
+              </p>
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2 }}>
+                That is exactly why a platform like Waaza becomes more useful at the upper end. It
+                helps create earlier clarity around strength, complexity and next-step discipline.
+              </p>
+            </section>
+
+            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 34 }}>
+              <h2 style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
+                Why calculators still matter — but only as the beginning
+              </h2>
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2, marginBottom: 14 }}>
+                Even in superyacht financing, calculators still matter. People still want a first
+                read on what the numbers may look like. But at this level, the calculator becomes
+                meaningful only when it leads into better context. The repayment estimate is useful,
+                but it is not the real work. The real work is understanding the quality and shape of
+                the case behind it.
+              </p>
+              <p style={{ fontSize: 16, lineHeight: 1.88, color: C.gray2 }}>
+                That is why the best next step is usually not to stay inside a static number tool but
+                to move into a readiness-led conversation.
+              </p>
+            </section>
+
+            <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 34 }}>
+              <h2 style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
+                Continue with the strongest supporting pages
+              </h2>
+              <div style={{ display: "grid", gap: 10 }}>
+                <Link href="/yacht-financing" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
+                  Yacht financing
+                </Link>
+                <Link href="/yacht-finance-calculator" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
+                  Yacht finance calculator
+                </Link>
+                <Link href="/can-you-finance-a-yacht" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
+                  Can you finance a yacht?
+                </Link>
+                <Link href="/documentation" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
+                  Documentation
+                </Link>
+              </div>
+            </section>
+          </div>
         </div>
-
-        <div style={{ display: "grid", gap: 18 }}>
-          <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 32 }}>
-            <h2 style={{ fontSize: 30, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
-              Why superyacht financing is different
-            </h2>
-            <p style={{ fontSize: 16, lineHeight: 1.85, color: C.gray2, marginBottom: 14 }}>
-              At higher values, financing discussions tend to become more structurally sensitive.
-              It is not simply that the numbers are larger. The expectations are different, the
-              consequences of poor early qualification are greater, and the shape of the
-              conversation often involves more nuance around asset, structure and overall case
-              coherence.
-            </p>
-            <p style={{ fontSize: 16, lineHeight: 1.85, color: C.gray2 }}>
-              This is exactly why a product like Waaza becomes more valuable rather than less.
-              The more complex the conversation, the more useful it is to create better structure
-              before it moves outward into more formal financing channels.
-            </p>
-          </section>
-
-          <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 32 }}>
-            <h2 style={{ fontSize: 30, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
-              Why readiness matters even more at the top end
-            </h2>
-            <p style={{ fontSize: 16, lineHeight: 1.85, color: C.gray2, marginBottom: 14 }}>
-              In higher-value transactions, weak early assumptions become more expensive. If the
-              buyer conversation is not properly framed, the financing discussion can drift into
-              wishful thinking or premature external outreach. Readiness scoring and scenario-based
-              thinking help reduce that risk by giving the conversation more shape before it starts
-              consuming serious time.
-            </p>
-            <p style={{ fontSize: 16, lineHeight: 1.85, color: C.gray2 }}>
-              That does not mean every superyacht case should be reduced to a score. It means the
-              early stage benefits from more disciplined framing. Waaza helps create that discipline.
-            </p>
-          </section>
-
-          <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 32 }}>
-            <h2 style={{ fontSize: 30, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
-              What buyers, brokers and advisors need in this part of the market
-            </h2>
-            <p style={{ fontSize: 16, lineHeight: 1.85, color: C.gray2, marginBottom: 14 }}>
-              Buyers need realism and clarity. Brokers need a more disciplined qualification
-              framework. Advisors need a cleaner base from which to apply deeper judgement. These
-              needs are aligned, even though the people involved may have different perspectives.
-              That is why a shared platform layer can be valuable here.
-            </p>
-            <p style={{ fontSize: 16, lineHeight: 1.85, color: C.gray2 }}>
-              Waaza is strongest when it helps align those perspectives earlier, before the financing
-              story becomes fragmented or overconfident.
-            </p>
-          </section>
-
-          <section style={{ background: C.white, border: `1px solid ${C.gray6}`, borderRadius: 24, padding: 32 }}>
-            <h2 style={{ fontSize: 30, fontWeight: 800, lineHeight: 1.15, marginBottom: 16 }}>
-              Related pages
-            </h2>
-            <div style={{ display: "grid", gap: 10 }}>
-              <Link href="/yacht-financing" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
-                Yacht financing
-              </Link>
-              <Link href="/yacht-finance-calculator" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
-                Yacht finance calculator
-              </Link>
-              <Link href="/can-you-finance-a-yacht" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
-                Can you finance a yacht?
-              </Link>
-              <Link href="/documentation" style={{ fontSize: 16, fontWeight: 700, color: C.black }}>
-                Documentation
-              </Link>
-            </div>
-          </section>
-        </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
