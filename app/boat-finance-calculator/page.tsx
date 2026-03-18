@@ -1,3 +1,7 @@
+const SITE_URL = "https://www.waaza.co";
+const OG_IMAGE = "https://www.waaza.co/hero.png";
+
+
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -7,6 +11,22 @@ export const metadata: Metadata = {
     "Use Waaza’s boat finance calculator page to explore repayments, leverage scenarios and the difference between broad marine finance intent and yacht-specific financing context.",
   alternates: {
     canonical: "/boat-finance-calculator",
+  },
+  keywords: ["boat finance calculator", "marine finance calculator", "boat loan calculator", "boat financing", "yacht finance calculator"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    title: "Boat Finance Calculator | Waaza",
+    description: "Use Waaza's boat finance calculator to explore repayments, leverage scenarios and the difference between broad marine finance intent and yacht-specific financing context.",
+    url: `${SITE_URL}/boat-finance-calculator`,
+    siteName: "Waaza",
+    type: "website",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Waaza boat finance calculator" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Boat Finance Calculator | Waaza",
+    description: "Explore repayments, leverage scenarios and marine financing context.",
+    images: [OG_IMAGE],
   },
 };
 

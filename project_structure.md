@@ -1,13 +1,13 @@
 # 📁 projecty - Project Structure
 
-*Generated on: 16/03/2026, 22:13:07*
+*Generated on: 18/03/2026, 02:26:39*
 
 ## 📋 Quick Overview
 
 | Metric | Value |
 |--------|-------|
-| 📄 Total Files | 145 |
-| 📁 Total Folders | 89 |
+| 📄 Total Files | 197 |
+| 📁 Total Folders | 114 |
 | 🌳 Max Depth | 5 levels |
 | 🛠️ Tech Stack | React, Next.js, TypeScript, CSS, Node.js |
 
@@ -24,43 +24,43 @@
 
 ### By File Type
 
-- ⚛️ **.tsx** (React TypeScript files): 62 files (42.8%)
-- 🔷 **.ts** (TypeScript files): 40 files (27.6%)
-- 🖼️ **.jpg** (JPEG images): 11 files (7.6%)
-- 🖼️ **.png** (PNG images): 5 files (3.4%)
-- 🎨 **.svg** (SVG images): 5 files (3.4%)
-- ⚙️ **.json** (JSON files): 3 files (2.1%)
-- 📄 **.sql** (Other files): 3 files (2.1%)
-- 📄 **.txt** (Text files): 2 files (1.4%)
-- 📖 **.md** (Markdown files): 2 files (1.4%)
-- 🎨 **.css** (Stylesheets): 2 files (1.4%)
-- 📄 **.mjs** (Other files): 2 files (1.4%)
-- ⚙️ **.yaml** (YAML files): 2 files (1.4%)
-- 🚫 **.gitignore** (Git ignore): 1 files (0.7%)
-- 🖼️ **.ico** (Icon files): 1 files (0.7%)
-- ⚙️ **.toml** (TOML files): 1 files (0.7%)
-- 📄 **.prisma** (Other files): 1 files (0.7%)
-- 📕 **.pdf** (PDF files): 1 files (0.7%)
-- 📄 **.tsbuildinfo** (Other files): 1 files (0.7%)
+- ⚛️ **.tsx** (React TypeScript files): 85 files (43.1%)
+- 🔷 **.ts** (TypeScript files): 42 files (21.3%)
+- 🖼️ **.jpg** (JPEG images): 22 files (11.2%)
+- 🖼️ **.png** (PNG images): 21 files (10.7%)
+- 🎨 **.svg** (SVG images): 5 files (2.5%)
+- ⚙️ **.json** (JSON files): 3 files (1.5%)
+- 📄 **.sql** (Other files): 3 files (1.5%)
+- 📄 **.txt** (Text files): 2 files (1.0%)
+- 📖 **.md** (Markdown files): 2 files (1.0%)
+- 🎨 **.css** (Stylesheets): 2 files (1.0%)
+- 📄 **.mjs** (Other files): 2 files (1.0%)
+- ⚙️ **.yaml** (YAML files): 2 files (1.0%)
+- 🚫 **.gitignore** (Git ignore): 1 files (0.5%)
+- 🖼️ **.ico** (Icon files): 1 files (0.5%)
+- ⚙️ **.toml** (TOML files): 1 files (0.5%)
+- 📄 **.prisma** (Other files): 1 files (0.5%)
+- 📕 **.pdf** (PDF files): 1 files (0.5%)
+- 📄 **.tsbuildinfo** (Other files): 1 files (0.5%)
 
 ### By Category
 
-- **React**: 62 files (42.8%)
-- **TypeScript**: 40 files (27.6%)
-- **Assets**: 22 files (15.2%)
-- **Other**: 7 files (4.8%)
-- **Config**: 6 files (4.1%)
-- **Docs**: 5 files (3.4%)
-- **Styles**: 2 files (1.4%)
-- **DevOps**: 1 files (0.7%)
+- **React**: 85 files (43.1%)
+- **Assets**: 49 files (24.9%)
+- **TypeScript**: 42 files (21.3%)
+- **Other**: 7 files (3.6%)
+- **Config**: 6 files (3.0%)
+- **Docs**: 5 files (2.5%)
+- **Styles**: 2 files (1.0%)
+- **DevOps**: 1 files (0.5%)
 
 ### 📁 Largest Directories
 
-- **root**: 145 files
-- **app**: 88 files
+- **root**: 197 files
+- **app**: 111 files
+- **public**: 48 files
+- **public/home**: 22 files
 - **app/api**: 21 files
-- **public**: 21 files
-- **lib**: 14 files
 
 ## 🌳 Directory Structure
 
@@ -122,6 +122,9 @@ projecty/
 │   │   └── 📂 wizard/
 │   │   │   └── 📂 assess/
 │   │   │   │   └── 🔷 route.ts
+│   ├── 📂 assessment/
+│   │   └── 📂 how-much-yacht-can-i-afford/
+│   │   │   └── ⚛️ page.tsx
 │   ├── 📂 blog/
 │   │   └── ⚛️ page.tsx
 │   ├── 📂 boat-finance-calculator/
@@ -132,6 +135,7 @@ projecty/
 │   │   └── ⚛️ page.tsx
 │   ├── 🧩 components/
 │   │   ├── ⚛️ Header.tsx
+│   │   ├── ⚛️ HomePageClient.tsx
 │   │   ├── ⚛️ LayoutShell.tsx
 │   │   ├── ⚛️ MarketingRichPage.tsx
 │   │   ├── ⚛️ SeoClusterPage.tsx
@@ -155,6 +159,12 @@ projecty/
 │   ├── 📂 financing/
 │   │   ├── 📂 _components/
 │   │   │   └── ⚛️ FinancingSiloShell.tsx
+│   │   ├── 📂 can-you-finance-a-yacht/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 how-to-finance-a-yacht-purchase/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 how-vessel-age-affects-financing/
+│   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 how-yacht-financing-works/
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── ⚛️ page.tsx
@@ -167,6 +177,25 @@ projecty/
 │   ├── 🎨 globals.css
 │   ├── 📂 how-long-can-you-finance-a-yacht/
 │   │   └── ⚛️ page.tsx
+│   ├── 📂 insurance/
+│   │   ├── 📂 _components/
+│   │   │   └── ⚛️ InsuranceSiloShell.tsx
+│   │   ├── 📂 boat-insurance-cost/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 boat-insurance-uk/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 hull-and-machinery-insurance/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ layout.tsx
+│   │   ├── 📂 marine-insurance-companies/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ page.tsx
+│   │   ├── 📂 third-party-boat-insurance/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 yacht-insurance-basics/
+│   │   │   └── ⚛️ page.tsx
+│   │   └── 📂 yacht-insurance-vs-financing-requirements/
+│   │   │   └── ⚛️ page.tsx
 │   ├── 📂 integrations/
 │   │   └── ⚛️ page.tsx
 │   ├── ⚛️ layout.tsx
@@ -209,6 +238,21 @@ projecty/
 │   │   │   └── ⚛️ page.tsx
 │   │   └── 📂 yacht-brokers/
 │   │   │   └── ⚛️ page.tsx
+│   ├── 📂 structuring/
+│   │   ├── 📂 _components/
+│   │   │   └── ⚛️ StructuringSiloShell.tsx
+│   │   ├── 📂 buying-a-yacht-through-a-company/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ layout.tsx
+│   │   ├── 📂 malta-yacht-leasing/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ page.tsx
+│   │   ├── 📂 personal-vs-spv-yacht-ownership/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 vat-on-yacht-purchases-in-europe/
+│   │   │   └── ⚛️ page.tsx
+│   │   └── 📂 yacht-vat-explained/
+│   │   │   └── ⚛️ page.tsx
 │   ├── 📂 superyacht-financing/
 │   │   └── ⚛️ page.tsx
 │   ├── 📂 v2/
@@ -243,6 +287,8 @@ projecty/
 │   │   ├── 🔷 rateModel.ts
 │   │   ├── 🔷 rules.ts
 │   │   └── 🔷 runAssessment.ts
+│   ├── 📂 insurance/
+│   │   └── 🔷 types.ts
 │   ├── 📂 pdf/
 │   │   └── 🔷 renderAssessmentPdf.ts
 │   ├── 🔷 prisma.ts
@@ -250,6 +296,8 @@ projecty/
 │   │   └── 🔷 buildReport.ts
 │   ├── 📂 seo/
 │   │   └── 🔷 schema.ts
+│   ├── 📂 structuring/
+│   │   └── 🔷 types.ts
 │   └── 📂 wizard/
 │   │   ├── 🔷 defaults.ts
 │   │   ├── 🔷 labels.ts
@@ -280,6 +328,17 @@ projecty/
 │   ├── 🎨 globe.svg
 │   ├── 🖼️ hero.png
 │   ├── 📂 home/
+│   │   ├── 🖼️ waaza-promo-1.jpg
+│   │   ├── 🖼️ waaza-promo-10.jpg
+│   │   ├── 🖼️ waaza-promo-11.jpg
+│   │   ├── 🖼️ waaza-promo-2.jpg
+│   │   ├── 🖼️ waaza-promo-3.jpg
+│   │   ├── 🖼️ waaza-promo-4.jpg
+│   │   ├── 🖼️ waaza-promo-5.jpg
+│   │   ├── 🖼️ waaza-promo-6.jpg
+│   │   ├── 🖼️ waaza-promo-7.jpg
+│   │   ├── 🖼️ waaza-promo-8.jpg
+│   │   ├── 🖼️ waaza-promo-9.jpg
 │   │   ├── 🖼️ waaza-yacht-financing-tool--1.jpg
 │   │   ├── 🖼️ waaza-yacht-financing-tool--10.jpg
 │   │   ├── 🖼️ waaza-yacht-financing-tool--11.jpg
@@ -292,7 +351,25 @@ projecty/
 │   │   ├── 🖼️ waaza-yacht-financing-tool--8.jpg
 │   │   └── 🖼️ waaza-yacht-financing-tool--9.jpg
 │   ├── 🖼️ iconpng.png
+│   ├── 📂 insurance/
+│   │   ├── 🖼️ waaza-insurance-1.png
+│   │   ├── 🖼️ waaza-insurance-2.png
+│   │   ├── 🖼️ waaza-insurance-3.png
+│   │   ├── 🖼️ waaza-insurance-4.png
+│   │   ├── 🖼️ waaza-insurance-5.png
+│   │   ├── 🖼️ waaza-insurance-6.png
+│   │   ├── 🖼️ waaza-insurance-7.png
+│   │   └── 🖼️ waaza-insurance-8.png
 │   ├── 🎨 next.svg
+│   ├── 📂 structuring/
+│   │   ├── 🖼️ waaza-insurance-1.png
+│   │   ├── 🖼️ waaza-insurance-2.png
+│   │   ├── 🖼️ waaza-insurance-3.png
+│   │   ├── 🖼️ waaza-insurance-4.png
+│   │   ├── 🖼️ waaza-insurance-5.png
+│   │   ├── 🖼️ waaza-insurance-6.png
+│   │   ├── 🖼️ waaza-insurance-7.png
+│   │   └── 🖼️ waaza-insurance-8.png
 │   ├── 🎨 vercel3.svg
 │   ├── 🖼️ waaza.png
 │   └── 🎨 window.svg

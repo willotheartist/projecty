@@ -1,3 +1,4 @@
+//·app/financing/_components/FinancingSiloShell.tsx
 "use client";
 
 import Image from "next/image";

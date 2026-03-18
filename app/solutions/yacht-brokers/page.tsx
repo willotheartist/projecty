@@ -1,3 +1,7 @@
+const SITE_URL = "https://www.waaza.co";
+const OG_IMAGE = "https://www.waaza.co/hero.png";
+
+
 import type { Metadata } from "next";
 import MarketingRichPage from "../../components/MarketingRichPage";
 
@@ -7,6 +11,22 @@ export const metadata: Metadata = {
     "See how Waaza helps yacht brokers qualify financing conversations earlier, frame buyer readiness more clearly and reduce wasted outreach.",
   alternates: {
     canonical: "/solutions/yacht-brokers",
+  },
+  keywords: ["yacht broker financing tool", "yacht broker readiness scoring", "yacht broker qualification", "marine broker finance platform"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    title: "Yacht Brokers | Waaza",
+    description: "See how Waaza helps yacht brokers qualify financing conversations earlier, frame buyer readiness more clearly and reduce wasted outreach.",
+    url: `${SITE_URL}/solutions/yacht-brokers`,
+    siteName: "Waaza",
+    type: "website",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Waaza for yacht brokers" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Yacht Brokers | Waaza",
+    description: "How Waaza helps yacht brokers qualify financing conversations earlier and reduce wasted outreach.",
+    images: [OG_IMAGE],
   },
 };
 

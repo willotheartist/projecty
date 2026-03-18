@@ -1,3 +1,7 @@
+const SITE_URL = "https://www.waaza.co";
+const OG_IMAGE = "https://www.waaza.co/hero.png";
+
+
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -7,6 +11,22 @@ export const metadata: Metadata = {
     "Understand what influences yacht financing term length, including vessel age, leverage, borrower strength and overall case quality.",
   alternates: {
     canonical: "/how-long-can-you-finance-a-yacht",
+  },
+  keywords: ["how long can you finance a yacht", "yacht loan term", "yacht financing term length", "yacht loan length", "marine finance term"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    title: "How Long Can You Finance a Yacht? | Waaza",
+    description: "Understand what influences yacht financing term length, including vessel age, leverage, borrower strength and overall case quality.",
+    url: `${SITE_URL}/how-long-can-you-finance-a-yacht`,
+    siteName: "Waaza",
+    type: "article",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "How long can you finance a yacht - Waaza guide" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "How Long Can You Finance a Yacht? | Waaza",
+    description: "What influences yacht financing term length — vessel age, leverage and borrower strength.",
+    images: [OG_IMAGE],
   },
 };
 

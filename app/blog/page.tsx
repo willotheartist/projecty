@@ -1,3 +1,7 @@
+const SITE_URL = "https://www.waaza.co";
+const OG_IMAGE = "https://www.waaza.co/hero.png";
+
+
 import type { Metadata } from "next";
 import MarketingRichPage from "../components/MarketingRichPage";
 
@@ -7,6 +11,22 @@ export const metadata: Metadata = {
     "Read Waaza insights on yacht financing, readiness scoring, deal structure, repayment scenarios and better broker-side qualification.",
   alternates: {
     canonical: "/blog",
+  },
+  keywords: ["yacht financing blog", "marine finance insights", "yacht readiness scoring", "yacht broker tips", "waaza blog"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    title: "Blog | Waaza",
+    description: "Read Waaza insights on yacht financing, readiness scoring, deal structure, repayment scenarios and better broker-side qualification.",
+    url: `${SITE_URL}/blog`,
+    siteName: "Waaza",
+    type: "website",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Waaza blog" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog | Waaza",
+    description: "Insights on yacht financing, readiness scoring, deal structure and broker qualification.",
+    images: [OG_IMAGE],
   },
 };
 

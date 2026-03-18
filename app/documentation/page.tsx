@@ -1,3 +1,7 @@
+const SITE_URL = "https://www.waaza.co";
+const OG_IMAGE = "https://www.waaza.co/hero.png";
+
+
 import type { Metadata } from "next";
 import MarketingRichPage from "../components/MarketingRichPage";
 
@@ -7,6 +11,22 @@ export const metadata: Metadata = {
     "Waaza documentation covering financing readiness scoring, simulator logic, reports, workflow usage and implementation guidance for brokers and advisors.",
   alternates: {
     canonical: "/documentation",
+  },
+  keywords: ["waaza documentation", "yacht financing platform docs", "readiness scoring documentation", "marine finance API docs"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    title: "Documentation | Waaza",
+    description: "Waaza documentation covering financing readiness scoring, simulator logic, reports, workflow usage and implementation guidance for brokers and advisors.",
+    url: `${SITE_URL}/documentation`,
+    siteName: "Waaza",
+    type: "website",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Waaza documentation" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Documentation | Waaza",
+    description: "Readiness scoring, simulator logic, reports and implementation guidance for brokers and advisors.",
+    images: [OG_IMAGE],
   },
 };
 

@@ -1,3 +1,7 @@
+const SITE_URL = "https://www.waaza.co";
+const OG_IMAGE = "https://www.waaza.co/hero.png";
+
+
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -7,6 +11,22 @@ export const metadata: Metadata = {
     "A detailed guide to yacht financing, including how it works, what affects lender appetite, how calculators fit in, and why readiness matters before formal outreach.",
   alternates: {
     canonical: "/yacht-financing",
+  },
+  keywords: ["yacht financing", "how yacht financing works", "yacht finance", "marine financing", "yacht loan", "yacht finance calculator"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    title: "Yacht Financing | Waaza",
+    description: "A detailed guide to yacht financing, including how it works, what affects lender appetite, how calculators fit in, and why readiness matters before formal outreach.",
+    url: `${SITE_URL}/yacht-financing`,
+    siteName: "Waaza",
+    type: "article",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Waaza yacht financing guide" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Yacht Financing | Waaza",
+    description: "How yacht financing works, what affects lender appetite and why readiness matters.",
+    images: [OG_IMAGE],
   },
 };
 

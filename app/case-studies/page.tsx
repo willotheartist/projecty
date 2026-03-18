@@ -1,3 +1,7 @@
+const SITE_URL = "https://www.waaza.co";
+const OG_IMAGE = "https://www.waaza.co/hero.png";
+
+
 import type { Metadata } from "next";
 import MarketingRichPage from "../components/MarketingRichPage";
 
@@ -7,6 +11,22 @@ export const metadata: Metadata = {
     "Explore how Waaza can support buyer qualification, broker workflows, financing readiness and better pre-lender conversations.",
   alternates: {
     canonical: "/case-studies",
+  },
+  keywords: ["waaza case studies", "yacht financing case study", "broker qualification example", "marine finance workflow"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    title: "Case Studies | Waaza",
+    description: "Explore how Waaza can support buyer qualification, broker workflows, financing readiness and better pre-lender conversations.",
+    url: `${SITE_URL}/case-studies`,
+    siteName: "Waaza",
+    type: "website",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Waaza case studies" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Case Studies | Waaza",
+    description: "How Waaza supports buyer qualification, broker workflows and better pre-lender conversations.",
+    images: [OG_IMAGE],
   },
 };
 

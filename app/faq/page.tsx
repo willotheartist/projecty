@@ -1,3 +1,7 @@
+const SITE_URL = "https://www.waaza.co";
+const OG_IMAGE = "https://www.waaza.co/hero.png";
+
+
 import type { Metadata } from "next";
 import MarketingRichPage from "../components/MarketingRichPage";
 
@@ -7,6 +11,22 @@ export const metadata: Metadata = {
     "Frequently asked questions about yacht financing, simulations, readiness scoring, reports and how Waaza supports broker workflows.",
   alternates: {
     canonical: "/faq",
+  },
+  keywords: ["yacht financing FAQ", "waaza FAQ", "yacht finance questions", "readiness scoring FAQ", "marine finance questions"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    title: "FAQ | Waaza",
+    description: "Frequently asked questions about yacht financing, simulations, readiness scoring, reports and how Waaza supports broker workflows.",
+    url: `${SITE_URL}/faq`,
+    siteName: "Waaza",
+    type: "website",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Waaza FAQ" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FAQ | Waaza",
+    description: "Questions about yacht financing, readiness scoring, reports and broker workflows.",
+    images: [OG_IMAGE],
   },
 };
 

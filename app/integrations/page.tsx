@@ -1,3 +1,7 @@
+const SITE_URL = "https://www.waaza.co";
+const OG_IMAGE = "https://www.waaza.co/hero.png";
+
+
 import type { Metadata } from "next";
 import MarketingRichPage from "../components/MarketingRichPage";
 
@@ -7,6 +11,22 @@ export const metadata: Metadata = {
     "Learn how Waaza fits into broker workflows, website lead capture, financing qualification and report-led deal processes.",
   alternates: {
     canonical: "/integrations",
+  },
+  keywords: ["waaza integrations", "yacht broker integration", "marine finance API", "yacht financing widget", "broker workflow integration"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    title: "Integrations | Waaza",
+    description: "Learn how Waaza fits into broker workflows, website lead capture, financing qualification and report-led deal processes.",
+    url: `${SITE_URL}/integrations`,
+    siteName: "Waaza",
+    type: "website",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Waaza integrations" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Integrations | Waaza",
+    description: "How Waaza fits into broker workflows, lead capture and financing qualification.",
+    images: [OG_IMAGE],
   },
 };
 

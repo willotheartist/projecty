@@ -1,3 +1,7 @@
+const SITE_URL = "https://www.waaza.co";
+const OG_IMAGE = "https://www.waaza.co/hero.png";
+
+
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -7,6 +11,22 @@ export const metadata: Metadata = {
     "A deeper guide to superyacht financing, including why higher-value transactions require stronger readiness, clearer structure and better-prepared conversations.",
   alternates: {
     canonical: "/superyacht-financing",
+  },
+  keywords: ["superyacht financing", "superyacht finance", "luxury yacht financing", "large yacht loan", "superyacht loan", "yacht financing"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    title: "Superyacht Financing | Waaza",
+    description: "A deeper guide to superyacht financing, including why higher-value transactions require stronger readiness, clearer structure and better-prepared conversations.",
+    url: `${SITE_URL}/superyacht-financing`,
+    siteName: "Waaza",
+    type: "article",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Waaza superyacht financing guide" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Superyacht Financing | Waaza",
+    description: "Why higher-value transactions require stronger readiness and clearer structure.",
+    images: [OG_IMAGE],
   },
 };
 

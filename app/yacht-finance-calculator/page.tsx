@@ -1,3 +1,7 @@
+const SITE_URL = "https://www.waaza.co";
+const OG_IMAGE = "https://www.waaza.co/hero.png";
+
+
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -7,6 +11,22 @@ export const metadata: Metadata = {
     "Use Waaza’s yacht finance calculator to explore indicative repayments, deposit scenarios, term changes and the broader financing context around a yacht purchase.",
   alternates: {
     canonical: "/yacht-finance-calculator",
+  },
+  keywords: ["yacht finance calculator", "yacht financing calculator", "boat finance calculator", "marine finance calculator", "yacht repayment calculator"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    title: "Yacht Finance Calculator | Waaza",
+    description: "Use Waaza's yacht finance calculator to explore indicative repayments, deposit scenarios, term changes and the broader financing context around a yacht purchase.",
+    url: `${SITE_URL}/yacht-finance-calculator`,
+    siteName: "Waaza",
+    type: "website",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Waaza yacht finance calculator" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Yacht Finance Calculator | Waaza",
+    description: "Explore indicative repayments, deposit scenarios and term changes around a yacht purchase.",
+    images: [OG_IMAGE],
   },
 };
 

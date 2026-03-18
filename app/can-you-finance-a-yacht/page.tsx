@@ -1,3 +1,7 @@
+const SITE_URL = "https://www.waaza.co";
+const OG_IMAGE = "https://www.waaza.co/hero.png";
+
+
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -7,6 +11,22 @@ export const metadata: Metadata = {
     "Find out what influences whether you can finance a yacht, including buyer strength, deposit, vessel profile, intended use and overall readiness.",
   alternates: {
     canonical: "/can-you-finance-a-yacht",
+  },
+  keywords: ["can you finance a yacht", "yacht financing eligibility", "yacht loan approval", "yacht financing requirements", "can i get a yacht loan"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    title: "Can You Finance a Yacht? | Waaza",
+    description: "Find out what influences whether you can finance a yacht, including buyer strength, deposit, vessel profile, intended use and overall readiness.",
+    url: `${SITE_URL}/can-you-finance-a-yacht`,
+    siteName: "Waaza",
+    type: "article",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Can you finance a yacht - Waaza guide" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Can You Finance a Yacht? | Waaza",
+    description: "What influences whether you can finance a yacht — buyer strength, deposit, vessel profile and readiness.",
+    images: [OG_IMAGE],
   },
 };
 

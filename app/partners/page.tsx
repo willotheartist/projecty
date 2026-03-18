@@ -1,3 +1,7 @@
+const SITE_URL = "https://www.waaza.co";
+const OG_IMAGE = "https://www.waaza.co/hero.png";
+
+
 import type { Metadata } from "next";
 import MarketingRichPage from "../components/MarketingRichPage";
 
@@ -7,6 +11,22 @@ export const metadata: Metadata = {
     "Explore partnership opportunities with Waaza for brokers, networks, advisors and operators working around yacht financing conversations.",
   alternates: {
     canonical: "/partners",
+  },
+  keywords: ["waaza partners", "yacht financing partnership", "broker network partnership", "marine finance integration"],
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  openGraph: {
+    title: "Partners | Waaza",
+    description: "Explore partnership opportunities with Waaza for brokers, networks, advisors and operators working around yacht financing conversations.",
+    url: `${SITE_URL}/partners`,
+    siteName: "Waaza",
+    type: "website",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Waaza partners" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Partners | Waaza",
+    description: "Partnership opportunities with Waaza for brokers, networks and advisors.",
+    images: [OG_IMAGE],
   },
 };
 
