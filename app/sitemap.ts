@@ -297,5 +297,81 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+
+    // ── Compare silo ──────────────────────────────────────────
+    {
+      url: `${SITE_URL}/compare/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.88,
+    },
+    {
+      url: `${SITE_URL}/compare/loan-vs-leasing-for-yacht-purchases/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: `${SITE_URL}/compare/new-vs-used-yacht-financing/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.84,
+    },
+    {
+      url: `${SITE_URL}/compare/boat-loan-vs-personal-loan/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.84,
+    },
+    {
+      url: `${SITE_URL}/compare/personal-vs-company-yacht-ownership/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.82,
+    },
+    {
+      url: `${SITE_URL}/compare/malta-vs-french-leasing/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+
+    // ── Lenders silo ──────────────────────────────────────────
+    {
+      url: `${SITE_URL}/lenders/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/lenders/who-finances-yachts-in-the-uk/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.86,
+    },
+    {
+      url: `${SITE_URL}/lenders/what-lenders-look-for-in-a-yacht-loan/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
+      url: `${SITE_URL}/lenders/private-bank-vs-marine-lender/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.83,
+    },
+    {
+      url: `${SITE_URL}/lenders/lloyds-bank-yacht-financing/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.82,
+    },
+    {
+      url: `${SITE_URL}/lenders/bnp-paribas-yacht-financing/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.82,
+    },
   ];
 }

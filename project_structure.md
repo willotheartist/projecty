@@ -1,13 +1,13 @@
 # 📁 projecty - Project Structure
 
-*Generated on: 18/03/2026, 02:26:39*
+*Generated on: 18/03/2026, 14:16:59*
 
 ## 📋 Quick Overview
 
 | Metric | Value |
 |--------|-------|
-| 📄 Total Files | 197 |
-| 📁 Total Folders | 114 |
+| 📄 Total Files | 213 |
+| 📁 Total Folders | 131 |
 | 🌳 Max Depth | 5 levels |
 | 🛠️ Tech Stack | React, Next.js, TypeScript, CSS, Node.js |
 
@@ -24,18 +24,18 @@
 
 ### By File Type
 
-- ⚛️ **.tsx** (React TypeScript files): 85 files (43.1%)
-- 🔷 **.ts** (TypeScript files): 42 files (21.3%)
-- 🖼️ **.jpg** (JPEG images): 22 files (11.2%)
-- 🖼️ **.png** (PNG images): 21 files (10.7%)
-- 🎨 **.svg** (SVG images): 5 files (2.5%)
-- ⚙️ **.json** (JSON files): 3 files (1.5%)
-- 📄 **.sql** (Other files): 3 files (1.5%)
-- 📄 **.txt** (Text files): 2 files (1.0%)
-- 📖 **.md** (Markdown files): 2 files (1.0%)
-- 🎨 **.css** (Stylesheets): 2 files (1.0%)
-- 📄 **.mjs** (Other files): 2 files (1.0%)
-- ⚙️ **.yaml** (YAML files): 2 files (1.0%)
+- ⚛️ **.tsx** (React TypeScript files): 99 files (46.5%)
+- 🔷 **.ts** (TypeScript files): 44 files (20.7%)
+- 🖼️ **.jpg** (JPEG images): 22 files (10.3%)
+- 🖼️ **.png** (PNG images): 21 files (9.9%)
+- 🎨 **.svg** (SVG images): 5 files (2.3%)
+- ⚙️ **.json** (JSON files): 3 files (1.4%)
+- 📄 **.sql** (Other files): 3 files (1.4%)
+- 📄 **.txt** (Text files): 2 files (0.9%)
+- 📖 **.md** (Markdown files): 2 files (0.9%)
+- 🎨 **.css** (Stylesheets): 2 files (0.9%)
+- 📄 **.mjs** (Other files): 2 files (0.9%)
+- ⚙️ **.yaml** (YAML files): 2 files (0.9%)
 - 🚫 **.gitignore** (Git ignore): 1 files (0.5%)
 - 🖼️ **.ico** (Icon files): 1 files (0.5%)
 - ⚙️ **.toml** (TOML files): 1 files (0.5%)
@@ -45,19 +45,19 @@
 
 ### By Category
 
-- **React**: 85 files (43.1%)
-- **Assets**: 49 files (24.9%)
-- **TypeScript**: 42 files (21.3%)
-- **Other**: 7 files (3.6%)
-- **Config**: 6 files (3.0%)
-- **Docs**: 5 files (2.5%)
-- **Styles**: 2 files (1.0%)
+- **React**: 99 files (46.5%)
+- **Assets**: 49 files (23.0%)
+- **TypeScript**: 44 files (20.7%)
+- **Other**: 7 files (3.3%)
+- **Config**: 6 files (2.8%)
+- **Docs**: 5 files (2.3%)
+- **Styles**: 2 files (0.9%)
 - **DevOps**: 1 files (0.5%)
 
 ### 📁 Largest Directories
 
-- **root**: 197 files
-- **app**: 111 files
+- **root**: 213 files
+- **app**: 125 files
 - **public**: 48 files
 - **public/home**: 22 files
 - **app/api**: 21 files
@@ -133,6 +133,20 @@ projecty/
 │   │   └── ⚛️ page.tsx
 │   ├── 📂 case-studies/
 │   │   └── ⚛️ page.tsx
+│   ├── 📂 compare/
+│   │   ├── 📂 _components/
+│   │   │   └── ⚛️ CompareSiloShell.tsx
+│   │   ├── 📂 boat-loan-vs-personal-loan/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 loan-vs-leasing-for-yacht-purchases/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 malta-vs-french-leasing/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 new-vs-used-yacht-financing/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ page.tsx
+│   │   └── 📂 personal-vs-company-yacht-ownership/
+│   │   │   └── ⚛️ page.tsx
 │   ├── 🧩 components/
 │   │   ├── ⚛️ Header.tsx
 │   │   ├── ⚛️ HomePageClient.tsx
@@ -199,6 +213,20 @@ projecty/
 │   ├── 📂 integrations/
 │   │   └── ⚛️ page.tsx
 │   ├── ⚛️ layout.tsx
+│   ├── 📂 lenders/
+│   │   ├── 📂 _components/
+│   │   │   └── ⚛️ LendersSiloShell.tsx
+│   │   ├── 📂 bnp-paribas-yacht-financing/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 lloyds-bank-yacht-financing/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ page.tsx
+│   │   ├── 📂 private-bank-vs-marine-lender/
+│   │   │   └── ⚛️ page.tsx
+│   │   ├── 📂 what-lenders-look-for-in-a-yacht-loan/
+│   │   │   └── ⚛️ page.tsx
+│   │   └── 📂 who-finances-yachts-in-the-uk/
+│   │   │   └── ⚛️ page.tsx
 │   ├── 📂 login/
 │   │   ├── ⚛️ layout.tsx
 │   │   └── ⚛️ page.tsx
@@ -282,12 +310,16 @@ projecty/
 ├── 📚 lib/
 │   ├── 🔷 apiAuth.ts
 │   ├── 🔷 auth.ts
+│   ├── 📂 compare/
+│   │   └── 🔷 types.ts
 │   ├── 📂 engine/
 │   │   ├── 🔷 loanSimulator.ts
 │   │   ├── 🔷 rateModel.ts
 │   │   ├── 🔷 rules.ts
 │   │   └── 🔷 runAssessment.ts
 │   ├── 📂 insurance/
+│   │   └── 🔷 types.ts
+│   ├── 📂 lenders/
 │   │   └── 🔷 types.ts
 │   ├── 📂 pdf/
 │   │   └── 🔷 renderAssessmentPdf.ts
@@ -361,6 +393,7 @@ projecty/
 │   │   ├── 🖼️ waaza-insurance-7.png
 │   │   └── 🖼️ waaza-insurance-8.png
 │   ├── 🎨 next.svg
+│   ├── 📂 og/
 │   ├── 📂 structuring/
 │   │   ├── 🖼️ waaza-insurance-1.png
 │   │   ├── 🖼️ waaza-insurance-2.png

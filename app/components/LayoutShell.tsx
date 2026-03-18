@@ -3,6 +3,7 @@
 
 import { usePathname } from "next/navigation";
 import Header from "./Header";
+import Footer from "./Footer";
 import WaazaAssistant from "./WaazaAssistant";
 
 const HIDDEN_PREFIXES = ["/dashboard", "/login", "/widget"];
@@ -15,6 +16,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
     <>
       {!hide && <Header />}
       {children}
+      {!hide && <Footer />}
       {!hide && <WaazaAssistant startHref="/wizard" />}
     </>
   );
