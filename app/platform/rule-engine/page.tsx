@@ -14,7 +14,6 @@ export const metadata: Metadata = {
     description: "Deterministic, versioned financing intelligence. Not a black box.",
     url: `${SITE_URL}/platform/rule-engine/`,
     siteName: "Waaza", locale: "en_GB", type: "website",
-    images: [{ url: `${SITE_URL}/og/platform-rule-engine-og.jpg`, width: 1200, height: 630, alt: "Waaza Rule Engine" }],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large" } },
 };

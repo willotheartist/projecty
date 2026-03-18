@@ -124,9 +124,8 @@ export const metadata: Metadata = {
     siteName: "Waaza",
     locale: "en_GB",
     type: "article",
-    images: [{ url: "https://www.waaza.co/og/buying-a-yacht-through-a-company-og.jpg", width: 1200, height: 630, alt: "Buying a yacht through a company — Waaza" }],
   },
-  twitter: { card: "summary_large_image", site: "@waaza", title: pageData.meta.title, description: pageData.meta.description, images: ["https://www.waaza.co/og/buying-a-yacht-through-a-company-og.jpg"] },
+  twitter: { card: "summary_large_image", site: "@waaza", title: pageData.meta.title, description: pageData.meta.description },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large", "max-video-preview": -1 } },
 };
 

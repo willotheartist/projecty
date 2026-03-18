@@ -14,7 +14,6 @@ export const metadata: Metadata = {
     description: "API reference, widget integration, and platform guides.",
     url: `${SITE_URL}/documentation/`,
     siteName: "Waaza", locale: "en_GB", type: "website",
-    images: [{ url: `${SITE_URL}/og/documentation-og.jpg`, width: 1200, height: 630, alt: "Waaza Documentation" }],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large" } },
 };

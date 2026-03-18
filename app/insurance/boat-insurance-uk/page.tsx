@@ -169,21 +169,12 @@ export const metadata: Metadata = {
     siteName: "Waaza",
     locale: "en_GB",
     type: "article",
-    images: [
-      {
-        url: "https://www.waaza.co/og/boat-insurance-uk-og.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Boat insurance UK guide — Waaza",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     site: "@waaza",
     title: pageData.meta.title,
     description: pageData.meta.description,
-    images: ["https://www.waaza.co/og/boat-insurance-uk-og.jpg"],
   },
   robots: {
     index: true,

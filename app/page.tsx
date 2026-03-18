@@ -17,13 +17,11 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: "Waaza",
     type: "website",
-    images: [{ url: `${SITE_URL}/hero.png`, width: 1200, height: 630, alt: "Waaza" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Waaza — Yacht Financing Intelligence",
     description: "The financing engine that supports your yacht transactions.",
-    images: [`${SITE_URL}/hero.png`],
   },
   robots: { index: true, follow: true },
 };

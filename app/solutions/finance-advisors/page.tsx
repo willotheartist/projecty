@@ -14,7 +14,6 @@ export const metadata: Metadata = {
     description: "Receive better-framed cases. Spend less time on deals that can't complete.",
     url: `${SITE_URL}/solutions/finance-advisors/`,
     siteName: "Waaza", locale: "en_GB", type: "website",
-    images: [{ url: `${SITE_URL}/og/solutions-finance-advisors-og.jpg`, width: 1200, height: 630, alt: "Waaza for Finance Advisors" }],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large" } },
 };
