@@ -6,7 +6,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import WaazaAssistant from "./WaazaAssistant";
 
-const HIDDEN_PREFIXES = ["/dashboard", "/login", "/widget"];
+const HIDDEN_PREFIXES = ["/dashboard", "/login", "/widget", "/tip"];
 
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

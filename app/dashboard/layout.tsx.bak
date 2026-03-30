@@ -9,10 +9,14 @@ const C = {
   white: "#ffffff",
   black: "#0a0a0a",
   gray3: "#6b7280",
-  gray4: "#9ca3af",
   gray6: "#eae9e4",
-  yellow: "#FFF86C",
 };
+
+const NAV_LINKS = [
+  { href: "/wizard", label: "New Assessment" },
+  { href: "/simulator", label: "Simulator" },
+  { href: "/dashboard/settings", label: "API Keys" },
+];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -25,6 +29,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div style={{ minHeight: "100vh", background: C.bg }}>
+      {/* Dashboard nav */}
       <nav
         style={{
           position: "sticky",
@@ -37,7 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         <div
           style={{
-            maxWidth: 960,
+            maxWidth: 1280,
             margin: "0 auto",
             display: "flex",
             alignItems: "center",
@@ -58,31 +63,35 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <img src="/waaza.png" alt="Waaza" style={{ height: 22 }} />
             <span
               style={{
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 letterSpacing: 1.5,
                 textTransform: "uppercase",
-                color: C.gray4,
+                color: C.gray3,
                 borderLeft: `1px solid ${C.gray6}`,
                 paddingLeft: 10,
               }}
             >
-              Tipping
+              Dashboard
             </span>
           </Link>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <Link
-              href="/dashboard/settings"
-              style={{
-                fontSize: 13,
-                fontWeight: pathname === "/dashboard/settings" ? 600 : 500,
-                color: pathname === "/dashboard/settings" ? C.black : C.gray3,
-                textDecoration: "none",
-              }}
-            >
-              Settings
-            </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                style={{
+                  fontSize: 13,
+                  fontWeight: pathname === link.href ? 600 : 500,
+                  color: pathname === link.href ? C.black : C.gray3,
+                  textDecoration: "none",
+                  transition: "color 0.15s",
+                }}
+              >
+                {link.label}
+              </Link>
+            ))}
             <button
               onClick={handleLogout}
               style={{

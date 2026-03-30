@@ -1,3 +1,4 @@
+// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,8 +11,6 @@ datasource db {
 enum Role {
   ADMIN
   BROKER
-  CAPTAIN
-  CREW
 }
 
 enum IncomeType {
@@ -32,58 +31,6 @@ enum OwnershipIntent {
   UNSURE
 }
 
-enum CrewRole {
-  CAPTAIN
-  CHEF
-  STEW
-  DECKHAND
-  ENGINEER
-  OTHER
-}
-
-enum SplitType {
-  EQUAL
-  CUSTOM
-}
-
-enum TipSessionStatus {
-  PENDING
-  PAID
-  EXPIRED
-}
-
-enum PayoutStatus {
-  PENDING
-  PROCESSING
-  PAID
-  FAILED
-}
-
-enum CharterRegion {
-  MED
-  CARIBBEAN
-  US
-  OTHER
-}
-
-enum CharterStatus {
-  UPCOMING
-  ACTIVE
-  COMPLETED
-}
-
-enum Currency {
-  EUR
-  USD
-  GBP
-}
-
-enum StripeOnboardingStatus {
-  NOT_STARTED
-  PENDING
-  COMPLETE
-}
-
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -93,16 +40,11 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  stripeAccountId        String?
-  stripeOnboardingStatus StripeOnboardingStatus @default(NOT_STARTED)
-
   clients        Client[]
   assessments    Assessment[]
   auditLogs      AuditLog[]
   assessmentRuns AssessmentRun[]
   apiKeys        ApiKey[]
-  ownedYachts    Yacht[]
-  crewMemberships CrewMembership[]
 }
 
 model ApiKey {
@@ -238,114 +180,4 @@ model AuditLog {
 
   @@index([actorId])
   @@index([entityType, entityId])
-}
-
-model Yacht {
-  id               String   @id @default(cuid())
-  ownerId          String
-  owner            User     @relation(fields: [ownerId], references: [id], onDelete: Restrict)
-
-  name             String
-  slug             String   @unique
-  lengthM          Float?
-  flagState        String?
-  imageUrl         String?
-  operatingCurrency Currency @default(EUR)
-
-  crewMemberships  CrewMembership[]
-  charters         Charter[]
-
-  createdAt        DateTime @default(now())
-
-  @@index([ownerId])
-}
-
-model CrewMembership {
-  id              String   @id @default(cuid())
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Restrict)
-
-  yachtId         String
-  yacht           Yacht    @relation(fields: [yachtId], references: [id], onDelete: Cascade)
-
-  roleOnYacht     CrewRole @default(OTHER)
-  splitPercentage Float?
-  isActive        Boolean  @default(true)
-
-  joinedAt        DateTime @default(now())
-
-  tipPayouts      TipPayout[]
-
-  @@unique([userId, yachtId])
-  @@index([userId])
-  @@index([yachtId])
-}
-
-model Charter {
-  id              String        @id @default(cuid())
-  yachtId         String
-  yacht           Yacht         @relation(fields: [yachtId], references: [id], onDelete: Cascade)
-
-  startDate       DateTime      @db.Date
-  endDate         DateTime      @db.Date
-  baseCharterFee  Float
-  feeCurrency     Currency      @default(EUR)
-  region          CharterRegion @default(MED)
-
-  guestName       String?
-  guestEmail      String?
-
-  status          CharterStatus @default(UPCOMING)
-
-  tipSession      TipSession?
-
-  createdAt       DateTime      @default(now())
-
-  @@index([yachtId])
-}
-
-model TipSession {
-  id                    String           @id @default(cuid())
-  charterId             String           @unique
-  charter               Charter          @relation(fields: [charterId], references: [id], onDelete: Cascade)
-
-  tipLinkToken          String           @unique
-  splitType             SplitType        @default(EQUAL)
-  suggestedPercentage   Float            @default(10)
-
-  status                TipSessionStatus @default(PENDING)
-
-  tipAmount             Float?
-  processingFee         Float?
-  waazaFee              Float?
-  stripePaymentIntentId String?
-  paymentCurrency       Currency         @default(EUR)
-
-  paidAt                DateTime?
-  expiresAt             DateTime
-
-  tipPayouts            TipPayout[]
-
-  createdAt             DateTime         @default(now())
-
-  @@index([status])
-}
-
-model TipPayout {
-  id                String       @id @default(cuid())
-  tipSessionId      String
-  tipSession        TipSession   @relation(fields: [tipSessionId], references: [id], onDelete: Cascade)
-
-  crewMembershipId  String
-  crewMembership    CrewMembership @relation(fields: [crewMembershipId], references: [id], onDelete: Restrict)
-
-  amount            Float
-  percentageOfTotal Float
-
-  stripeTransferId  String?
-  payoutStatus      PayoutStatus @default(PENDING)
-  paidAt            DateTime?
-
-  @@index([tipSessionId])
-  @@index([crewMembershipId])
 }

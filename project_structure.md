@@ -1,14 +1,14 @@
 # 📁 projecty - Project Structure
 
-*Generated on: 18/03/2026, 14:16:59*
+*Generated on: 30/03/2026, 16:26:11*
 
 ## 📋 Quick Overview
 
 | Metric | Value |
 |--------|-------|
-| 📄 Total Files | 213 |
-| 📁 Total Folders | 131 |
-| 🌳 Max Depth | 5 levels |
+| 📄 Total Files | 271 |
+| 📁 Total Folders | 143 |
+| 🌳 Max Depth | 6 levels |
 | 🛠️ Tech Stack | React, Next.js, TypeScript, CSS, Node.js |
 
 ## ⭐ Important Files
@@ -24,43 +24,44 @@
 
 ### By File Type
 
-- ⚛️ **.tsx** (React TypeScript files): 99 files (46.5%)
-- 🔷 **.ts** (TypeScript files): 44 files (20.7%)
-- 🖼️ **.jpg** (JPEG images): 22 files (10.3%)
-- 🖼️ **.png** (PNG images): 21 files (9.9%)
-- 🎨 **.svg** (SVG images): 5 files (2.3%)
-- ⚙️ **.json** (JSON files): 3 files (1.4%)
-- 📄 **.sql** (Other files): 3 files (1.4%)
-- 📄 **.txt** (Text files): 2 files (0.9%)
-- 📖 **.md** (Markdown files): 2 files (0.9%)
-- 🎨 **.css** (Stylesheets): 2 files (0.9%)
-- 📄 **.mjs** (Other files): 2 files (0.9%)
-- ⚙️ **.yaml** (YAML files): 2 files (0.9%)
-- 🚫 **.gitignore** (Git ignore): 1 files (0.5%)
-- 🖼️ **.ico** (Icon files): 1 files (0.5%)
-- ⚙️ **.toml** (TOML files): 1 files (0.5%)
-- 📄 **.prisma** (Other files): 1 files (0.5%)
-- 📕 **.pdf** (PDF files): 1 files (0.5%)
-- 📄 **.tsbuildinfo** (Other files): 1 files (0.5%)
+- ⚛️ **.tsx** (React TypeScript files): 146 files (53.9%)
+- 🔷 **.ts** (TypeScript files): 51 files (18.8%)
+- 🖼️ **.jpg** (JPEG images): 22 files (8.1%)
+- 🖼️ **.png** (PNG images): 21 files (7.7%)
+- 🎨 **.svg** (SVG images): 5 files (1.8%)
+- 📄 **.sql** (Other files): 4 files (1.5%)
+- ⚙️ **.json** (JSON files): 3 files (1.1%)
+- 📄 **.bak** (Other files): 3 files (1.1%)
+- 📄 **.txt** (Text files): 2 files (0.7%)
+- 📖 **.md** (Markdown files): 2 files (0.7%)
+- 🎨 **.css** (Stylesheets): 2 files (0.7%)
+- 📄 **.mjs** (Other files): 2 files (0.7%)
+- ⚙️ **.yaml** (YAML files): 2 files (0.7%)
+- 🚫 **.gitignore** (Git ignore): 1 files (0.4%)
+- 🖼️ **.ico** (Icon files): 1 files (0.4%)
+- ⚙️ **.toml** (TOML files): 1 files (0.4%)
+- 📄 **.prisma** (Other files): 1 files (0.4%)
+- 📕 **.pdf** (PDF files): 1 files (0.4%)
+- 📄 **.tsbuildinfo** (Other files): 1 files (0.4%)
 
 ### By Category
 
-- **React**: 99 files (46.5%)
-- **Assets**: 49 files (23.0%)
-- **TypeScript**: 44 files (20.7%)
-- **Other**: 7 files (3.3%)
-- **Config**: 6 files (2.8%)
-- **Docs**: 5 files (2.3%)
-- **Styles**: 2 files (0.9%)
-- **DevOps**: 1 files (0.5%)
+- **React**: 146 files (53.9%)
+- **TypeScript**: 51 files (18.8%)
+- **Assets**: 49 files (18.1%)
+- **Other**: 11 files (4.1%)
+- **Config**: 6 files (2.2%)
+- **Docs**: 5 files (1.8%)
+- **Styles**: 2 files (0.7%)
+- **DevOps**: 1 files (0.4%)
 
 ### 📁 Largest Directories
 
-- **root**: 213 files
-- **app**: 125 files
+- **root**: 271 files
+- **app**: 179 files
 - **public**: 48 files
+- **app/api**: 27 files
 - **public/home**: 22 files
-- **app/api**: 21 files
 
 ## 🌳 Directory Structure
 
@@ -72,6 +73,7 @@ projecty/
 │   └── 📄 README.txt
 ├── 🚀 app/
 │   ├── 📂 about/
+│   │   ├── ⚛️ opengraph-image.tsx
 │   │   └── ⚛️ page.tsx
 │   ├── 🔌 api/
 │   │   ├── 📂 assess/
@@ -109,6 +111,22 @@ projecty/
 │   │   │   │   └── 🔷 route.ts
 │   │   ├── 📂 keys/
 │   │   │   └── 🔷 route.ts
+│   │   ├── 📂 tipping/
+│   │   │   ├── 📂 charters/
+│   │   │   │   └── 🔷 route.ts
+│   │   │   ├── 📂 stripe/
+│   │   │   │   └── 📂 onboard/
+│   │   │   │   │   └── 🔷 route.ts
+│   │   │   ├── 📂 tip/
+│   │   │   │   └── 📂 [token]/
+│   │   │   │   │   └── 🔷 route.ts
+│   │   │   ├── 📂 webhook/
+│   │   │   │   └── 🔷 route.ts
+│   │   │   └── 📂 yachts/
+│   │   │   │   ├── 📂 [yachtId]/
+│   │   │   │   │   └── 📂 crew/
+│   │   │   │   │   │   └── 🔷 route.ts
+│   │   │   │   └── 🔷 route.ts
 │   │   ├── 📂 v1/
 │   │   │   ├── 📂 assessments/
 │   │   │   │   ├── 📂 [id]/
@@ -137,21 +155,30 @@ projecty/
 │   │   ├── 📂 _components/
 │   │   │   └── ⚛️ CompareSiloShell.tsx
 │   │   ├── 📂 boat-loan-vs-personal-loan/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 loan-vs-leasing-for-yacht-purchases/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 malta-vs-french-leasing/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 new-vs-used-yacht-financing/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ opengraph-image.tsx
 │   │   ├── ⚛️ page.tsx
 │   │   └── 📂 personal-vs-company-yacht-ownership/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   ├── 🧩 components/
+│   │   ├── ⚛️ EmailForm.tsx
+│   │   ├── ⚛️ Footer.tsx
 │   │   ├── ⚛️ Header.tsx
 │   │   ├── ⚛️ HomePageClient.tsx
 │   │   ├── ⚛️ LayoutShell.tsx
 │   │   ├── ⚛️ MarketingRichPage.tsx
+│   │   ├── ⚛️ ScrollWatcher.tsx
 │   │   ├── ⚛️ SeoClusterPage.tsx
 │   │   └── ⚛️ WaazaAssistant.tsx
 │   ├── 📂 dashboard/
@@ -159,13 +186,16 @@ projecty/
 │   │   │   ├── ⚛️ assessment-detail.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── ⚛️ dashboard-client.tsx
+│   │   ├── 📄 dashboard-client.tsx.bak
 │   │   ├── ⚛️ layout.tsx
+│   │   ├── 📄 layout.tsx.bak
 │   │   ├── ⚛️ page.tsx
 │   │   └── 📂 settings/
 │   │   │   ├── ⚛️ page.tsx
 │   │   │   └── ⚛️ settings-client.tsx
 │   ├── ⚛️ DemoPanel.tsx
 │   ├── 📂 documentation/
+│   │   ├── ⚛️ opengraph-image.tsx
 │   │   └── ⚛️ page.tsx
 │   ├── 📂 faq/
 │   │   └── ⚛️ page.tsx
@@ -195,16 +225,22 @@ projecty/
 │   │   ├── 📂 _components/
 │   │   │   └── ⚛️ InsuranceSiloShell.tsx
 │   │   ├── 📂 boat-insurance-cost/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 boat-insurance-uk/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 hull-and-machinery-insurance/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── ⚛️ layout.tsx
 │   │   ├── 📂 marine-insurance-companies/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ opengraph-image.tsx
 │   │   ├── ⚛️ page.tsx
 │   │   ├── 📂 third-party-boat-insurance/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 yacht-insurance-basics/
 │   │   │   └── ⚛️ page.tsx
@@ -217,21 +253,28 @@ projecty/
 │   │   ├── 📂 _components/
 │   │   │   └── ⚛️ LendersSiloShell.tsx
 │   │   ├── 📂 bnp-paribas-yacht-financing/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 lloyds-bank-yacht-financing/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ opengraph-image.tsx
 │   │   ├── ⚛️ page.tsx
 │   │   ├── 📂 private-bank-vs-marine-lender/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 what-lenders-look-for-in-a-yacht-loan/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   └── 📂 who-finances-yachts-in-the-uk/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   ├── 📂 login/
 │   │   ├── ⚛️ layout.tsx
 │   │   └── ⚛️ page.tsx
 │   ├── 📂 old/
 │   │   └── ⚛️ page.tsx
+│   ├── ⚛️ opengraph-image.tsx
 │   ├── ⚛️ page.tsx
 │   ├── 📂 partners/
 │   │   └── ⚛️ page.tsx
@@ -239,14 +282,20 @@ projecty/
 │   │   ├── 📂 broker-dashboard/
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 case-tracking/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ opengraph-image.tsx
 │   │   ├── 📂 readiness-scoring/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 report-generator/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 rule-engine/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   └── 📂 scenario-modelling/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   ├── 🔷 robots.ts
 │   ├── 📂 simulator/
@@ -255,35 +304,52 @@ projecty/
 │   ├── 🔷 sitemap.ts
 │   ├── 📂 solutions/
 │   │   ├── 📂 broker-networks/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 buyer-reports/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 finance-advisors/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ opengraph-image.tsx
 │   │   ├── 📂 pre-qualification/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 structuring/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   └── 📂 yacht-brokers/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   ├── 📂 structuring/
 │   │   ├── 📂 _components/
 │   │   │   └── ⚛️ StructuringSiloShell.tsx
 │   │   ├── 📂 buying-a-yacht-through-a-company/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── ⚛️ layout.tsx
 │   │   ├── 📂 malta-yacht-leasing/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
+│   │   ├── ⚛️ opengraph-image.tsx
 │   │   ├── ⚛️ page.tsx
 │   │   ├── 📂 personal-vs-spv-yacht-ownership/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   ├── 📂 vat-on-yacht-purchases-in-europe/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   │   └── 📂 yacht-vat-explained/
+│   │   │   ├── ⚛️ opengraph-image.tsx
 │   │   │   └── ⚛️ page.tsx
 │   ├── 📂 superyacht-financing/
 │   │   └── ⚛️ page.tsx
-│   ├── 📂 v2/
+│   ├── 📂 tip/
+│   │   ├── 📂 [token]/
+│   │   │   ├── ⚛️ page.tsx
+│   │   │   └── ⚛️ tip-page-client.tsx
+│   │   └── ⚛️ layout.tsx
 │   ├── 📂 widget/
 │   │   ├── 📂 demo/
 │   │   │   └── ⚛️ page.tsx
@@ -321,6 +387,7 @@ projecty/
 │   │   └── 🔷 types.ts
 │   ├── 📂 lenders/
 │   │   └── 🔷 types.ts
+│   ├── ⚛️ og.tsx
 │   ├── 📂 pdf/
 │   │   └── 🔷 renderAssessmentPdf.ts
 │   ├── 🔷 prisma.ts
@@ -328,6 +395,7 @@ projecty/
 │   │   └── 🔷 buildReport.ts
 │   ├── 📂 seo/
 │   │   └── 🔷 schema.ts
+│   ├── 🔷 stripe.ts
 │   ├── 📂 structuring/
 │   │   └── 🔷 types.ts
 │   └── 📂 wizard/
@@ -349,8 +417,11 @@ projecty/
 │   │   │   └── 📄 migration.sql
 │   │   ├── 📂 20260212145659_add_user_auth/
 │   │   │   └── 📄 migration.sql
+│   │   ├── 📂 20260330120538_add_tipping/
+│   │   │   └── 📄 migration.sql
 │   │   └── ⚙️ migration_lock.toml
 │   ├── 📄 schema.prisma
+│   ├── 📄 schema.prisma.bak
 │   └── 🔷 seed.ts
 ├── 📖 project_structure.md
 ├── 🌐 public/
@@ -421,9 +492,9 @@ projecty/
 - 📖 Docs: Markdown files
 - ⚛️ React: React TypeScript files
 - 🔷 TypeScript: TypeScript files
+- 📄 Other: Other files
 - 🖼️ Assets: Icon files
 - 🎨 Styles: Stylesheets
-- 📄 Other: Other files
 - ⚙️ Config: YAML files
 - ⚙️ Config: TOML files
 - 🖼️ Assets: PNG images
