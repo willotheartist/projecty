@@ -1,7 +1,7 @@
 
 //·app/layouts.tsx
 import type { Metadata } from "next";
-import { Inter, Instrument_Serif } from "next/font/google";
+import { Inter, Inter_Tight, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import LayoutShell from "./components/LayoutShell";
 
@@ -10,6 +10,11 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
+const interTight = Inter_Tight({
+  subsets: ["latin"],
+  variable: "--font-sans-tight",
+  weight: ["400", "500", "600", "700", "800"],
+});
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
@@ -109,7 +114,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${instrumentSerif.variable}`}>
+    <html lang="en" className={`${inter.variable} ${interTight.variable} ${instrumentSerif.variable}`}>
       <body className="antialiased">
         <script
           type="application/ld+json"

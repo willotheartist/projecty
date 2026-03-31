@@ -1,13 +1,13 @@
 # 📁 projecty - Project Structure
 
-*Generated on: 30/03/2026, 16:26:11*
+*Generated on: 31/03/2026, 10:38:48*
 
 ## 📋 Quick Overview
 
 | Metric | Value |
 |--------|-------|
-| 📄 Total Files | 271 |
-| 📁 Total Folders | 143 |
+| 📄 Total Files | 274 |
+| 📁 Total Folders | 144 |
 | 🌳 Max Depth | 6 levels |
 | 🛠️ Tech Stack | React, Next.js, TypeScript, CSS, Node.js |
 
@@ -24,9 +24,9 @@
 
 ### By File Type
 
-- ⚛️ **.tsx** (React TypeScript files): 146 files (53.9%)
-- 🔷 **.ts** (TypeScript files): 51 files (18.8%)
-- 🖼️ **.jpg** (JPEG images): 22 files (8.1%)
+- ⚛️ **.tsx** (React TypeScript files): 148 files (54.0%)
+- 🔷 **.ts** (TypeScript files): 51 files (18.6%)
+- 🖼️ **.jpg** (JPEG images): 22 files (8.0%)
 - 🖼️ **.png** (PNG images): 21 files (7.7%)
 - 🎨 **.svg** (SVG images): 5 files (1.8%)
 - 📄 **.sql** (Other files): 4 files (1.5%)
@@ -41,15 +41,16 @@
 - 🖼️ **.ico** (Icon files): 1 files (0.4%)
 - ⚙️ **.toml** (TOML files): 1 files (0.4%)
 - 📄 **.prisma** (Other files): 1 files (0.4%)
+- 📄 **.mp4** (Other files): 1 files (0.4%)
 - 📕 **.pdf** (PDF files): 1 files (0.4%)
 - 📄 **.tsbuildinfo** (Other files): 1 files (0.4%)
 
 ### By Category
 
-- **React**: 146 files (53.9%)
-- **TypeScript**: 51 files (18.8%)
-- **Assets**: 49 files (18.1%)
-- **Other**: 11 files (4.1%)
+- **React**: 148 files (54.0%)
+- **TypeScript**: 51 files (18.6%)
+- **Assets**: 49 files (17.9%)
+- **Other**: 12 files (4.4%)
 - **Config**: 6 files (2.2%)
 - **Docs**: 5 files (1.8%)
 - **Styles**: 2 files (0.7%)
@@ -57,9 +58,9 @@
 
 ### 📁 Largest Directories
 
-- **root**: 271 files
-- **app**: 179 files
-- **public**: 48 files
+- **root**: 274 files
+- **app**: 181 files
+- **public**: 49 files
 - **app/api**: 27 files
 - **public/home**: 22 files
 
@@ -175,6 +176,7 @@ projecty/
 │   │   ├── ⚛️ EmailForm.tsx
 │   │   ├── ⚛️ Footer.tsx
 │   │   ├── ⚛️ Header.tsx
+│   │   ├── ⚛️ HeaderV2.tsx
 │   │   ├── ⚛️ HomePageClient.tsx
 │   │   ├── ⚛️ LayoutShell.tsx
 │   │   ├── ⚛️ MarketingRichPage.tsx
@@ -219,6 +221,8 @@ projecty/
 │   │   └── 📂 what-lenders-look-for-in-yacht-financing/
 │   │   │   └── ⚛️ page.tsx
 │   ├── 🎨 globals.css
+│   ├── 📂 homev2/
+│   │   └── ⚛️ page.tsx
 │   ├── 📂 how-long-can-you-finance-a-yacht/
 │   │   └── ⚛️ page.tsx
 │   ├── 📂 insurance/
@@ -430,6 +434,7 @@ projecty/
 │   ├── 🎨 file.svg
 │   ├── 🎨 globe.svg
 │   ├── 🖼️ hero.png
+│   ├── 📄 herovideo.mp4
 │   ├── 📂 home/
 │   │   ├── 🖼️ waaza-promo-1.jpg
 │   │   ├── 🖼️ waaza-promo-10.jpg
