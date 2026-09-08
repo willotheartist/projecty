@@ -17,6 +17,8 @@ export const metadata: Metadata = {
     "yacht readiness scoring",
     "yacht broker software",
     "yacht finance technology",
+    "financial software development",
+    "asset finance software",
     "waaza blog",
   ],
   robots: {
@@ -53,7 +55,7 @@ export default function Page() {
       title="Yacht financing, structuring and the technology behind better qualification."
       intro="Waaza publishes first-party guides on yacht financing, lender expectations, readiness scoring, structuring and the software workflows that sit behind better financing decisions. The aim is simple: make a complex category easier to understand for buyers, brokers and advisors."
       primaryCta={{ href: "/blog/how-waaza-was-built-wall-and-fifth", label: "How Waaza was built" }}
-      secondaryCta={{ href: "/financing", label: "Explore financing guides" }}
+      secondaryCta={{ href: "/blog/how-to-build-financial-software-for-asset-finance", label: "Financial software guide" }}
       sections={[
         {
           title: "Featured: how Waaza was built",
@@ -71,6 +73,21 @@ export default function Page() {
           ],
         },
         {
+          title: "Technical guide: building financial software for complex asset finance",
+          paragraphs: [
+            "The asset-finance architecture guide looks beyond repayment maths and explains how a real finance product can connect persistent case data, versioned decision rules, assessment history, risk flags and report-oriented workflows.",
+            "Using Waaza as the implementation reference, the guide covers why calculator logic should be separated from qualification logic, why assessment snapshots matter, how reports should stay tied to structured data and how broker UX can move a case from intake to a clear next step.",
+          ],
+          bullets: [
+            "Asset-finance data modelling",
+            "Versioned rule engines and assessment runs",
+            "Calculator versus qualification logic",
+            "Report generation and document workflows",
+            "Broker UX and case progression",
+            "Custom financial software architecture",
+          ],
+        },
+        {
           title: "Financing and lender research",
           paragraphs: [
             "The financing library focuses on questions that buyers and brokers actually need to answer: how yacht financing works, what lenders assess, how deposits and vessel age affect a case, and how different financing routes compare.",
@@ -84,12 +101,14 @@ export default function Page() {
         },
       ]}
       related={[
+        { href: "/blog/how-to-build-financial-software-for-asset-finance", label: "How to build financial software for complex asset finance" },
         { href: "/blog/how-waaza-was-built-wall-and-fifth", label: "How Waaza was built by Wall & Fifth" },
         { href: "/financing/what-is-yacht-financing", label: "What is yacht financing?" },
         { href: "/platform/readiness-scoring", label: "Readiness scoring" },
+        { href: "/platform/rule-engine", label: "Rule engine" },
+        { href: "/platform/report-generator", label: "Report generator" },
         { href: "/yacht-finance-calculator", label: "Yacht finance calculator" },
         { href: "/faq", label: "FAQ" },
-        { href: "/about", label: "About Waaza" },
       ]}
     />
   );
