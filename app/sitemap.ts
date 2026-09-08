@@ -38,6 +38,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.82,
     },
     {
+      url: `${SITE_URL}/blog/how-to-build-financial-software-for-asset-finance/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.82,
+    },
+    {
       url: `${SITE_URL}/partners/`,
       lastModified: now,
       changeFrequency: "monthly",
