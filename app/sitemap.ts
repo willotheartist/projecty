@@ -32,6 +32,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.76,
     },
     {
+      url: `${SITE_URL}/blog/how-waaza-was-built-wall-and-fifth/`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.82,
+    },
+    {
       url: `${SITE_URL}/partners/`,
       lastModified: now,
       changeFrequency: "monthly",
