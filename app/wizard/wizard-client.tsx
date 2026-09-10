@@ -176,6 +176,7 @@ export default function WizardClient() {
 
   const [engineRes, setEngineRes] = useState<EngineAssessResponse | null>(null);
   const [isAssessing, setIsAssessing] = useState(false);
+  const [retryAttempt, setRetryAttempt] = useState(0);
   const [isPdfLoading, setIsPdfLoading] = useState(false);
 
   // Track client name separately (not in WizardAnswers type)
@@ -260,8 +261,8 @@ export default function WizardClient() {
 
         const json = jsonUnknown as EngineAssessResponse;
 
-        if (!json.ok) {
-          setError(json.error ?? "Assessment failed.");
+        if (!res.ok || !json.ok || !json.result) {
+          setError("We couldn’t complete your assessment. Your answers are still here. Please try again shortly.");
           setEngineRes(null);
           setIsAssessing(false);
           return;
@@ -269,9 +270,9 @@ export default function WizardClient() {
 
         setEngineRes(json);
         setIsAssessing(false);
-      } catch (e: unknown) {
+      } catch {
         if (cancelled) return;
-        setError(getErrorMessage(e) || "Assessment failed.");
+        setError("We couldn’t connect to the assessment service. Check your connection and try again. Your answers are still here.");
         setEngineRes(null);
         setIsAssessing(false);
       }
@@ -282,7 +283,7 @@ export default function WizardClient() {
     return () => {
       cancelled = true;
     };
-  }, [isResults, answers, clientName]);
+  }, [isResults, answers, clientName, retryAttempt]);
 
   async function generatePdf() {
     const assessmentId = engineRes?.ids?.assessmentId ?? engineRes?.result?.assessmentId;
@@ -313,7 +314,12 @@ export default function WizardClient() {
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
 
-      window.open(url, "_blank", "noopener,noreferrer");
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Waaza_Assessment_${assessmentId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
 
       setIsPdfLoading(false);
@@ -337,7 +343,7 @@ export default function WizardClient() {
               Step {currentQuestionNumber} of {totalQuestions}
             </div>
           ) : (
-            <div className="wz-step">Complete</div>
+            <div className="wz-step" role="status">{isAssessing ? "Assessing…" : engineRes?.ok ? "Complete" : "Assessment pending"}</div>
           )}
         </div>
 
@@ -353,7 +359,7 @@ export default function WizardClient() {
             {!isResults ? (
               <div className="wz-field">
                 {renderStep(step.id, answers, setAnswers, nextWithPatch, clientName, setClientName)}
-                {error && <div className="wz-error">{error}</div>}
+                {error && <div className="wz-error" role="alert">{error}</div>}
               </div>
             ) : (
               <div className="wz-field">
@@ -376,11 +382,11 @@ export default function WizardClient() {
                   />
                 ) : (
                   <div style={{ padding: 8, color: "rgba(0,0,0,0.62)" }}>
-                    {error ? "Assessment failed." : "No result yet."}
+                    {error ? "Your assessment is temporarily unavailable." : "Preparing your assessment…"}
                   </div>
                 )}
 
-                {error && <div className="wz-error">{error}</div>}
+                {error && <div className="wz-error" role="alert">{error}</div>}
               </div>
             )}
           </div>
@@ -399,6 +405,11 @@ export default function WizardClient() {
                 <button className="btn" onClick={reset} disabled={isAssessing || isPdfLoading}>
                   Start over
                 </button>
+                {!engineRes?.ok && !isAssessing && (
+                  <button className="btn btnPrimary" onClick={() => setRetryAttempt((n) => n + 1)}>
+                    Try again
+                  </button>
+                )}
                 <button
                   className="btn btnPrimary"
                   onClick={generatePdf}

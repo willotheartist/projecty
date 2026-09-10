@@ -48,13 +48,13 @@ export async function POST(req: Request) {
     const ownershipIntent = mapOwnershipIntent(body?.ownershipIntent);
     const usageType = mapUsageType(body?.usageIntent);
 
-    if (!purchasePrice || purchasePrice <= 0) {
+    if (!Number.isFinite(purchasePrice) || purchasePrice <= 0) {
       return NextResponse.json({ ok: false, error: "Missing/invalid purchasePrice" }, { status: 400 });
     }
-    if (!yearBuilt || yearBuilt < 1950) {
+    if (!Number.isInteger(yearBuilt) || yearBuilt < 1950 || yearBuilt > new Date().getFullYear() + 1) {
       return NextResponse.json({ ok: false, error: "Missing/invalid yearBuilt" }, { status: 400 });
     }
-    if (!liquidityAvailable || liquidityAvailable <= 0) {
+    if (!Number.isFinite(liquidityAvailable) || liquidityAvailable <= 0) {
       return NextResponse.json({ ok: false, error: "Missing/invalid liquidityAvailable" }, { status: 400 });
     }
 
@@ -113,6 +113,7 @@ export async function POST(req: Request) {
       clientId: client.id,
       vesselId: vessel.id,
       actorEmail,
+      currency: body.currency === "USD" ? "USD" : "EUR",
     });
 
     return NextResponse.json({
@@ -129,6 +130,12 @@ export async function POST(req: Request) {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Unknown error";
     console.error("Wizard assess error:", msg);
-    return NextResponse.json({ ok: false, error: msg }, { status: 500 });
+    const unavailable = /P1001|P1002|P1017|P2024|reach database|connection|timed out/i.test(msg);
+    return NextResponse.json({
+      ok: false,
+      error: unavailable
+        ? "We couldn't connect to the assessment service. Your answers are still here. Please try again shortly."
+        : "We couldn't complete your assessment. Your answers are still here. Please try again.",
+    }, { status: unavailable ? 503 : 500 });
   }
 }

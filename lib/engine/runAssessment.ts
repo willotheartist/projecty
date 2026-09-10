@@ -18,6 +18,7 @@ type RunArgs = {
   ruleSetVersion?: string;
   actorEmail?: string;
   assessmentId?: string;
+  currency?: "EUR" | "USD";
 };
 
 type WhatIfArgs = {
@@ -155,6 +156,7 @@ export async function runAssessment({
   ruleSetVersion,
   actorEmail = "founder@projecty.local",
   assessmentId,
+  currency,
 }: RunArgs) {
   const version = ruleSetVersion ?? (await getLatestRuleSetVersion());
 
@@ -220,7 +222,7 @@ export async function runAssessment({
       actorId: actor.id,
       ruleSetVersion: version,
       engineVersion: ENGINE_VERSION,
-      inputSnapshot: buildInputSnapshot(client, vessel),
+      inputSnapshot: toInputJsonValue({ client, vessel, ...(currency ? { currency } : {}) }),
       hits: toInputJsonValue(computed.hits),
       outputSnapshot: toInputJsonValue(computed),
     },
