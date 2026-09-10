@@ -8,7 +8,7 @@ The seeded legacy model starts at 60 and stacks absolute cash, business-income, 
 
 New public wizard assessments use `readiness_v3.0`. Inputs, currency, original intake answers, component points, assumptions and explanations are stored in existing JSON snapshots. No migration or production ruleset rewrite is required. Existing assessments retain their historical model and result. Rerunning a saved v3 assessment uses its recorded financial plan, updated purchase price/liquidity, and the same version. Legacy widget and API callers without the additional plan inputs continue using the legacy model; they must adopt the new questions before being migrated.
 
-The intake is 14 questions, replacing low-information wealth-band, EU-residency, liquidity-holder, risk-checkbox and timeline questions with financial-plan and evidence questions. Context such as income type, ownership, residency, vessel age and use is retained for professional review, not used as automatic penalties. The score is not a probability of approval, maximum LTV, interest quote or lending eligibility decision.
+The intake groups the buyer, vessel, funding, monthly budget, evidence and final review into six guided sections, replacing low-information wealth-band, EU-residency, liquidity-holder, risk-checkbox and timeline questions with financial-plan and evidence questions. Context such as income type, ownership, residency, vessel age and use is retained for professional review, not used as automatic penalties. The score is not a probability of approval, maximum LTV, interest quote or lending eligibility decision.
 
 ## Inputs and calculation
 
@@ -43,3 +43,11 @@ Official reference consulted 10 September 2026: [Lombard leisure marine finance]
 ## Verification
 
 Run `node --test tests/readiness.test.cjs` after installing the project dependencies with PNPM. Tests cover payment arithmetic, zero interest, monetary-scale invariance, cash and repayment gaps, monotonicity, evidence stages, validation, score reconciliation and persistence. TypeScript and targeted ESLint are also required. Before production release, complete a real wizard assessment and download its PDF against a working database. Browser interaction in the current environment is blocked for localhost, and no live Vercel/Neon verification has been completed.
+
+## Planning experience
+
+The results dashboard separates the saved position, interactive scenarios, and prioritised next steps. Scenarios use the same pure calculation as the server and do not mutate the saved assessment. Saving explicitly submits a fresh assessment and then switches the PDF download to that new ID. The original record remains intact. Comparison includes payment, total modelled interest, cash gap, retained cash, reserve months and payment coverage. Evidence presets are clearly hypothetical until the user confirms they reflect their actual position.
+
+New snapshots also include the financial plan inside the scored output. PDFs use it to illustrate interest-rate sensitivity, total repayments and remaining balance at selected years. Older v3 snapshots without the nested plan continue to render their existing sections.
+
+September planner upgrade checks: TypeScript and targeted ESLint pass; all 13 model/persistence tests pass. A five-page PDF was generated, bounds-checked and its new repayment page visually inspected. Local Next preview also encountered an environment-level network-interface error; browser interaction and live deployment remain unverified.

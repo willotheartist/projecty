@@ -15,6 +15,7 @@ export type ReadinessInputs = {
 };
 export type ReadinessFactor = { key: string; label: string; points: number; max: number; explanation: string; action: string };
 export type ReadinessDetail = {
+  financialPlan?: ReadinessInputs;
   version: string;
   currency?: "EUR" | "USD";
   factors: ReadinessFactor[];
@@ -91,7 +92,7 @@ export function assessReadiness(a: ReadinessInputs) {
   if (coverage < 1) capReasons.push("Monthly surplus is below the modelled stressed loan payment.");
   const readinessScore = capReasons.length ? Math.min(rawScore, 49) : rawScore;
   const detail: ReadinessDetail = {
-    version: READINESS_VERSION, currency: a.currency, factors, rawScore, capReasons,
+    version: READINESS_VERSION, financialPlan: { ...a }, currency: a.currency, factors, rawScore, capReasons,
     requestedLtv: round(ltv * 100), depositRequired: round(deposit), cashGap: round(cashGap),
     remainingCash: round(remainingCash), monthlyPayment: round(payment), stressedPayment: round(stress),
     paymentCoverage: round(coverage), reserveMonths: round(reserves),

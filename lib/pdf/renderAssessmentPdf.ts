@@ -1,4 +1,4 @@
-import type { ReadinessDetail } from "../engine/readiness";
+import { monthlyPayment, type ReadinessDetail } from "../engine/readiness";
 // lib/pdf/renderAssessmentPdf.ts
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
@@ -104,12 +104,13 @@ export async function renderAssessmentPdf(report: Report) {
     for (const line of lines(value, width, size)) { ensure(16); text(line, margin, y, size, regular, color); y -= 16; }
     y -= 8;
   };
+  let sectionNumber = 0;
   const section = (number: string, title: string) => {
     ensure(75);
     y -= 14;
     page.drawLine({ start: { x: margin, y }, end: { x: A4.w - margin, y }, thickness: 0.6, color: rgb(0.83, 0.83, 0.81) });
     y -= 28;
-    text(number, margin, y, 9, bold, muted);
+    text(number.trim() ? String(++sectionNumber).padStart(2, "0") : "", margin, y, 9, bold, muted);
     text(title, margin + 30, y, 20, serif);
     y -= 28;
   };
@@ -160,6 +161,33 @@ export async function renderAssessmentPdf(report: Report) {
   }
   item("Reported liquidity", amount(report.parties.buyer.liquidityAvailable));
   paragraph(`${report.currency ? `Amounts in ${report.currency}.` : "Currency was not recorded for this assessment; confirm it before sharing."} Buyer contribution excludes taxes, fees and operating reserves. Borrowing is a model illustration, not an offer.`, 9);
+  if (detail?.financialPlan) {
+    const plan = detail.financialPlan;
+    const payment = monthlyPayment(plan.requestedLoan, plan.planningRatePct, plan.financeTermYears);
+    newPage();
+    section("P", "The lifetime of your loan");
+    paragraph("A repayment illustration for your entered plan. This assumes a constant interest rate, monthly payments and no balloon, additional loan fees or early repayments.");
+    item("Amount borrowed", amount(plan.requestedLoan));
+    item("Repayment term", `${plan.financeTermYears} years / ${plan.financeTermYears * 12} payments`);
+    item("Planning rate", `${plan.planningRatePct}% per year`);
+    item("Monthly payment", amount(payment));
+    item("Total repayments", amount(payment * plan.financeTermYears * 12));
+    item("Total modelled interest", amount(Math.max(0, payment * plan.financeTermYears * 12 - plan.requestedLoan)));
+    section(" ", "If the interest rate changes");
+    for (const rate of [Math.max(0, plan.planningRatePct - 2), plan.planningRatePct, plan.planningRatePct + 2]) {
+      item(`${rate}% annual interest`, `${amount(monthlyPayment(plan.requestedLoan, rate, plan.financeTermYears))} / month`);
+    }
+    paragraph("These rates illustrate sensitivity; they are not offers or forecasts. An actual lender may propose a different rate, term, security or repayment structure.", 9);
+    section(" ", "How the balance reduces");
+    const checkpoints = [...new Set([1, Math.ceil(plan.financeTermYears / 2), plan.financeTermYears])];
+    const monthlyRate = plan.planningRatePct / 1200;
+    for (const year of checkpoints) {
+      const months = year * 12;
+      const remaining = Math.max(0, monthlyRate === 0 ? plan.requestedLoan - payment * months : plan.requestedLoan * (1 + monthlyRate) ** months - payment * ((1 + monthlyRate) ** months - 1) / monthlyRate);
+      item(`After year ${year}`, `${amount(remaining)} remaining`);
+    }
+    paragraph("Balances and totals are calculated before rounding. Your actual repayment schedule will depend on the agreed finance terms.", 9);
+  }
   newPage();
   section("03", "Assessment inputs");
   item("Buyer / reference", report.parties.buyer.name);
