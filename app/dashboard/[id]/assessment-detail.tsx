@@ -1,6 +1,8 @@
 // app/dashboard/[id]/assessment-detail.tsx
 "use client";
 
+import { ReadinessBreakdown } from "@/app/wizard/readiness-breakdown";
+import type { ReadinessDetail } from "@/lib/engine/readiness";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -49,7 +51,7 @@ interface AssessmentData {
     id: string;
     ruleSetVersion: string;
     engineVersion: string;
-    hits: Array<{ ruleId: string; label: string; delta: number; detail: string }>;
+    hits: Array<{ ruleId: string; label: string; delta: number; weightedDelta?: number; detail: string }>;
     outputSnapshot: Record<string, unknown>;
     createdAt: string;
   }>;
@@ -71,10 +73,10 @@ function tierBg(tier: string | null) {
   return "#fef2f2";
 }
 
-function formatPrice(n: number) {
+function formatPrice(n: number, currency = "EUR") {
   return new Intl.NumberFormat("en-GB", {
     style: "currency",
-    currency: "EUR",
+    currency,
     maximumFractionDigits: 0,
   }).format(n);
 }
@@ -180,7 +182,8 @@ export default function AssessmentDetail({ assessmentId }: { assessmentId: strin
   }
 
   const latestRun = data.runs?.[0];
-  const hits = (latestRun?.hits as AssessmentData["runs"][0]["hits"]) || [];
+  const readiness = latestRun?.outputSnapshot?.readiness as ReadinessDetail | undefined;
+  const hits = ((latestRun?.hits as AssessmentData["runs"][0]["hits"]) || []).map(hit => ({ ...hit, delta: hit.weightedDelta ?? hit.delta ?? 0, label: readiness?.factors.find(f => f.key === hit.ruleId)?.label ?? hit.label }));
 
   return (
     <div
@@ -295,7 +298,7 @@ export default function AssessmentDetail({ assessmentId }: { assessmentId: strin
                   marginBottom: 20,
                 }}
               >
-                {data.tier ?? "Unscored"}
+                {readiness ? ((data.readinessScore ?? 0) >= 80 ? "Well prepared for review" : (data.readinessScore ?? 0) >= 50 ? "Preparation gaps" : "Plan needs work") : data.tier ?? "Unscored"}
               </div>
               <div
                 style={{
@@ -306,9 +309,9 @@ export default function AssessmentDetail({ assessmentId }: { assessmentId: strin
                 }}
               >
                 <div style={{ marginBottom: 8 }}>
-                  <span style={{ color: C.gray4 }}>LTV Band</span>{" "}
+                  <span style={{ color: C.gray4 }}>{readiness ? "Requested loan-to-price" : "LTV Band"}</span>{" "}
                   <span style={{ fontWeight: 600, color: C.gray1 }}>
-                    {data.ltvEstimateMin && data.ltvEstimateMax
+                    {readiness ? `${readiness.requestedLtv}%` : data.ltvEstimateMin && data.ltvEstimateMax
                       ? `${data.ltvEstimateMin}–${data.ltvEstimateMax}%`
                       : "—"}
                   </span>
@@ -338,7 +341,7 @@ export default function AssessmentDetail({ assessmentId }: { assessmentId: strin
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
                   <DetailItem label="Name" value={data.client.name} />
                   <DetailItem label="Residency" value={data.client.residency} />
-                  <DetailItem label="Liquidity" value={formatPrice(data.client.liquidityAvailable)} />
+                  <DetailItem label="Liquidity" value={formatPrice(data.client.liquidityAvailable, readiness?.currency)} />
                   <DetailItem label="Net Worth" value={data.client.netWorthBand} />
                   <DetailItem label="Income" value={data.client.incomeType.toLowerCase()} />
                   <DetailItem
@@ -361,7 +364,7 @@ export default function AssessmentDetail({ assessmentId }: { assessmentId: strin
                   VESSEL
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 16 }}>
-                  <DetailItem label="Price" value={formatPrice(data.vessel.purchasePrice)} />
+                  <DetailItem label="Price" value={formatPrice(data.vessel.purchasePrice, readiness?.currency)} />
                   <DetailItem label="Year Built" value={String(data.vessel.yearBuilt)} />
                   <DetailItem label="Usage" value={data.vessel.usageType.toLowerCase()} />
                   <DetailItem label="Flag" value={data.vessel.intendedFlag || "—"} />
@@ -370,6 +373,7 @@ export default function AssessmentDetail({ assessmentId }: { assessmentId: strin
             </div>
           </div>
 
+          {readiness && <div style={{ background: C.white, borderRadius: 20, padding: "24px 28px", marginBottom: 24 }}><ReadinessBreakdown detail={readiness} currency={readiness.currency} /></div>}
           {/* Bottom row: Structuring + Risk Flags + Score Breakdown */}
           <div
             style={{
@@ -403,7 +407,7 @@ export default function AssessmentDetail({ assessmentId }: { assessmentId: strin
                 {data.recommendedPath || "No recommendation available"}
               </div>
               <div style={{ fontSize: 13, color: C.gray3, lineHeight: 1.6 }}>
-                Based on buyer profile, vessel characteristics, and jurisdiction analysis.
+                {readiness ? "Based on your financial plan and self-reported preparation. Not a credit decision." : "Based on buyer profile, vessel characteristics, and jurisdiction analysis."}
               </div>
             </div>
 

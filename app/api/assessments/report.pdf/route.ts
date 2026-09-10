@@ -1,3 +1,4 @@
+import type { ReadinessDetail } from "@/lib/engine/readiness";
 // app/api/assessments/report.pdf/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -59,7 +60,11 @@ export async function POST(req: Request) {
       ? (assessment.riskFlags as unknown[])
       : [];
 
+    const storedOutput = asRecordOrNull(run.outputSnapshot);
+    const readiness = asRecordOrNull(storedOutput?.readiness);
     const report = buildReport({
+      readiness: readiness?.version === "readiness_v3.0" ? readiness as unknown as ReadinessDetail : undefined,
+      currency: snap.currency === "USD" || snap.currency === "EUR" ? snap.currency : undefined,
       assessmentId,
       assessmentRunId: run.id,
       ruleSetVersion: String(run.ruleSetVersion),
@@ -111,14 +116,13 @@ export async function POST(req: Request) {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `inline; filename="ProjectY_Assessment_${assessmentId}.pdf"`,
+        "Content-Disposition": `inline; filename="Waaza_Assessment_${assessmentId}.pdf"`,
         "Content-Length": String(buf.length),
         "Cache-Control": "no-store",
       },
     });
   } catch (err: unknown) {
     console.error("report.pdf error:", err);
-    const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ ok: false, error: msg }, { status: 500 });
+    return NextResponse.json({ ok: false, error: "We couldn’t generate your report. Please try again shortly." }, { status: 500 });
   }
 }

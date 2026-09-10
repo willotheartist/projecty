@@ -1,9 +1,12 @@
+import type { ReadinessDetail } from "../engine/readiness";
 // lib/report/buildReport.ts
 
 export type Hit = {
   ruleId: string;
   matched: boolean;
-  delta: number;
+  delta?: number;
+  weightedDelta?: number;
+  flagCode?: string;
   flag?: string;
 };
 
@@ -13,6 +16,8 @@ export type PrettyRiskFlag = {
 };
 
 type Report = {
+  readiness?: ReadinessDetail;
+  currency?: "EUR" | "USD";
   meta: {
     assessmentId?: string;
     assessmentRunId?: string;
@@ -86,21 +91,17 @@ function tierSubtitle(tier: string) {
     return "You can move toward lender outreach with a structured pack.";
   if (t.includes("CONDITIONAL"))
     return "Viable, but expect conditions and tighter lender filters.";
-  return "Likely to be declined without changes — use this as a starting point for improvements.";
+  return "Resolve the key issues and reassess before lender outreach.";
 }
 
 function scoreExplainer(score: number) {
   const s = clamp(Number(score ?? 0), 0, 100);
 
-  if (s >= 85)
-    return "Very strong profile. Most lenders will view this as straightforward, assuming documentation matches the story.";
-  if (s >= 70)
-    return "Strong profile. Financing is typically feasible; expect standard underwriting and lender-specific constraints.";
+  if (s >= 80)
+    return "Strong readiness under the current assessment rules. Confirm the supporting documents and lender requirements before proceeding.";
   if (s >= 50)
-    return "Mixed profile. Financing can work, but lenders may apply conditions (deposit size, structure, or additional docs).";
-  if (s >= 30)
-    return "Weak profile. Financing may be possible, but only with structuring work and/or a stronger liquidity position.";
-  return "Very low readiness right now. Treat this as a diagnostic — improving liquidity, vessel profile, or structure can move the result quickly.";
+    return "Conditional readiness. Review the flagged issues, available deposit and ownership structure before lender outreach.";
+  return "High complexity under the current rules. Resolve the key issues and reassess before lender outreach. This score is not a lending decision.";
 }
 
 function toSeverityFromText(text: string): "low" | "medium" | "high" {
@@ -153,9 +154,19 @@ function normalizeRiskFlags(input: unknown): { raw: string[]; pretty: PrettyRisk
 
   const unique = Array.from(new Set(cleaned));
 
+  const explicitSeverities = new Map<string, PrettyRiskFlag["severity"]>();
+  for (const item of Array.isArray(input) ? input : []) {
+    if (!item || typeof item !== "object") continue;
+    const obj = item as Record<string, unknown>;
+    const label = String(obj.label ?? obj.flag ?? obj.text ?? titleCaseLoose(String(obj.code ?? ""))).replace(/\s+/g, " ").trim();
+    const severity = String(obj.severity ?? "").toUpperCase();
+    if (["CRITICAL", "HIGH", "MEDIUM", "LOW"].includes(severity)) {
+      explicitSeverities.set(label, severity === "CRITICAL" || severity === "HIGH" ? "high" : severity === "MEDIUM" ? "medium" : "low");
+    }
+  }
   const pretty: PrettyRiskFlag[] = unique.map((text) => ({
     text,
-    severity: toSeverityFromText(text),
+    severity: explicitSeverities.get(text) ?? toSeverityFromText(text),
   }));
 
   const rank = { high: 3, medium: 2, low: 1 } as const;
@@ -165,6 +176,8 @@ function normalizeRiskFlags(input: unknown): { raw: string[]; pretty: PrettyRisk
 }
 
 export function buildReport(input: {
+  readiness?: ReadinessDetail;
+  currency?: "EUR" | "USD";
   assessmentId?: string;
   assessmentRunId?: string;
   ruleSetVersion: string;
@@ -251,11 +264,11 @@ export function buildReport(input: {
   const matched = (hits ?? []).filter((h) => !!h?.matched);
   const matchedRules = matched.map((h) => ({
     ruleId: String(h.ruleId),
-    delta: Number(h.delta ?? 0),
-    flag: h.flag ? String(h.flag) : undefined,
+    delta: Number(h.weightedDelta ?? h.delta ?? 0),
+    flag: h.flagCode || h.flag || undefined,
   }));
 
-  const scoreDeltaSum = matched.reduce((sum, h) => sum + Number(h.delta || 0), 0);
+  const scoreDeltaSum = matched.reduce((sum, h) => sum + Number(h.weightedDelta ?? h.delta ?? 0), 0);
   const unmatchedRulesCount = (hits ?? []).filter((h) => !h?.matched).length;
 
   const normalized = normalizeRiskFlags(riskFlags);
@@ -266,6 +279,8 @@ export function buildReport(input: {
       : `Triggered ${normalized.raw.length} risk flag(s) that may reduce lender appetite or tighten terms.`;
 
   return {
+    readiness: input.readiness,
+    currency: input.currency,
     meta: {
       assessmentId,
       assessmentRunId,
@@ -274,15 +289,15 @@ export function buildReport(input: {
       engineVersion: engineVersion ? String(engineVersion) : undefined,
     },
     headline: {
-      title,
-      subtitle,
+      title: input.readiness ? "Your financing preparation" : title,
+      subtitle: input.readiness ? "A review of your plan and self-reported evidence." : subtitle,
       readinessScore: clamp(Math.round(Number(readinessScore ?? 0)), 0, 100),
       tier,
       ltvBand: {
         min: clamp(Math.round(Number(ltvBand?.min ?? 0)), 0, 100),
         max: clamp(Math.round(Number(ltvBand?.max ?? 0)), 0, 100),
       },
-      explainer,
+      explainer: input.readiness ? "A preparation score based on your financial plan and reported evidence. It is not a credit score or a probability of finance approval." : explainer,
     },
     parties: {
       buyer,
@@ -295,7 +310,7 @@ export function buildReport(input: {
     },
     recommendations: {
       recommendedPath: String(recommendedPath ?? ""),
-      nextSteps,
+      nextSteps: input.readiness ? [...input.readiness.factors].sort((a,b) => (b.max-b.points)-(a.max-a.points)).map(f => f.action) : nextSteps,
       documentsChecklist,
     },
     transparency: {

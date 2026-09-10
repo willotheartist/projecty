@@ -1,5 +1,6 @@
 // lib/engine/runAssessment.ts
 
+import { assessReadiness, READINESS_VERSION, type ReadinessInputs } from "./readiness";
 import { prisma } from "@/lib/prisma";
 import type { Prisma, Client, Vessel } from "@prisma/client";
 import {
@@ -18,6 +19,9 @@ type RunArgs = {
   ruleSetVersion?: string;
   actorEmail?: string;
   assessmentId?: string;
+  currency?: "EUR" | "USD";
+  readinessInputs?: ReadinessInputs;
+  wizardAnswers?: unknown;
 };
 
 type WhatIfArgs = {
@@ -155,13 +159,30 @@ export async function runAssessment({
   ruleSetVersion,
   actorEmail = "founder@projecty.local",
   assessmentId,
+  currency,
+  readinessInputs,
+  wizardAnswers,
 }: RunArgs) {
-  const version = ruleSetVersion ?? (await getLatestRuleSetVersion());
+  // Never silently replace a saved v3 assessment with the legacy penalty model.
+  if (assessmentId && !readinessInputs) {
+    const previous = await prisma.assessmentRun.findFirst({ where: { assessmentId }, orderBy: { createdAt: "desc" } });
+    const snapshot = previous?.inputSnapshot;
+    if (previous?.engineVersion === READINESS_VERSION && isRecord(snapshot)) {
+      const saved = snapshot.readinessInputs;
+      const currentClient = await prisma.client.findUnique({ where: { id: clientId } });
+      const currentVessel = await prisma.vessel.findUnique({ where: { id: vesselId } });
+      if (!isRecord(saved) || !currentClient || !currentVessel) throw new Error("Complete a new financing plan before rerunning this assessment.");
+      readinessInputs = { ...saved, purchasePrice: currentVessel.purchasePrice, liquidityAvailable: currentClient.liquidityAvailable } as ReadinessInputs;
+      wizardAnswers = snapshot.wizardAnswers;
+      currency = snapshot.currency === "USD" ? "USD" : "EUR";
+    }
+  }
+  const version = readinessInputs ? READINESS_VERSION : ruleSetVersion ?? (await getLatestRuleSetVersion());
 
   const [client, vessel, ruleSet] = await Promise.all([
     prisma.client.findUnique({ where: { id: clientId } }),
     prisma.vessel.findUnique({ where: { id: vesselId } }),
-    prisma.ruleSet.findUnique({
+    readinessInputs ? Promise.resolve(null) : prisma.ruleSet.findUnique({
       where: { version },
       include: { rules: true },
     }),
@@ -169,16 +190,16 @@ export async function runAssessment({
 
   if (!client) throw new Error("Client not found");
   if (!vessel) throw new Error("Vessel not found");
-  if (!ruleSet) throw new Error(`RuleSet not found: ${version}`);
+  if (!ruleSet && !readinessInputs) throw new Error(`RuleSet not found: ${version}`);
 
-  const rules: RuleRow[] = ruleSet.rules.map((r) => ({
+  const rules: RuleRow[] = (ruleSet?.rules ?? []).map((r) => ({
     id: r.id,
     condition: r.condition as unknown as RuleCondition,
     weight: r.weight,
     effect: r.effect as unknown as RuleEffect,
   }));
 
-  const computed = compute(client, vessel, rules);
+  const computed = readinessInputs ? assessReadiness(readinessInputs) : compute(client, vessel, rules);
 
   const actor = await prisma.user.upsert({
     where: { email: actorEmail },
@@ -193,8 +214,8 @@ export async function runAssessment({
           ruleSetVersion: version,
           readinessScore: computed.readinessScore,
           tier: computed.tier,
-          ltvEstimateMin: computed.ltv.min,
-          ltvEstimateMax: computed.ltv.max,
+          ltvEstimateMin: readinessInputs ? null : computed.ltv.min,
+          ltvEstimateMax: readinessInputs ? null : computed.ltv.max,
           riskFlags: toInputJsonValue(computed.riskFlags),
           recommendedPath: computed.recommendedPath,
         },
@@ -207,8 +228,8 @@ export async function runAssessment({
           ruleSetVersion: version,
           readinessScore: computed.readinessScore,
           tier: computed.tier,
-          ltvEstimateMin: computed.ltv.min,
-          ltvEstimateMax: computed.ltv.max,
+          ltvEstimateMin: readinessInputs ? null : computed.ltv.min,
+          ltvEstimateMax: readinessInputs ? null : computed.ltv.max,
           riskFlags: toInputJsonValue(computed.riskFlags),
           recommendedPath: computed.recommendedPath,
         },
@@ -219,8 +240,8 @@ export async function runAssessment({
       assessmentId: assessment.id,
       actorId: actor.id,
       ruleSetVersion: version,
-      engineVersion: ENGINE_VERSION,
-      inputSnapshot: buildInputSnapshot(client, vessel),
+      engineVersion: readinessInputs ? READINESS_VERSION : ENGINE_VERSION,
+      inputSnapshot: toInputJsonValue({ client, vessel, ...(currency ? { currency } : {}), ...(readinessInputs ? { readinessInputs, wizardAnswers } : {}) }),
       hits: toInputJsonValue(computed.hits),
       outputSnapshot: toInputJsonValue(computed),
     },

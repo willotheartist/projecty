@@ -1,9 +1,12 @@
+import { monthlyPayment, type ReadinessDetail } from "../engine/readiness";
 // lib/pdf/renderAssessmentPdf.ts
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 type PrettyRiskFlag = { text: string; severity: "low" | "medium" | "high" };
 
 type Report = {
+  readiness?: ReadinessDetail;
+  currency?: "EUR" | "USD";
   meta: {
     assessmentId?: string;
     assessmentRunId?: string;
@@ -54,352 +57,183 @@ type Report = {
 
 const A4 = { w: 595.28, h: 841.89 };
 
-const COLORS = {
-  bg: rgb(0.965, 0.957, 0.94),
-  card: rgb(1, 1, 1),
-  ink: rgb(0.08, 0.08, 0.08),
-  sub: rgb(0.35, 0.35, 0.35),
-  line: rgb(0.86, 0.86, 0.86),
-  yellow: rgb(0.98, 0.93, 0.34),
-  soft: rgb(0.96, 0.96, 0.96),
-};
-
-function wrapText(text: string, maxChars: number): string[] {
-  const words = String(text ?? "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .split(" ")
-    .filter(Boolean);
-
-  const lines: string[] = [];
-  let cur = "";
-  for (const w of words) {
-    const next = cur ? `${cur} ${w}` : w;
-    if (next.length <= maxChars) cur = next;
-    else {
-      if (cur) lines.push(cur);
-      cur = w;
-    }
-  }
-  if (cur) lines.push(cur);
-  return lines;
-}
-
-function safe(s: unknown) {
-  return String(s ?? "")
-    .replaceAll("€", "EUR ")
-    .replaceAll("–", "-")
-    .replaceAll("—", "-")
-    .replace(/\u00A0/g, " ");
-}
-
-function fmtEUR(n: number) {
-  const x = Number(n ?? 0);
-  try {
-    return new Intl.NumberFormat("en-GB", {
-      style: "currency",
-      currency: "EUR",
-      maximumFractionDigits: 0,
-    })
-      .format(x)
-      .replace("€", "EUR ");
-  } catch {
-    return `EUR ${Math.round(x).toLocaleString()}`;
-  }
-}
-
-function severityPill(sev: "low" | "medium" | "high") {
-  if (sev === "high") return { label: "HIGH", fill: rgb(1, 0.92, 0.92), ink: rgb(0.55, 0.1, 0.1) };
-  if (sev === "medium") return { label: "MEDIUM", fill: rgb(1, 0.97, 0.9), ink: rgb(0.45, 0.32, 0.1) };
-  return { label: "LOW", fill: rgb(0.93, 0.98, 0.93), ink: rgb(0.12, 0.42, 0.18) };
-}
-
 export async function renderAssessmentPdf(report: Report) {
-  const pdfDoc = await PDFDocument.create();
-  const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-
-  let page = pdfDoc.addPage([A4.w, A4.h]);
+  const detail = report.readiness;
+  const doc = await PDFDocument.create();
+  const regular = await doc.embedFont(StandardFonts.Helvetica);
+  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const serif = await doc.embedFont(StandardFonts.TimesRoman);
+  const ink = rgb(0.07, 0.07, 0.07);
+  const muted = rgb(0.38, 0.38, 0.38);
+  const yellow = rgb(1, 0.97, 0.36);
   const margin = 44;
-
-  const paintBg = () => {
-    page.drawRectangle({ x: 0, y: 0, width: A4.w, height: A4.h, color: COLORS.bg });
+  const width = A4.w - margin * 2;
+  let page = doc.addPage([A4.w, A4.h]);
+  let y = 744;
+  // Standard PDF fonts cannot encode every Unicode character. Keep export robust.
+  const safe = (value: unknown) => Array.from(String(value ?? "").replace(/[–—]/g, "-")).map((ch) => {
+    try { regular.encodeText(ch); return ch; } catch { return "?"; }
+  }).join("");
+  const text = (value: unknown, x: number, top: number, size = 10, font = regular, color = ink) => {
+    page.drawText(safe(value), { x, y: top, size, font, color });
   };
-
-  paintBg();
-
-  let y = A4.h - margin;
-
-  const ensureSpace = (need: number) => {
-    if (y - need > margin) return;
-    page = pdfDoc.addPage([A4.w, A4.h]);
-    paintBg();
-    y = A4.h - margin;
+  const header = () => {
+    page.drawRectangle({ x: 0, y: 829, width: A4.w, height: 13, color: yellow });
+    text("Waaza", margin, 789, 25, serif);
+    text("FINANCING READINESS / PRIVATE & CONFIDENTIAL", margin, 767, 8, regular, muted);
   };
-
-  const drawText = (txt: string, x: number, yPos: number, size: number, bold = false, color = COLORS.ink) => {
-    page.drawText(safe(txt), {
-      x,
-      y: yPos,
-      size,
-      font: bold ? fontBold : fontRegular,
-      color,
-    });
-  };
-
-  const drawParagraph = (txt: string, x: number, maxWChars: number, size: number, color = COLORS.sub, leading = 14) => {
-    const lines = wrapText(safe(txt), maxWChars);
-    for (const line of lines) {
-      ensureSpace(leading + 10);
-      drawText(line, x, y - leading, size, false, color);
-      y -= leading;
+  const newPage = () => { page = doc.addPage([A4.w, A4.h]); y = 732; header(); };
+  const ensure = (height: number) => { if (y - height < 65) newPage(); };
+  const lines = (value: string, maxWidth = width, size = 10) => {
+    const result: string[] = [];
+    let line = "";
+    for (const word of safe(value).split(/\s+/)) {
+      const candidate = line ? `${line} ${word}` : word;
+      if (regular.widthOfTextAtSize(candidate, size) <= maxWidth) { line = candidate; continue; }
+      if (line) result.push(line);
+      line = "";
+      for (const ch of word) {
+        if (regular.widthOfTextAtSize(line + ch, size) > maxWidth) { result.push(line); line = ""; }
+        line += ch;
+      }
     }
+    if (line) result.push(line);
+    return result;
   };
-
-  const card = (height: number) => {
-    ensureSpace(height + 16);
-    const x = margin;
-    const w = A4.w - margin * 2;
-    const top = y;
-    page.drawRectangle({
-      x,
-      y: top - height,
-      width: w,
-      height,
-      color: COLORS.card,
-      borderColor: COLORS.line,
-      borderWidth: 1,
-    });
-    y = top - height - 16;
-    return { x, yTop: top, w, h: height };
+  const paragraph = (value: string, size = 10, color = muted) => {
+    for (const line of lines(value, width, size)) { ensure(16); text(line, margin, y, size, regular, color); y -= 16; }
+    y -= 8;
   };
-
-  // header stripe
-  page.drawRectangle({ x: 0, y: A4.h - 18, width: A4.w, height: 18, color: COLORS.yellow });
-
-  drawText("Waaza", margin, A4.h - 54, 20, true, COLORS.ink);
-  drawText("Financing Readiness Report", margin, A4.h - 74, 12, false, COLORS.sub);
-
-  const metaRightX = A4.w - margin - 220;
-  drawText(`RuleSet: ${safe(report.meta.ruleSetVersion)}`, metaRightX, A4.h - 56, 9, false, COLORS.sub);
-  drawText(`Engine: ${safe(report.meta.engineVersion ?? "-")}`, metaRightX, A4.h - 70, 9, false, COLORS.sub);
-  drawText(`Generated: ${safe(report.meta.generatedAtISO)}`, metaRightX, A4.h - 84, 9, false, COLORS.sub);
-
-  y = A4.h - 110;
-
-  // summary card
-  const c1 = card(170);
-  const cx = c1.x + 18;
-  const top = c1.yTop - 18;
-
-  drawText("Financing Readiness Summary", cx, top, 16, true, COLORS.ink);
-
-  const score = Number(report.headline.readinessScore ?? 0);
-  drawText(String(score), cx, top - 54, 44, true, COLORS.ink);
-
-  const pillW = 150;
-  const pillH = 22;
-  page.drawRectangle({
-    x: cx,
-    y: top - 88,
-    width: pillW,
-    height: pillH,
-    color: COLORS.yellow,
-    borderColor: COLORS.line,
-    borderWidth: 1,
-  });
-  drawText(safe(report.headline.tier), cx + 10, top - 82, 10, true, COLORS.ink);
-
-  drawText(
-    `Indicative LTV: ${report.headline.ltvBand.min}%–${report.headline.ltvBand.max}%`,
-    cx,
-    top - 112,
-    10,
-    false,
-    COLORS.sub
-  );
-
-  const explainerX = cx + 260;
-  drawText("What this score means", explainerX, top - 28, 11, true, COLORS.ink);
-
-  const savedY = y;
-  y = top - 42;
-  drawParagraph(report.headline.explainer, explainerX, 46, 10, COLORS.sub, 14);
-  y = savedY;
-
-  // recommended direction
-  const c2 = card(92);
-  const dx = c2.x + 18;
-  const dTop = c2.yTop - 18;
-
-  drawText("Recommended direction", dx, dTop, 11, true, COLORS.ink);
-  y = dTop - 16;
-  drawParagraph(report.recommendations.recommendedPath, dx, 90, 11, COLORS.ink, 15);
-
-  // buyer + vessel cards
-  const colGap = 14;
-  const colW = (A4.w - margin * 2 - colGap) / 2;
-
-  ensureSpace(180);
-  const rowTop = y;
-
-  page.drawRectangle({
-    x: margin,
-    y: rowTop - 160,
-    width: colW,
-    height: 160,
-    color: COLORS.card,
-    borderColor: COLORS.line,
-    borderWidth: 1,
-  });
-  page.drawRectangle({
-    x: margin + colW + colGap,
-    y: rowTop - 160,
-    width: colW,
-    height: 160,
-    color: COLORS.card,
-    borderColor: COLORS.line,
-    borderWidth: 1,
-  });
-
-  const bX = margin + 16;
-  const vX = margin + colW + colGap + 16;
-
-  drawText("Buyer", bX, rowTop - 28, 12, true, COLORS.ink);
-  drawText("Vessel", vX, rowTop - 28, 12, true, COLORS.ink);
-
-  const kv = (x: number, y0: number, k: string, v: string) => {
-    drawText(k, x, y0, 9, true, COLORS.sub);
-    drawText(v, x + 120, y0, 9, false, COLORS.ink);
+  let sectionNumber = 0;
+  const section = (number: string, title: string) => {
+    ensure(75);
+    y -= 14;
+    page.drawLine({ start: { x: margin, y }, end: { x: A4.w - margin, y }, thickness: 0.6, color: rgb(0.83, 0.83, 0.81) });
+    y -= 28;
+    text(number.trim() ? String(++sectionNumber).padStart(2, "0") : "", margin, y, 9, bold, muted);
+    text(title, margin + 30, y, 20, serif);
+    y -= 28;
   };
-
-  let by = rowTop - 54;
-  kv(bX, by, "Name", safe(report.parties.buyer.name));
-  by -= 16;
-  kv(bX, by, "Residency", safe(report.parties.buyer.residency));
-  by -= 16;
-  kv(bX, by, "Income", safe(report.parties.buyer.incomeType));
-  by -= 16;
-  kv(bX, by, "Net worth", safe(report.parties.buyer.netWorthBand));
-  by -= 16;
-  kv(bX, by, "Liquidity", fmtEUR(report.parties.buyer.liquidityAvailable));
-  by -= 16;
-  kv(bX, by, "Ownership", safe(report.parties.buyer.ownershipIntent));
-
-  let vy = rowTop - 54;
-  kv(vX, vy, "Price", fmtEUR(report.parties.vessel.purchasePrice));
-  vy -= 16;
-  kv(vX, vy, "Year", safe(report.parties.vessel.yearBuilt));
-  vy -= 16;
-  kv(vX, vy, "Usage", safe(report.parties.vessel.usageType));
-  vy -= 16;
-  kv(vX, vy, "Flag", safe(report.parties.vessel.intendedFlag ?? "-"));
-
-  y = rowTop - 160 - 16;
-
-  // risk flags card
-  const flagsCard = card(170);
-  const fx = flagsCard.x + 18;
-  const fTop = flagsCard.yTop - 18;
-
-  drawText("Key risk flags", fx, fTop, 12, true, COLORS.ink);
-  drawText(report.risk.summary, fx, fTop - 18, 10, false, COLORS.sub);
-
-  const pretty = Array.isArray(report.risk.prettyFlags) ? report.risk.prettyFlags : [];
-  const list =
-    pretty.length > 0
-      ? pretty
-      : (report.risk.flags ?? []).map((t) => ({ text: String(t), severity: "medium" as const }));
-
-  let ly = fTop - 46;
-  if (!list.length) {
-    drawText("None triggered.", fx, ly, 10, false, COLORS.sub);
+  const item = (label: string, value: string) => {
+    const wrapped = lines(value, width - 150);
+    ensure(wrapped.length * 16 + 10);
+    text(label, margin, y, 10, regular, muted);
+    for (const line of wrapped) { text(line, margin + 150, y); y -= 16; }
+    y -= 5;
+  };
+  const amount = (n: number) => (report.currency ? `${report.currency} ` : "") + new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 }).format(n);
+  const pretty = (s: string) => s.replaceAll("_", " ").toLowerCase();
+  header();
+  doc.setTitle("Waaza | Financing Readiness Report");
+  doc.setAuthor("Waaza");
+  y = 724;
+  text("Your financing outlook", margin, y, 30, serif); y -= 31;
+  paragraph(`Prepared for ${report.parties.buyer.name}`, 12);
+  paragraph(`Generated ${report.meta.generatedAtISO.slice(0, 10)} | Reference ${report.meta.assessmentId ?? "Preview"}`, 9);
+  ensure(133);
+  page.drawRectangle({ x: margin, y: y - 111, width, height: 125, color: yellow });
+  text(`${report.headline.readinessScore}`, margin + 18, y - 40, 48, serif);
+  text("/ 100 readiness", margin + 18, y - 63, 10);
+  text(detail ? (report.headline.readinessScore >= 80 ? "Well prepared for review" : report.headline.readinessScore >= 50 ? "Preparation gaps" : "Plan needs work") : pretty(report.headline.tier), margin + 18, y - 91, 11, bold);
+  text(detail ? `${detail.requestedLtv}%` : `${report.headline.ltvBand.min}-${report.headline.ltvBand.max}%`, margin + 264, y - 37, 30, serif);
+  text(detail ? "Requested loan-to-price" : "Indicative loan-to-value", margin + 264, y - 63, 10);
+  text(detail ? "Your plan, not an approved loan amount" : "Model estimate, subject to underwriting", margin + 264, y - 88, 9);
+  y -= 143;
+  paragraph(report.headline.explainer, 12, ink);
+  section("01", "Recommended direction");
+  paragraph(report.recommendations.recommendedPath, 12, ink);
+  section("02", "Purchase & liquidity");
+  const price = report.parties.vessel.purchasePrice;
+  const low = price * report.headline.ltvBand.min / 100;
+  const high = price * report.headline.ltvBand.max / 100;
+  item("Purchase price", amount(price));
+  if (detail) {
+    item("Requested borrowing", amount(price - detail.depositRequired));
+    item("Buyer contribution", amount(detail.depositRequired));
+    item("Purchase cash shortfall", amount(detail.cashGap));
+    item("Cash remaining", amount(detail.remainingCash));
+    item(`Payment at ${detail.assumptions.ratePct}%`, `${amount(detail.monthlyPayment)} / month`);
+    item(`Stress at ${detail.assumptions.stressRatePct}%`, `${amount(detail.stressedPayment)} / month`);
+    paragraph(`Fully repaying loan over ${detail.assumptions.termYears} years; no balloon. Rates are planning assumptions, not a quote.`, 9);
   } else {
-    for (let i = 0; i < Math.min(list.length, 6); i++) {
-      const item = list[i];
-      const pill = severityPill(item.severity);
-
-      page.drawRectangle({
-        x: fx,
-        y: ly - 14,
-        width: flagsCard.w - 36,
-        height: 28,
-        color: COLORS.soft,
-        borderColor: COLORS.line,
-        borderWidth: 1,
-      });
-
-      drawText(item.text, fx + 10, ly - 4, 10, false, COLORS.ink);
-
-      const pw = 70;
-      page.drawRectangle({
-        x: fx + (flagsCard.w - 36) - pw - 10,
-        y: ly - 10,
-        width: pw,
-        height: 20,
-        color: pill.fill,
-        borderColor: COLORS.line,
-        borderWidth: 1,
-      });
-      drawText(pill.label, fx + (flagsCard.w - 36) - pw - 10 + 18, ly - 5, 9, true, pill.ink);
-
-      ly -= 36;
-      if (ly < margin + 40) break;
+    item("Illustrative borrowing", `${amount(low)} - ${amount(high)}`);
+    item("Buyer contribution", `${amount(price - high)} - ${amount(price - low)}`);
+  }
+  item("Reported liquidity", amount(report.parties.buyer.liquidityAvailable));
+  paragraph(`${report.currency ? `Amounts in ${report.currency}.` : "Currency was not recorded for this assessment; confirm it before sharing."} Buyer contribution excludes taxes, fees and operating reserves. Borrowing is a model illustration, not an offer.`, 9);
+  if (detail?.financialPlan) {
+    const plan = detail.financialPlan;
+    const payment = monthlyPayment(plan.requestedLoan, plan.planningRatePct, plan.financeTermYears);
+    newPage();
+    section("P", "The lifetime of your loan");
+    paragraph("A repayment illustration for your entered plan. This assumes a constant interest rate, monthly payments and no balloon, additional loan fees or early repayments.");
+    item("Amount borrowed", amount(plan.requestedLoan));
+    item("Repayment term", `${plan.financeTermYears} years / ${plan.financeTermYears * 12} payments`);
+    item("Planning rate", `${plan.planningRatePct}% per year`);
+    item("Monthly payment", amount(payment));
+    item("Total repayments", amount(payment * plan.financeTermYears * 12));
+    item("Total modelled interest", amount(Math.max(0, payment * plan.financeTermYears * 12 - plan.requestedLoan)));
+    section(" ", "If the interest rate changes");
+    for (const rate of [Math.max(0, plan.planningRatePct - 2), plan.planningRatePct, plan.planningRatePct + 2]) {
+      item(`${rate}% annual interest`, `${amount(monthlyPayment(plan.requestedLoan, rate, plan.financeTermYears))} / month`);
     }
+    paragraph("These rates illustrate sensitivity; they are not offers or forecasts. An actual lender may propose a different rate, term, security or repayment structure.", 9);
+    section(" ", "How the balance reduces");
+    const checkpoints = [...new Set([1, Math.ceil(plan.financeTermYears / 2), plan.financeTermYears])];
+    const monthlyRate = plan.planningRatePct / 1200;
+    for (const year of checkpoints) {
+      const months = year * 12;
+      const remaining = Math.max(0, monthlyRate === 0 ? plan.requestedLoan - payment * months : plan.requestedLoan * (1 + monthlyRate) ** months - payment * ((1 + monthlyRate) ** months - 1) / monthlyRate);
+      item(`After year ${year}`, `${amount(remaining)} remaining`);
+    }
+    paragraph("Balances and totals are calculated before rounding. Your actual repayment schedule will depend on the agreed finance terms.", 9);
   }
-
-  // steps & docs
-  ensureSpace(240);
-
-  const stepsCard = card(170);
-  const sx = stepsCard.x + 18;
-  const sTop = stepsCard.yTop - 18;
-
-  drawText("Recommended next steps", sx, sTop, 12, true, COLORS.ink);
-  let sy = sTop - 28;
-  for (const s of report.recommendations.nextSteps ?? []) {
-    drawText("• " + safe(s), sx, sy, 10, false, COLORS.ink);
-    sy -= 16;
+  newPage();
+  section("03", "Assessment inputs");
+  item("Buyer / reference", report.parties.buyer.name);
+  item("Tax residency", report.parties.buyer.residency);
+  item("Income source", pretty(report.parties.buyer.incomeType));
+  if (report.parties.buyer.netWorthBand !== "unknown") item("Net worth band", pretty(report.parties.buyer.netWorthBand));
+  item("Ownership", pretty(report.parties.buyer.ownershipIntent));
+  item("Vessel year", String(report.parties.vessel.yearBuilt));
+  item("Intended use", pretty(report.parties.vessel.usageType));
+  item("Intended flag", pretty(report.parties.vessel.intendedFlag ?? "Not confirmed"));
+  section("04", "Points to resolve");
+  paragraph(report.risk.summary);
+  const flags = report.risk.prettyFlags?.length ? report.risk.prettyFlags : report.risk.flags.map(text => ({ text, severity: "medium" }));
+  if (!flags.length) paragraph("No flags were triggered by the current rules. Supporting documents and lender checks are still required.");
+  for (const flag of flags) item(flag.severity.toUpperCase(), flag.text);
+  section("05", "Your next steps");
+  report.recommendations.nextSteps.forEach((step, i) => item(String(i + 1).padStart(2, "0"), step));
+  if (detail) {
+    newPage();
+    section("A", "Your score, explained");
+    paragraph(`Component total: ${detail.rawScore}/100. Final score: ${report.headline.readinessScore}/100. These are Waaza preparation targets, not lender eligibility criteria.`);
+    for (const reason of detail.capReasons) paragraph(`Score capped at 49: ${reason}`, 11, ink);
+    for (const factor of detail.factors) {
+      ensure(135);
+      item(`${factor.points} / ${factor.max}`, factor.label);
+      paragraph(factor.explanation);
+      paragraph(`Next step: ${factor.action}`);
+    }
+    paragraph("Deposit: up to 30 points at a 50% contribution, reduced when cash does not cover the contribution and costs. Repayment: up to 30 points at 1.5 times stressed payment coverage. Reserves: up to 15 points at six months of running costs plus stressed payments. Documents: 0/8/15; vessel checks: 0/5/10. All inputs are self-reported.", 9);
   }
-
-  const docsCard = card(170);
-  const dx2 = docsCard.x + 18;
-  const dTop2 = docsCard.yTop - 18;
-
-  drawText("Documents checklist", dx2, dTop2, 12, true, COLORS.ink);
-  let dy2 = dTop2 - 28;
-  for (const d of report.recommendations.documentsChecklist ?? []) {
-    drawText("• " + safe(d), dx2, dy2, 10, false, COLORS.ink);
-    dy2 -= 16;
-  }
-
-  // transparency
-  const tCard = card(110);
-  const tx = tCard.x + 18;
-  const tTop = tCard.yTop - 18;
-
-  drawText("Transparency", tx, tTop, 12, true, COLORS.ink);
-  drawText(
-    `Matched rules: ${report.transparency.matchedRules.length}   ·   Unmatched rules: ${report.transparency.unmatchedRulesCount}   ·   Score delta sum: ${report.transparency.scoreDeltaSum}`,
-    tx,
-    tTop - 20,
-    10,
-    false,
-    COLORS.sub
-  );
-
-  let ty = tTop - 44;
-  const mr = report.transparency.matchedRules ?? [];
-  for (let i = 0; i < Math.min(mr.length, 3); i++) {
-    const r = mr[i];
-    const line =
-      r.flag && String(r.flag).trim()
-        ? `${safe(r.flag)} (delta ${Number(r.delta ?? 0)})`
-        : `${safe(r.ruleId)} (delta ${Number(r.delta ?? 0)})`;
-
-    drawText("• " + line, tx, ty, 10, false, COLORS.ink);
-    ty -= 16;
-  }
-
-  return await pdfDoc.save();
+  newPage();
+  section("06", "Document preparation");
+  paragraph("Use this as a starting checklist for a broker review. The final requirements depend on the lender, vessel and ownership structure.");
+  report.recommendations.documentsChecklist.forEach((entry, i) => item(String(i + 1).padStart(2, "0"), entry));
+  section("07", "How to read this assessment");
+  paragraph("This is an indicative, rules-based readiness assessment using the supplied information. It is not a credit approval, finance offer, valuation or guarantee of terms. The readiness score is not a probability of approval. Confirm the information and currency before using this report for a financing decision.");
+  item("Assessment rules", report.meta.ruleSetVersion);
+  item("Engine", report.meta.engineVersion ?? "Not recorded");
+  item("Matched / unmatched", `${report.transparency.matchedRules.length} / ${report.transparency.unmatchedRulesCount}`);
+  item(detail ? "Component points" : "Net score adjustment", String(report.transparency.scoreDeltaSum));
+  paragraph(detail ? "Component points are added from zero, with a cap of 49 when the cash or repayment plan has a shortfall. This model has not been calibrated against lender outcomes." : "The engine applies rule adjustments to its starting score and caps the final result between 0 and 100. The entries below show the recorded matched rules.", 9);
+  for (const rule of report.transparency.matchedRules) item(`${rule.delta > 0 ? "+" : ""}${rule.delta} points`, pretty(rule.flag ?? rule.ruleId));
+  const pages = doc.getPages();
+  pages.forEach((p, i) => {
+    p.drawText("WAAZA  /  Indicative assessment", { x: margin, y: 32, size: 8, font: regular, color: muted });
+    p.drawText(`${i + 1} / ${pages.length}`, { x: A4.w - margin - 30, y: 32, size: 8, font: regular, color: muted });
+  });
+  return doc.save();
 }

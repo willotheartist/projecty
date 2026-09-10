@@ -50,6 +50,14 @@ export type AssessmentResult = {
 };
 
 export type WizardAnswers = {
+  requestedLoan?: number | null;
+  financeTermYears?: number;
+  planningRatePct?: number;
+  monthlySurplus?: number | null;
+  closingCosts?: number | null;
+  monthlyOwnershipCosts?: number | null;
+  documentsReadiness?: "ready" | "partial" | "not_started";
+  vesselReadiness?: "verified" | "pending" | "not_started";
   currency: Currency;
 
   purchasePrice: number | null;
