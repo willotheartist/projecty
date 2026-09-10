@@ -1,4 +1,5 @@
 // app/api/wizard/assess/route.ts
+import { validateReadiness } from "@/lib/engine/readiness";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { runAssessment } from "@/lib/engine/runAssessment";
@@ -54,8 +55,24 @@ export async function POST(req: Request) {
     if (!Number.isInteger(yearBuilt) || yearBuilt < 1950 || yearBuilt > new Date().getFullYear() + 1) {
       return NextResponse.json({ ok: false, error: "Missing/invalid yearBuilt" }, { status: 400 });
     }
-    if (!Number.isFinite(liquidityAvailable) || liquidityAvailable <= 0) {
+    if (!Number.isFinite(liquidityAvailable) || liquidityAvailable < 0) {
       return NextResponse.json({ ok: false, error: "Missing/invalid liquidityAvailable" }, { status: 400 });
+    }
+
+    const readinessInputs = {
+      currency: body.currency,
+      purchasePrice, liquidityAvailable,
+      requestedLoan: body.requestedLoan,
+      financeTermYears: body.financeTermYears,
+      planningRatePct: body.planningRatePct,
+      monthlySurplus: body.monthlySurplus,
+      closingCosts: body.closingCosts,
+      monthlyOwnershipCosts: body.monthlyOwnershipCosts,
+      documentsReadiness: body.documentsReadiness,
+      vesselReadiness: body.vesselReadiness,
+    };
+    if (!validateReadiness(readinessInputs)) {
+      return NextResponse.json({ ok: false, error: "Please complete the financing plan, monthly budget and document questions.", code: "INCOMPLETE_PLAN" }, { status: 400 });
     }
 
     // ── Resolve actor: logged-in user OR fallback to system user ──
@@ -113,6 +130,8 @@ export async function POST(req: Request) {
       clientId: client.id,
       vesselId: vessel.id,
       actorEmail,
+      readinessInputs,
+      wizardAnswers: body,
       currency: body.currency === "USD" ? "USD" : "EUR",
     });
 

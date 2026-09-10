@@ -1,3 +1,4 @@
+import type { ReadinessDetail } from "../engine/readiness";
 // lib/report/buildReport.ts
 
 export type Hit = {
@@ -15,6 +16,7 @@ export type PrettyRiskFlag = {
 };
 
 type Report = {
+  readiness?: ReadinessDetail;
   currency?: "EUR" | "USD";
   meta: {
     assessmentId?: string;
@@ -174,6 +176,7 @@ function normalizeRiskFlags(input: unknown): { raw: string[]; pretty: PrettyRisk
 }
 
 export function buildReport(input: {
+  readiness?: ReadinessDetail;
   currency?: "EUR" | "USD";
   assessmentId?: string;
   assessmentRunId?: string;
@@ -276,6 +279,7 @@ export function buildReport(input: {
       : `Triggered ${normalized.raw.length} risk flag(s) that may reduce lender appetite or tighten terms.`;
 
   return {
+    readiness: input.readiness,
     currency: input.currency,
     meta: {
       assessmentId,
@@ -285,15 +289,15 @@ export function buildReport(input: {
       engineVersion: engineVersion ? String(engineVersion) : undefined,
     },
     headline: {
-      title,
-      subtitle,
+      title: input.readiness ? "Your financing preparation" : title,
+      subtitle: input.readiness ? "A review of your plan and self-reported evidence." : subtitle,
       readinessScore: clamp(Math.round(Number(readinessScore ?? 0)), 0, 100),
       tier,
       ltvBand: {
         min: clamp(Math.round(Number(ltvBand?.min ?? 0)), 0, 100),
         max: clamp(Math.round(Number(ltvBand?.max ?? 0)), 0, 100),
       },
-      explainer,
+      explainer: input.readiness ? "A preparation score based on your financial plan and reported evidence. It is not a credit score or a probability of finance approval." : explainer,
     },
     parties: {
       buyer,
@@ -306,7 +310,7 @@ export function buildReport(input: {
     },
     recommendations: {
       recommendedPath: String(recommendedPath ?? ""),
-      nextSteps,
+      nextSteps: input.readiness ? [...input.readiness.factors].sort((a,b) => (b.max-b.points)-(a.max-a.points)).map(f => f.action) : nextSteps,
       documentsChecklist,
     },
     transparency: {

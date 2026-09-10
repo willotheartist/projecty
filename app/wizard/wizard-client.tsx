@@ -1,6 +1,8 @@
 // app/wizard/wizard-client.tsx
 "use client";
 
+import { ReadinessBreakdown } from "./readiness-breakdown";
+import type { ReadinessDetail } from "@/lib/engine/readiness";
 import React, { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { defaultAnswers } from "@/lib/wizard/defaults";
@@ -23,6 +25,10 @@ type StepId =
   | "ownership_intent"
   | "risk_flags"
   | "proceed_timeline"
+  | "finance_plan"
+  | "monthly_budget"
+  | "documents"
+  | "vessel_checks"
   | "results";
 
 type Step = {
@@ -45,12 +51,12 @@ const STEPS: Step[] = [
   {
     id: "usage_intent",
     title: "Is this purchase primarily for:",
-    hint: "This affects structuring complexity and VAT sensitivity.",
+    hint: "This guides the professional review of ownership and use; charter use does not automatically lose points.",
   },
   {
     id: "year_built",
     title: "What is the year of build of the vessel?",
-    hint: "Vessel age impacts lender appetite and LTV limits.",
+    hint: "Used as context for the vessel review; we do not subtract points simply because a yacht is older.",
   },
   {
     id: "vessel_condition",
@@ -68,19 +74,9 @@ const STEPS: Step[] = [
     hint: "Cash or near-cash assets available within 30–60 days.",
   },
   {
-    id: "liquidity_held",
-    title: "Is the liquidity held:",
-    hint: "This helps anticipate documentation and structure requirements.",
-  },
-  {
     id: "income_type",
     title: "Primary income source:",
-    hint: "We use this to estimate income stability at a high level.",
-  },
-  {
-    id: "net_worth_band",
-    title: "Net worth band:",
-    hint: "This stays high-level — no exact numbers required.",
+    hint: "This guides the income evidence to prepare. Business owners are not automatically scored lower.",
   },
   {
     id: "tax_residency_country",
@@ -88,25 +84,14 @@ const STEPS: Step[] = [
     hint: "Jurisdiction influences structuring routes and lender policies.",
   },
   {
-    id: "tax_resident_eu",
-    title: "Are you currently tax resident in the EU?",
-    hint: "If multiple jurisdictions, select 'Multiple'.",
-  },
-  {
     id: "ownership_intent",
     title: "Intended ownership structure:",
     hint: "'Not sure' is common — we'll still produce a valid output.",
   },
-  {
-    id: "risk_flags",
-    title: "Do any of the following apply?",
-    hint: "Optional — selecting these improves accuracy and reduces surprises later.",
-  },
-  {
-    id: "proceed_timeline",
-    title: "How soon do you intend to proceed?",
-    hint: "This helps set expectations on readiness and next steps.",
-  },
+  { id: "finance_plan", title: "How would you like to finance this purchase?", hint: "Set a planning scenario. The rate and term below are editable assumptions, not a lender quote." },
+  { id: "monthly_budget", title: "What monthly budget can support the yacht?", hint: "Use the same currency as the purchase. Estimates are fine; include existing debts and living costs when working out your surplus." },
+  { id: "documents", title: "How ready is your buyer evidence pack?", hint: "Identity, address, source of funds, income evidence and a schedule of assets and existing debts. Business income is assessed through its evidence, not penalised automatically." },
+  { id: "vessel_checks", title: "How far along are the vessel and ownership checks?", hint: "Survey or new-build review, valuation, title, ownership structure, flag and intended use. Choose professionally reviewed only when those checks have actually happened." },
   { id: "results", title: "Financing Readiness Summary" },
 ];
 
@@ -128,6 +113,7 @@ type EngineHit = {
 };
 
 type EngineResult = {
+  readiness?: ReadinessDetail;
   assessmentId: string;
   assessmentRunId: string;
   ruleSetVersion: string;
@@ -262,7 +248,7 @@ export default function WizardClient() {
         const json = jsonUnknown as EngineAssessResponse;
 
         if (!res.ok || !json.ok || !json.result) {
-          setError("We couldn’t complete your assessment. Your answers are still here. Please try again shortly.");
+          setError(res.status === 400 ? "Please go back and complete the financing plan and budget questions." : "We couldn’t complete your assessment. Your answers are still here. Please try again shortly.");
           setEngineRes(null);
           setIsAssessing(false);
           return;
@@ -370,6 +356,7 @@ export default function WizardClient() {
                 ) : engineRes?.ok && engineRes.result ? (
                   <ResultsView
                     engine={engineRes.result}
+                    currency={answers.currency}
                     authenticated={engineRes.authenticated ?? false}
                     assessmentId={engineRes.ids?.assessmentId}
                     onViewDashboard={() => {
@@ -449,7 +436,35 @@ function renderStep(
   clientName: string,
   setClientName: React.Dispatch<React.SetStateAction<string>>
 ) {
+  const moneyField = (label: string, key: "requestedLoan" | "closingCosts" | "monthlySurplus" | "monthlyOwnershipCosts") => (
+    <label style={{ display: "grid", gap: 8, marginBottom: 18 }}>
+      <span>{label} ({a.currency})</span>
+      <input className="input" inputMode="numeric" value={formatIntWithCommas(a[key])} placeholder="Enter an amount" onChange={(e) => setA(p => ({ ...p, [key]: parseMoney(e.target.value) }))} />
+    </label>
+  );
   switch (id) {
+    case "finance_plan":
+      return <>
+        {moneyField("Amount you want to borrow", "requestedLoan")}
+        {moneyField("Purchase taxes, fees and initial works (0 if none)", "closingCosts")}
+        <label style={{ display: "grid", gap: 8, marginBottom: 18 }}>Repayment term (years)
+          <input className="input" type="number" min="1" max="20" value={a.financeTermYears ?? ""} onChange={e => setA(p => ({ ...p, financeTermYears: Number(e.target.value) }))} />
+        </label>
+        <label style={{ display: "grid", gap: 8 }}>Planning annual interest rate (%)
+          <input className="input" type="number" min="0" max="30" step="0.25" value={a.planningRatePct ?? ""} onChange={e => setA(p => ({ ...p, planningRatePct: Number(e.target.value) }))} />
+        </label>
+        <p className="wz-hint">We model a fully repaying loan, with no balloon. We also test the payment at 2 percentage points above your entered rate.</p>
+      </>;
+    case "monthly_budget":
+      return <>
+        {moneyField("Monthly yacht running costs, excluding the new loan", "monthlyOwnershipCosts")}
+        {moneyField("Monthly surplus left for the new loan, after tax, living costs, existing debt payments AND yacht running costs", "monthlySurplus")}
+        <p className="wz-hint">Include insurance, maintenance, mooring and crew where relevant. Enter 0 surplus if no recurring income is available; assets alone do not demonstrate repayment capacity.</p>
+      </>;
+    case "documents":
+      return <OptionList activeKey={a.documentsReadiness ?? ""} options={[{key:"ready",label:"Complete and ready to share"},{key:"partial",label:"Some documents ready; gathering the rest"},{key:"not_started",label:"Not started yet"}]} onSelect={key => nextWithPatch({documentsReadiness:key as WizardAnswers["documentsReadiness"]})} />;
+    case "vessel_checks":
+      return <OptionList activeKey={a.vesselReadiness ?? ""} options={[{key:"verified",label:"Professionally reviewed; supporting evidence available"},{key:"pending",label:"Checks underway, with items outstanding"},{key:"not_started",label:"Not started / vessel not selected yet"}]} onSelect={key => nextWithPatch({vesselReadiness:key as WizardAnswers["vesselReadiness"]})} />;
     case "client_name":
       return (
         <input
@@ -759,14 +774,15 @@ function OptionList(props: {
 
 function ResultsView(props: {
   engine: EngineResult;
+  currency: string;
   authenticated: boolean;
   assessmentId?: string;
   onViewDashboard: () => void;
 }) {
   const { engine, authenticated, onViewDashboard } = props;
 
-  const tierLabel = humanTier(engine.tier);
-  const meaning = scoreMeaning(engine.readinessScore);
+  const tierLabel = engine.readiness ? (engine.readinessScore >= 80 ? "Well prepared for review" : engine.readinessScore >= 50 ? "Preparation gaps to resolve" : "Plan needs work") : humanTier(engine.tier);
+  const meaning = engine.readiness ? "A preparation score based on your financial plan and reported evidence. It is not a credit score or an approval probability." : scoreMeaning(engine.readinessScore);
 
   const prettyFlags = buildPrettyFlags(engine.riskFlags, engine.hits);
 
@@ -777,9 +793,9 @@ function ResultsView(props: {
         <div className="tier">{tierLabel}</div>
 
         <div style={{ marginTop: 14, color: "rgba(0,0,0,0.62)", fontSize: 14 }}>
-          Indicative LTV:{" "}
+          {engine.readiness ? "Requested loan-to-price: " : "Indicative LTV: "}
           <strong>
-            {engine.ltv.min}%–{engine.ltv.max}%
+            {engine.readiness ? `${engine.readiness.requestedLtv}%` : `${engine.ltv.min}%–${engine.ltv.max}%`}
           </strong>
         </div>
 
@@ -839,11 +855,12 @@ function ResultsView(props: {
         )}
       </div>
 
+      {engine.readiness && <ReadinessBreakdown detail={engine.readiness} currency={props.currency} />}
       <div className="panel" style={{ gridColumn: "1 / -1" }}>
         <div style={{ fontSize: 14, color: "rgba(0,0,0,0.62)" }}>Key risk flags</div>
 
         {prettyFlags.length === 0 ? (
-          <div style={{ marginTop: 10, color: "rgba(0,0,0,0.55)" }}>No major flags triggered.</div>
+          <div style={{ marginTop: 10, color: "rgba(0,0,0,0.55)" }}>No cash or repayment shortfall detected. Review the component breakdown and evidence before proceeding.</div>
         ) : (
           <div className="flagList">
             {prettyFlags.map((f, i) => (
@@ -865,6 +882,18 @@ function validateStep(
   clientName: string
 ): { ok: true } | { ok: false; message: string } {
   switch (id) {
+    case "finance_plan":
+      if (a.requestedLoan == null || !Number.isFinite(a.requestedLoan) || a.requestedLoan <= 0 || a.requestedLoan > (a.purchasePrice ?? 0)) return {ok:false,message:"Enter a loan amount above zero and no greater than the purchase price."};
+      if (a.closingCosts == null || !Number.isFinite(a.closingCosts) || a.closingCosts < 0) return {ok:false,message:"Enter estimated purchase costs, including taxes and fees (0 if none)."};
+      if (!Number.isInteger(a.financeTermYears) || a.financeTermYears! < 1 || a.financeTermYears! > 20 || a.planningRatePct == null || !Number.isFinite(a.planningRatePct) || a.planningRatePct < 0 || a.planningRatePct > 30) return {ok:false,message:"Use a term of 1–20 years and a planning rate of 0–30%."};
+      return {ok:true};
+    case "monthly_budget":
+      if (a.monthlyOwnershipCosts == null || !Number.isFinite(a.monthlyOwnershipCosts) || a.monthlyOwnershipCosts <= 0 || a.monthlySurplus == null || !Number.isFinite(a.monthlySurplus) || a.monthlySurplus < 0) return {ok:false,message:"Enter positive monthly running costs and a monthly surplus of zero or more."};
+      return {ok:true};
+    case "documents":
+      return a.documentsReadiness ? {ok:true} : {ok:false,message:"Select the status of your buyer documents."};
+    case "vessel_checks":
+      return a.vesselReadiness ? {ok:true} : {ok:false,message:"Select the status of the vessel checks."};
     case "client_name":
       if (!clientName.trim())
         return { ok: false, message: "Please enter a buyer name or reference." };
@@ -891,7 +920,7 @@ function validateStep(
       }
       return { ok: true };
     case "liquidity_available":
-      if (!a.liquidityAvailable || a.liquidityAvailable <= 0)
+      if (a.liquidityAvailable == null || !Number.isFinite(a.liquidityAvailable) || a.liquidityAvailable < 0)
         return { ok: false, message: "Please enter available liquidity." };
       return { ok: true };
     case "liquidity_held":

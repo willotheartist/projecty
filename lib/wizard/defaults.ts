@@ -3,6 +3,8 @@ import { WizardAnswers } from "./types";
 
 export const defaultAnswers: WizardAnswers = {
   currency: "EUR",
+  financeTermYears: 10,
+  planningRatePct: 8,
 
   purchasePrice: null,
   usageIntent: null,
